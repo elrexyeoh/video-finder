@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Video Finder</title>
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --text:#16181d; --muted:#667085; --line:#e4e7ec; --accent:#2f5bea; --accent-soft:#e8eeff; --ok:#12b76a; --warn:#f79009; --bad:#d92d20; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0f1115; --card:#181b21; --text:#eef0f3; --muted:#98a2b3; --line:#2a2f38; --accent:#6d8cff; --accent-soft:#1e2640; } }
+  * { box-sizing:border-box }
+  body { margin:0; background:var(--bg); color:var(--text); font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif }
+  header { position:sticky; top:0; z-index:5; background:var(--card); border-bottom:1px solid var(--line) }
+  .bar { max-width:1200px; margin:0 auto; padding:10px 16px; display:flex; align-items:center; gap:16px; flex-wrap:wrap }
+  .brand { font-weight:700; font-size:17px; white-space:nowrap }
+  nav { display:flex; gap:4px } nav button { border:0; background:none; color:var(--muted); font:inherit; padding:6px 12px; border-radius:8px; cursor:pointer }
+  nav button.on { background:var(--accent-soft); color:var(--accent); font-weight:600 }
+  .who { margin-left:auto; color:var(--muted); font-size:13px } .who a { color:var(--muted) }
+  main { max-width:1200px; margin:0 auto; padding:20px 16px 60px }
+  .search { display:flex; gap:8px; margin-bottom:8px }
+  .search input { flex:1; min-width:0; padding:13px 16px; font:inherit; font-size:16px; border:1px solid var(--line); border-radius:12px; background:var(--card); color:var(--text) }
+  .search button, .btn { padding:0 20px; border:0; border-radius:12px; background:var(--accent); color:#fff; font:inherit; font-weight:600; cursor:pointer }
+  .hint { color:var(--muted); font-size:13px; margin-bottom:20px }
+  .hint a { color:var(--accent); cursor:pointer; text-decoration:none }
+  .result { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px; margin-bottom:12px }
+  .rhead { display:flex; align-items:center; gap:10px; margin-bottom:10px; flex-wrap:wrap }
+  .rname { font-weight:600; word-break:break-all }
+  .pill { font-size:12px; padding:2px 8px; border-radius:99px; background:var(--accent-soft); color:var(--accent); font-weight:600; white-space:nowrap }
+  .meta { color:var(--muted); font-size:13px }
+  .frames { display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:8px }
+  .frame { position:relative; cursor:pointer; border-radius:8px; overflow:hidden; background:#000; aspect-ratio:16/9 }
+  .frame img { width:100%; height:100%; object-fit:cover; display:block; transition:transform .15s }
+  .frame:hover img { transform:scale(1.04) }
+  .frame span { position:absolute; left:6px; bottom:6px; background:rgba(0,0,0,.7); color:#fff; font-size:12px; padding:1px 6px; border-radius:4px }
+  .empty { text-align:center; color:var(--muted); padding:60px 16px }
+  .drop { border:2px dashed var(--line); border-radius:14px; padding:40px 16px; text-align:center; background:var(--card); cursor:pointer }
+  .drop.over { border-color:var(--accent); background:var(--accent-soft) }
+  .drop b { display:block; font-size:17px; margin-bottom:4px }
+  .uplist { margin-top:16px }
+  .up { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--line); font-size:14px }
+  .up .n { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+  .prog { width:120px; height:6px; background:var(--line); border-radius:99px; overflow:hidden; flex:none }
+  .prog i { display:block; height:100%; background:var(--accent); width:0 }
+  .lib { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:12px }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; overflow:hidden }
+  .card .cov { aspect-ratio:16/9; background:#000 center/cover; cursor:pointer }
+  .card .body { padding:10px 12px }
+  .card .t { font-weight:600; font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+  .card .row { display:flex; justify-content:space-between; align-items:center; margin-top:4px }
+  .st { font-size:12px; font-weight:600 } .st.ready{color:var(--ok)} .st.error{color:var(--bad)} .st.queued,.st.indexing,.st.converting{color:var(--warn)}
+  .del { border:0; background:none; color:var(--muted); cursor:pointer; font-size:13px } .del:hover { color:var(--bad) }
+  .libtop { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; gap:12px; flex-wrap:wrap }
+  .libtop input { padding:8px 12px; border:1px solid var(--line); border-radius:8px; background:var(--card); color:var(--text); font:inherit }
+  dialog { border:0; padding:0; border-radius:14px; width:min(960px,96vw); background:var(--card); color:var(--text) }
+  dialog::backdrop { background:rgba(0,0,0,.7) }
+  dialog video { width:100%; max-height:70vh; display:block; background:#000 }
+  .dlg { padding:12px 14px; display:flex; gap:12px; align-items:center; flex-wrap:wrap }
+  .dlg .rname { flex:1 } .dlg a, .dlg button { font-size:14px; color:var(--accent); background:none; border:0; cursor:pointer; text-decoration:none; font:inherit }
+  .jumps { display:flex; gap:6px; flex-wrap:wrap; padding:0 14px 14px } .jumps button { border:1px solid var(--line); background:var(--bg); color:var(--text); border-radius:6px; padding:2px 8px; cursor:pointer; font-size:13px }
+  .hidden { display:none !important }
+  @media (max-width:560px) { .frames { grid-template-columns:repeat(2,1fr) } .who { width:100%; margin:0 } }
+</style>
+</head>
+<body>
+<header><div class="bar">
+  <div class="brand">🎬 Video Finder</div>
+  <nav>
+    <button data-tab="search" class="on">Search</button>
+    <button data-tab="upload">Upload</button>
+    <button data-tab="library">Library</button>
+  </nav>
+  <div class="who">{% if name %}Signed in as {{ name }} · {% endif %}<a href="/logout">Sign out</a></div>
+</div></header>
+
+<main>
+  <section id="tab-search">
+    <form class="search" id="sform">
+      <input id="q" placeholder="Describe what's in the video, e.g. blue sofa bed with flower pattern" autocomplete="off" autofocus>
+      <button>Search</button>
+    </form>
+    <div class="hint">Describe what you see on screen (objects, colours, places, people). Works in English, Bahasa Melayu, 中文 and more.
+      Try: <a>blue velvet sofa bed with floral pattern</a> · <a>person talking to camera in an office</a> · <a>aerial shot of a city at night</a></div>
+    <div id="results"></div>
+  </section>
+
+  <section id="tab-upload" class="hidden">
+    <label class="drop" id="drop">
+      <b>Drop videos here or click to choose</b>
+      <span class="meta">Any video format: MP4, MOV, AVI, MKV, WMV, iPhone videos and more. You can pick hundreds at once.</span>
+      <input type="file" id="files" accept="video/*,.mkv,.avi,.wmv,.flv,.mts,.m2ts,.ts,.vob,.mxf" multiple hidden>
+    </label>
+    <div class="uplist" id="uplist"></div>
+  </section>
+
+  <section id="tab-library" class="hidden">
+    <div class="libtop"><div id="libstats" class="meta"></div><input id="libfilter" placeholder="Filter by file name"></div>
+    <div class="lib" id="lib"></div>
+  </section>
+</main>
+
+<dialog id="player">
+  <video id="vid" controls playsinline preload="metadata"></video>
+  <div class="dlg"><div class="rname" id="pname"></div><a id="pdl">Download</a><button id="pclose">Close</button></div>
+  <div class="jumps" id="jumps"></div>
+</dialog>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtT = s => { s = Math.max(0, Math.round(s)); const h = Math.floor(s/3600), m = Math.floor(s%3600/60), x = String(s%60).padStart(2,'0'); return h ? `${h}:${String(m).padStart(2,'0')}:${x}` : `${m}:${x}`; };
+const fmtSize = b => b > 1e9 ? (b/1e9).toFixed(1)+' GB' : (b/1e6).toFixed(1)+' MB';
+async function api(url, opts) { const r = await fetch(url, opts); if (r.status === 401) location.href = '/login'; return r; }
+
+// ---- tabs ----
+document.querySelectorAll('nav button').forEach(b => b.onclick = () => show(b.dataset.tab));
+function show(tab) {
+  document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
+  ['search','upload','library'].forEach(t => $('#tab-'+t).classList.toggle('hidden', t !== tab));
+  if (tab === 'library') loadLib();
+}
+
+// ---- player ----
+function play(id, name, t, frames) {
+  const v = $('#vid');
+  v.src = `/media/${id}`;
+  v.onloadedmetadata = () => { v.currentTime = t || 0; v.play().catch(()=>{}); };
+  $('#pname').textContent = name;
+  $('#pdl').href = `/media/${id}?download=1`;
+  $('#jumps').innerHTML = (frames || []).map(f => `<button data-t="${f.t}">▶ ${fmtT(f.t)}</button>`).join('');
+  $('#jumps').querySelectorAll('button').forEach(b => b.onclick = () => { v.currentTime = +b.dataset.t; v.play(); });
+  $('#player').showModal();
+}
+$('#pclose').onclick = () => $('#player').close();
+$('#player').addEventListener('close', () => { const v = $('#vid'); v.pause(); v.removeAttribute('src'); v.load(); });
+
+// ---- search ----
+$('#sform').onsubmit = e => { e.preventDefault(); doSearch(); };
+document.querySelectorAll('.hint a').forEach(a => a.onclick = () => { $('#q').value = a.textContent; doSearch(); });
+let lastResults = [];
+async function doSearch() {
+  const q = $('#q').value.trim(); if (!q) return;
+  $('#results').innerHTML = '<div class="empty">Searching…</div>';
+  const r = await api('/api/search?q=' + encodeURIComponent(q));
+  const data = await r.json(); lastResults = data;
+  if (!data.length) { $('#results').innerHTML = '<div class="empty">No matching videos. Try describing it differently, or upload videos on the Upload tab.</div>'; return; }
+  $('#results').innerHTML = data.map((v, i) => `
+    <div class="result">
+      <div class="rhead"><span class="pill">${v.match}% match</span><span class="rname">${esc(v.filename)}</span>
+        <span class="meta">${v.duration ? fmtT(v.duration) : ''}${v.uploaded_by ? ' · uploaded by ' + esc(v.uploaded_by) : ''}</span></div>
+      <div class="frames">${v.frames.map(f => `<div class="frame" data-i="${i}" data-t="${f.t}"><img loading="lazy" src="/thumb/${f.frame_id}" alt=""><span>▶ ${fmtT(f.t)}</span></div>`).join('')}</div>
+    </div>`).join('');
+  $('#results').querySelectorAll('.frame').forEach(el => el.onclick = () => {
+    const v = lastResults[+el.dataset.i]; play(v.id, v.filename, +el.dataset.t, v.frames);
+  });
+}
+
+// ---- upload ----
+const drop = $('#drop'), queue = []; let active = 0; const MAX_PARALLEL = 3;
+$('#files').onchange = e => { addFiles(e.target.files); e.target.value = ''; };
+['dragenter','dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
+['dragleave','drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
+drop.addEventListener('drop', e => addFiles(e.dataTransfer.files));
+function addFiles(list) {
+  for (const f of list) {
+    const row = document.createElement('div'); row.className = 'up';
+    row.innerHTML = `<div class="n">${esc(f.name)}</div><span class="meta">${fmtSize(f.size)}</span><div class="prog"><i></i></div><span class="meta s">waiting</span>`;
+    $('#uplist').prepend(row); queue.push({ f, row });
+  }
+  pump();
+}
+function pump() {
+  while (active < MAX_PARALLEL && queue.length) {
+    const { f, row } = queue.shift(); active++;
+    const xhr = new XMLHttpRequest(), fd = new FormData(); fd.append('file', f);
+    xhr.open('POST', '/api/upload');
+    xhr.upload.onprogress = e => { if (e.lengthComputable) { row.querySelector('i').style.width = (100*e.loaded/e.total)+'%'; row.querySelector('.s').textContent = Math.round(100*e.loaded/e.total)+'%'; } };
+    xhr.onload = () => {
+      let msg = 'uploaded ✓ (indexing)';
+      if (xhr.status === 401) location.href = '/login';
+      if (xhr.status !== 200) { try { msg = '✗ ' + JSON.parse(xhr.responseText).error; } catch { msg = '✗ failed (' + xhr.status + ')'; } }
+      row.querySelector('.s').textContent = msg; active--; pump();
+    };
+    xhr.onerror = () => { row.querySelector('.s').textContent = '✗ network error'; active--; pump(); };
+    xhr.send(fd);
+  }
+}
+
+// ---- library ----
+let libTimer = null, libData = [];
+async function loadLib() {
+  clearTimeout(libTimer);
+  const r = await api('/api/videos'); libData = await r.json(); renderLib();
+  if (libData.some(v => !['ready','error'].includes(v.status)) && !$('#tab-library').classList.contains('hidden')) libTimer = setTimeout(loadLib, 3000);
+}
+$('#libfilter').oninput = renderLib;
+function renderLib() {
+  const f = $('#libfilter').value.toLowerCase();
+  const ready = libData.filter(v => v.status === 'ready').length;
+  const total = libData.reduce((a, v) => a + (v.size || 0), 0);
+  $('#libstats').textContent = `${libData.length} videos · ${ready} searchable · ${fmtSize(total)}`;
+  const label = v => v.status === 'ready' ? 'Searchable' : v.status === 'error' ? 'Error: ' + (v.error || '') :
+    v.status === 'converting' ? 'Converting for web…' : v.status === 'indexing' ? `Indexing ${Math.round(100*(v.progress||0))}%` : 'Waiting in line';
+  $('#lib').innerHTML = libData.filter(v => v.filename.toLowerCase().includes(f)).map(v => `
+    <div class="card">
+      <div class="cov" data-id="${v.id}" style="${v.cover ? `background-image:url(/thumb/${v.cover})` : ''}"></div>
+      <div class="body"><div class="t" title="${esc(v.filename)}">${esc(v.filename)}</div>
+        <div class="row"><span class="st ${v.status}" title="${esc(v.error || '')}">${esc(label(v))}</span><button class="del" data-id="${v.id}">Delete</button></div>
+        <div class="meta">${v.duration ? fmtT(v.duration) + ' · ' : ''}${fmtSize(v.size || 0)}${v.uploaded_by ? ' · ' + esc(v.uploaded_by) : ''}</div></div>
+    </div>`).join('') || '<div class="empty">No videos yet.</div>';
+  $('#lib').querySelectorAll('.cov').forEach(el => el.onclick = () => { const v = libData.find(x => x.id == el.dataset.id); if (v.status === 'ready') play(v.id, v.filename, 0); });
+  $('#lib').querySelectorAll('.del').forEach(el => el.onclick = async () => {
+    const v = libData.find(x => x.id == el.dataset.id);
+    if (!confirm(`Delete "${v.filename}" for everyone?`)) return;
+    const r = await api('/api/videos/' + v.id, { method: 'DELETE' });
+    if (!r.ok) alert((await r.json()).error || 'Could not delete'); loadLib();
+  });
+}
+</script>
+</body>
+</html>
