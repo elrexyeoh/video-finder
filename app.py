@@ -126,11 +126,16 @@ def delete_video(vid):
     return jsonify(ok=True)
 
 
+@app.get("/api/stats")
+def stats():
+    return jsonify(engine.stats())
+
+
 @app.get("/api/search")
 def search():
     q = (request.args.get("q") or "").strip()
     if not q:
-        return jsonify([])
+        return jsonify({"query": "", "looking_for": "", "results": [], **engine.stats()})
     return jsonify(engine.search(q[:300]))
 
 

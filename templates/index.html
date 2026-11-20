@@ -1,158 +1,509 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Video Finder</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="theme-color" content="#0B1F45">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Video Finder · TSLAW Group</title>
+<link rel="icon" href="/static/favicon.png">
+<link rel="apple-touch-icon" href="/static/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root { --bg:#f6f7f9; --card:#fff; --text:#16181d; --muted:#667085; --line:#e4e7ec; --accent:#2f5bea; --accent-soft:#e8eeff; --ok:#12b76a; --warn:#f79009; --bad:#d92d20; }
-  @media (prefers-color-scheme: dark) { :root { --bg:#0f1115; --card:#181b21; --text:#eef0f3; --muted:#98a2b3; --line:#2a2f38; --accent:#6d8cff; --accent-soft:#1e2640; } }
-  * { box-sizing:border-box }
-  body { margin:0; background:var(--bg); color:var(--text); font:15px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif }
-  header { position:sticky; top:0; z-index:5; background:var(--card); border-bottom:1px solid var(--line) }
-  .bar { max-width:1200px; margin:0 auto; padding:10px 16px; display:flex; align-items:center; gap:16px; flex-wrap:wrap }
-  .brand { font-weight:700; font-size:17px; white-space:nowrap }
-  nav { display:flex; gap:4px } nav button { border:0; background:none; color:var(--muted); font:inherit; padding:6px 12px; border-radius:8px; cursor:pointer }
-  nav button.on { background:var(--accent-soft); color:var(--accent); font-weight:600 }
-  .who { margin-left:auto; color:var(--muted); font-size:13px } .who a { color:var(--muted) }
-  main { max-width:1200px; margin:0 auto; padding:20px 16px 60px }
-  .search { display:flex; gap:8px; margin-bottom:8px }
-  .search input { flex:1; min-width:0; padding:13px 16px; font:inherit; font-size:16px; border:1px solid var(--line); border-radius:12px; background:var(--card); color:var(--text) }
-  .search button, .btn { padding:0 20px; border:0; border-radius:12px; background:var(--accent); color:#fff; font:inherit; font-weight:600; cursor:pointer }
-  .hint { color:var(--muted); font-size:13px; margin-bottom:20px }
-  .hint a { color:var(--accent); cursor:pointer; text-decoration:none }
-  .result { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px; margin-bottom:12px }
-  .rhead { display:flex; align-items:center; gap:10px; margin-bottom:10px; flex-wrap:wrap }
-  .rname { font-weight:600; word-break:break-all }
-  .pill { font-size:12px; padding:2px 8px; border-radius:99px; background:var(--accent-soft); color:var(--accent); font-weight:600; white-space:nowrap }
-  .meta { color:var(--muted); font-size:13px }
-  .frames { display:grid; grid-template-columns:repeat(auto-fill,minmax(170px,1fr)); gap:8px }
-  .frame { position:relative; cursor:pointer; border-radius:8px; overflow:hidden; background:#000; aspect-ratio:16/9 }
-  .frame img { width:100%; height:100%; object-fit:cover; display:block; transition:transform .15s }
-  .frame:hover img { transform:scale(1.04) }
-  .frame span { position:absolute; left:6px; bottom:6px; background:rgba(0,0,0,.7); color:#fff; font-size:12px; padding:1px 6px; border-radius:4px }
-  .empty { text-align:center; color:var(--muted); padding:60px 16px }
-  .drop { border:2px dashed var(--line); border-radius:14px; padding:40px 16px; text-align:center; background:var(--card); cursor:pointer }
-  .drop.over { border-color:var(--accent); background:var(--accent-soft) }
-  .drop b { display:block; font-size:17px; margin-bottom:4px }
-  .uplist { margin-top:16px }
-  .up { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--line); font-size:14px }
-  .up .n { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
-  .prog { width:120px; height:6px; background:var(--line); border-radius:99px; overflow:hidden; flex:none }
-  .prog i { display:block; height:100%; background:var(--accent); width:0 }
-  .lib { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:12px }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; overflow:hidden }
-  .card .cov { aspect-ratio:16/9; background:#000 center/cover; cursor:pointer }
-  .card .body { padding:10px 12px }
-  .card .t { font-weight:600; font-size:14px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
-  .card .row { display:flex; justify-content:space-between; align-items:center; margin-top:4px }
-  .st { font-size:12px; font-weight:600 } .st.ready{color:var(--ok)} .st.error{color:var(--bad)} .st.queued,.st.indexing,.st.converting{color:var(--warn)}
-  .del { border:0; background:none; color:var(--muted); cursor:pointer; font-size:13px } .del:hover { color:var(--bad) }
-  .libtop { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; gap:12px; flex-wrap:wrap }
-  .libtop input { padding:8px 12px; border:1px solid var(--line); border-radius:8px; background:var(--card); color:var(--text); font:inherit }
-  dialog { border:0; padding:0; border-radius:14px; width:min(960px,96vw); background:var(--card); color:var(--text) }
-  dialog::backdrop { background:rgba(0,0,0,.7) }
-  dialog video { width:100%; max-height:70vh; display:block; background:#000 }
-  .dlg { padding:12px 14px; display:flex; gap:12px; align-items:center; flex-wrap:wrap }
-  .dlg .rname { flex:1 } .dlg a, .dlg button { font-size:14px; color:var(--accent); background:none; border:0; cursor:pointer; text-decoration:none; font:inherit }
-  .jumps { display:flex; gap:6px; flex-wrap:wrap; padding:0 14px 14px } .jumps button { border:1px solid var(--line); background:var(--bg); color:var(--text); border-radius:6px; padding:2px 8px; cursor:pointer; font-size:13px }
-  .hidden { display:none !important }
-  @media (max-width:560px) { .frames { grid-template-columns:repeat(2,1fr) } .who { width:100%; margin:0 } }
+:root{
+  --navy-1000:#0B1F45; --navy-950:#0F2A5C; --navy-900:#143470; --navy-800:#1A4085; --navy-700:#2652A0;
+  --gold-300:#EAD7A4; --gold-400:#DCC080; --gold-500:#C9A961; --gold-600:#A98B47; --gold-700:#84754D;
+  --ivory:#F7F4EC; --paper:#FBFAF6; --white:#fff;
+  --ink:#0A1530; --ink-2:#3B4560; --ink-3:#6A7288;
+  --line:rgba(10,21,48,.12); --line-light:rgba(255,255,255,.14);
+  --gold-grad:linear-gradient(115deg,#9C7F3F 0%,#D9BC78 28%,#F3E2B0 46%,#C9A961 62%,#8E7238 100%);
+  --serif:"Cormorant Garamond","Times New Roman",serif;
+  --sans:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --ease:cubic-bezier(.2,.7,.1,1);
+  --top:60px; --tab:62px; --safe:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--ivory);color:var(--ink);font:15px/1.6 var(--sans);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--gold-500);outline-offset:2px}
+.hidden{display:none!important}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* ---------- top bar ---------- */
+.top{position:fixed;inset:0 0 auto;z-index:40;height:var(--top);background:rgba(11,31,69,.94);backdrop-filter:blur(14px) saturate(1.2);-webkit-backdrop-filter:blur(14px) saturate(1.2);border-bottom:1px solid var(--line-light);color:#fff}
+.top__in{height:100%;max-width:1200px;margin:0 auto;padding:0 16px;display:flex;align-items:center;gap:14px}
+.brand{display:flex;align-items:center;gap:10px;min-width:0;text-decoration:none;color:#fff}
+.brand img{height:26px;width:auto;display:block}
+.brand b{font-family:var(--serif);font-weight:600;font-size:21px;letter-spacing:.01em;white-space:nowrap;padding-left:10px;border-left:1px solid var(--line-light)}
+.brand b em{font-style:italic;color:var(--gold-400)}
+.dnav{display:none;gap:4px;margin-left:18px}
+.dnav button{background:none;border:0;color:rgba(255,255,255,.72);padding:8px 14px;border-radius:999px;font-size:14px;font-weight:600;letter-spacing:.02em}
+.dnav button[aria-current=true]{color:var(--navy-1000);background:var(--gold-grad)}
+.top__end{margin-left:auto;display:flex;align-items:center;gap:6px}
+.iconbtn{width:40px;height:40px;border-radius:50%;border:1px solid var(--line-light);background:rgba(255,255,255,.04);color:#fff;display:grid;place-items:center}
+.iconbtn svg{width:19px;height:19px}
+.who{font-size:13px;color:rgba(255,255,255,.7);display:none}
+.menu{position:absolute;right:16px;top:calc(var(--top) - 4px);background:#fff;color:var(--ink);border-radius:4px;box-shadow:0 18px 40px rgba(10,21,48,.22);min-width:200px;padding:6px;border:1px solid var(--line)}
+.menu div{padding:10px 12px;font-size:13px;color:var(--ink-3);border-bottom:1px solid var(--line);margin-bottom:4px}
+.menu a,.menu button{display:block;width:100%;text-align:left;padding:10px 12px;border:0;background:none;border-radius:4px;text-decoration:none;color:var(--ink);font-size:14px}
+.menu a:hover,.menu button:hover{background:var(--ivory)}
+
+/* ---------- bottom tab bar (phones) ---------- */
+.tabbar{position:fixed;inset:auto 0 0;z-index:40;height:calc(var(--tab) + var(--safe));padding-bottom:var(--safe);background:var(--navy-1000);display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line-light)}
+.tabbar button{background:none;border:0;color:rgba(255,255,255,.55);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+.tabbar svg{width:22px;height:22px}
+.tabbar button[aria-current=true]{color:var(--gold-400)}
+
+main{padding-top:var(--top);min-height:100dvh}
+.view{max-width:900px;margin:0 auto;padding:20px 16px calc(var(--tab) + var(--safe) + 24px)}
+
+/* ---------- assistant / search ---------- */
+#view-search{padding-bottom:calc(var(--tab) + var(--safe) + 108px)}
+.hero{padding:6vh 0 8px;text-align:left}
+.eyebrow{display:flex;align-items:center;gap:12px;margin:0 0 16px;font-size:11.5px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-700)}
+.eyebrow::before{content:"";width:28px;height:1px;background:var(--gold-500)}
+.hero h1{font-family:var(--serif);font-weight:500;font-size:clamp(34px,8.5vw,60px);line-height:1.04;letter-spacing:-.01em;margin:0}
+.hero h1 em{color:var(--gold-700);font-style:italic}
+.hero p{color:var(--ink-2);margin:16px 0 0;max-width:560px;font-size:16px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.chip{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:9px 14px;font-size:13.5px;color:var(--ink-2);text-align:left;transition:border-color .3s var(--ease),background .3s}
+.chip:hover{border-color:var(--gold-500);background:#fff}
+.chip svg{width:13px;height:13px;vertical-align:-2px;margin-right:6px;color:var(--gold-600)}
+
+.thread{display:flex;flex-direction:column;gap:18px;margin-top:8px}
+.msg-user{align-self:flex-end;max-width:85%;background:var(--navy-950);color:#fff;padding:11px 16px;border-radius:18px 18px 4px 18px;font-size:15px;word-wrap:break-word}
+.msg-user svg{width:13px;height:13px;vertical-align:-1px;margin-right:6px;color:var(--gold-400)}
+.msg-ai{display:flex;gap:12px;align-items:flex-start}
+.avatar{flex:none;width:34px;height:34px;border-radius:50%;background:var(--gold-grad);display:grid;place-items:center;color:var(--navy-1000);box-shadow:0 4px 12px rgba(169,139,71,.3)}
+.avatar svg{width:17px;height:17px}
+.ai-body{flex:1;min-width:0}
+.ai-text{font-size:15.5px;color:var(--ink);padding-top:5px}
+.ai-text b{font-weight:700}
+.ai-text em{font-style:normal;color:var(--gold-700);font-weight:600}
+.ai-sub{font-size:13px;color:var(--ink-3);margin-top:4px}
+.thinking{display:flex;align-items:center;gap:10px;color:var(--ink-2);padding-top:6px}
+.dots{display:inline-flex;gap:4px}.dots i{width:6px;height:6px;border-radius:50%;background:var(--gold-500);animation:blink 1.2s infinite both}
+.dots i:nth-child(2){animation-delay:.2s}.dots i:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.25;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}
+.scanbar{height:2px;margin-top:10px;background:linear-gradient(90deg,transparent,var(--gold-500),transparent);background-size:40% 100%;background-repeat:no-repeat;animation:scan 1.3s linear infinite;width:100%;max-width:280px}
+@keyframes scan{from{background-position:-40% 0}to{background-position:140% 0}}
+
+.cards{display:grid;grid-template-columns:1fr;gap:14px;margin-top:14px}
+.vcard{background:#fff;border:1px solid var(--line);border-radius:4px;overflow:hidden;animation:rise .5s var(--ease) both}
+@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.vcard__media{position:relative;display:block;width:100%;aspect-ratio:16/9;border:0;padding:0;background:var(--navy-1000);overflow:hidden}
+.vcard__media img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .6s var(--ease)}
+.vcard__media:hover img{transform:scale(1.03)}
+.vcard__media .play{position:absolute;inset:0;margin:auto;width:54px;height:54px;border-radius:50%;background:rgba(11,31,69,.6);backdrop-filter:blur(4px);display:grid;place-items:center;color:#fff;border:1px solid rgba(255,255,255,.35)}
+.vcard__media .play svg{width:20px;height:20px;margin-left:3px}
+.tstamp{position:absolute;left:10px;bottom:10px;background:rgba(11,31,69,.82);color:#fff;font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;letter-spacing:.02em}
+.badge{position:absolute;left:10px;top:10px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:4px 10px;border-radius:999px}
+.badge.strong{background:var(--gold-grad);color:var(--navy-1000)}
+.badge.possible{background:rgba(255,255,255,.9);color:var(--ink-2)}
+.vcard__body{padding:12px 14px 14px}
+.vcard h3{margin:0;font-size:15px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.meta{font-size:12.5px;color:var(--ink-3)}
+.moments{display:flex;gap:8px;margin-top:10px;overflow-x:auto;scrollbar-width:none}
+.moments::-webkit-scrollbar{display:none}
+.moment{flex:none;width:96px;border:1px solid var(--line);background:none;padding:0;border-radius:4px;overflow:hidden;text-align:left}
+.moment img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block}
+.moment span{display:block;font-size:11.5px;font-weight:600;padding:3px 6px;color:var(--ink-2)}
+.moment.on{border-color:var(--gold-500)}
+.ai-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+
+/* ---------- composer ---------- */
+.composer{position:fixed;left:0;right:0;bottom:calc(var(--tab) + var(--safe));z-index:30;padding:10px 12px 12px;background:linear-gradient(to top,var(--ivory) 70%,rgba(247,244,236,0))}
+.composer__in{max-width:900px;margin:0 auto;display:flex;align-items:flex-end;gap:8px;background:#fff;border:1px solid var(--line);border-radius:28px;padding:6px 6px 6px 8px;box-shadow:0 10px 30px rgba(10,21,48,.10);transition:border-color .3s,box-shadow .3s}
+.composer__in:focus-within{border-color:var(--gold-500);box-shadow:0 10px 30px rgba(169,139,71,.18)}
+.lang{flex:none;height:40px;min-width:44px;padding:0 10px;border-radius:999px;border:1px solid var(--line);background:var(--paper);font-size:12px;font-weight:700;letter-spacing:.04em;color:var(--ink-2)}
+.composer textarea{flex:1;min-width:0;border:0;outline:0;resize:none;background:none;color:var(--ink);font:inherit;font-size:16px;line-height:1.4;padding:9px 4px;max-height:120px;height:40px}
+.composer textarea::placeholder{color:var(--ink-3)}
+.round{flex:none;width:44px;height:44px;border-radius:50%;border:0;display:grid;place-items:center;transition:transform .3s var(--ease)}
+.round svg{width:20px;height:20px}
+.round:active{transform:scale(.94)}
+.mic{background:var(--navy-1000);color:var(--gold-400);position:relative}
+.mic.on{background:var(--gold-grad);color:var(--navy-1000)}
+.mic.on::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid var(--gold-500);animation:ring 1.3s var(--ease) infinite}
+@keyframes ring{from{transform:scale(.85);opacity:1}to{transform:scale(1.35);opacity:0}}
+.send{background:var(--gold-grad);color:var(--navy-1000)}
+.send[disabled]{opacity:.35;cursor:default}
+.listening{max-width:900px;margin:0 auto 8px;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--ink-2);padding:0 8px}
+.wave{display:inline-flex;gap:3px;align-items:center;height:16px}
+.wave i{width:3px;background:var(--gold-600);border-radius:2px;animation:wave 1s ease-in-out infinite}
+.wave i:nth-child(1){animation-delay:0s}.wave i:nth-child(2){animation-delay:.15s}.wave i:nth-child(3){animation-delay:.3s}.wave i:nth-child(4){animation-delay:.45s}.wave i:nth-child(5){animation-delay:.6s}
+@keyframes wave{0%,100%{height:4px}50%{height:16px}}
+
+/* ---------- buttons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:42px;padding:0 20px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--ink);font-size:13.5px;font-weight:600;letter-spacing:.03em;text-decoration:none}
+.btn svg{width:16px;height:16px}
+.btn--gold{background:var(--gold-grad);border:0;color:var(--navy-1000)}
+.btn--navy{background:var(--navy-1000);border:0;color:#fff}
+
+/* ---------- upload ---------- */
+.pagehead h2{font-family:var(--serif);font-weight:500;font-size:clamp(30px,7vw,46px);line-height:1.05;margin:0}
+.pagehead h2 em{color:var(--gold-700)}
+.pagehead p{color:var(--ink-2);margin:8px 0 20px}
+.drop{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;border:1.5px dashed rgba(169,139,71,.55);border-radius:4px;background:var(--paper);padding:36px 18px;cursor:pointer;transition:background .3s,border-color .3s}
+.drop.over{background:#fff;border-color:var(--gold-500)}
+.drop .ic{width:56px;height:56px;border-radius:50%;background:var(--navy-1000);color:var(--gold-400);display:grid;place-items:center}
+.drop .ic svg{width:24px;height:24px}
+.drop b{font-size:16px}
+.uplist{margin-top:18px;background:#fff;border:1px solid var(--line);border-radius:4px}
+.uplist:empty{display:none}
+.up{display:grid;grid-template-columns:1fr auto;gap:4px 12px;padding:12px 14px;border-bottom:1px solid var(--line);font-size:14px}
+.up:last-child{border-bottom:0}
+.up .n{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.up .s{font-size:12.5px;color:var(--ink-3);text-align:right}
+.up .s.ok{color:#1d7a4a}.up .s.bad{color:#b42318}
+.prog{grid-column:1/-1;height:4px;background:var(--ivory);border-radius:99px;overflow:hidden}
+.prog i{display:block;height:100%;width:0;background:var(--gold-grad);transition:width .3s}
+
+/* ---------- library ---------- */
+.libtools{display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+.libtools input{flex:1;min-width:0;height:42px;border:1px solid var(--line);border-radius:999px;padding:0 16px;background:#fff;font:inherit;font-size:16px;color:var(--ink)}
+.stats{display:flex;gap:18px;margin:0 0 18px;flex-wrap:wrap}
+.stat b{display:block;font-size:24px;font-weight:700;line-height:1.1;letter-spacing:-.01em;color:var(--navy-950)}
+.stat span{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:700}
+.lib{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.lcard{background:#fff;border:1px solid var(--line);border-radius:4px;overflow:hidden;display:flex;flex-direction:column}
+.lcard .cov{aspect-ratio:16/9;background:var(--navy-1000) center/cover;border:0;padding:0;display:block;width:100%}
+.lcard .b{padding:9px 10px 10px;display:flex;flex-direction:column;gap:2px;flex:1}
+.lcard .t{font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lcard .row{display:flex;justify-content:space-between;align-items:center;gap:6px;margin-top:auto;padding-top:4px}
+.st{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.st.ready{color:#1d7a4a}.st.error{color:#b42318}.st.wait{color:var(--gold-700)}
+.del{border:0;background:none;color:var(--ink-3);font-size:12px;padding:4px}
+.del:hover{color:#b42318}
+.empty{text-align:center;color:var(--ink-3);padding:48px 16px}
+
+/* ---------- player ---------- */
+dialog{border:0;padding:0;margin:auto;background:var(--navy-1000);color:#fff;width:100%;max-width:100%;height:100%;max-height:100%}
+dialog::backdrop{background:rgba(5,12,30,.82)}
+.pl{display:flex;flex-direction:column;height:100%}
+.pl__top{display:flex;align-items:center;gap:10px;padding:10px 12px;padding-top:max(10px,env(safe-area-inset-top))}
+.pl__top .t{flex:1;min-width:0;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pl video{width:100%;flex:1;min-height:0;background:#000;display:block}
+.pl__bot{padding:12px 14px calc(14px + var(--safe));display:flex;flex-direction:column;gap:10px}
+.pl__bot .lbl{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-400);font-weight:700}
+.jumps{display:flex;gap:8px;overflow-x:auto}
+.jumps button{flex:none;border:1px solid var(--line-light);background:rgba(255,255,255,.06);color:#fff;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:600}
+.pl .btn{background:transparent;color:#fff;border-color:var(--line-light)}
+
+.toast{position:fixed;left:50%;top:calc(var(--top) + 12px);transform:translateX(-50%);background:var(--navy-1000);color:#fff;padding:10px 16px;border-radius:999px;font-size:13.5px;z-index:60;box-shadow:0 10px 30px rgba(0,0,0,.2);max-width:calc(100% - 32px);text-align:center}
+
+/* ---------- larger screens ---------- */
+@media (min-width:700px){
+  .cards{grid-template-columns:repeat(2,1fr)}
+  .lib{grid-template-columns:repeat(3,1fr)}
+}
+@media (min-width:900px){
+  :root{--tab:0px;--top:70px}
+  .tabbar{display:none}
+  .dnav{display:flex}
+  .who{display:block}
+  .brand img{height:30px}
+  .composer{bottom:0;padding-bottom:20px}
+  #view-search{padding-bottom:130px}
+  .lib{grid-template-columns:repeat(4,1fr)}
+  dialog{width:min(1000px,94vw);height:auto;max-height:94vh;border-radius:4px}
+  .pl video{max-height:70vh}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
-<header><div class="bar">
-  <div class="brand">🎬 Video Finder</div>
-  <nav>
-    <button data-tab="search" class="on">Search</button>
-    <button data-tab="upload">Upload</button>
-    <button data-tab="library">Library</button>
-  </nav>
-  <div class="who">{% if name %}Signed in as {{ name }} · {% endif %}<a href="/logout">Sign out</a></div>
-</div></header>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V4m0 0-4.5 4.5M12 4l4.5 4.5M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-lib" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m10 9.5 4.5 2.5-4.5 2.5z" fill="currentColor"/></symbol>
+  <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24"><path d="M5 12h13m0 0-5.5-5.5M18 12l-5.5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3c.6 4.2 2.8 6.4 7 7-4.2.6-6.4 2.8-7 7-.6-4.2-2.8-6.4-7-7 4.2-.6 6.4-2.8 7-7Z" fill="currentColor"/><path d="M19 15.5c.25 1.6 1 2.35 2.5 2.5-1.5.25-2.25 1-2.5 2.5-.25-1.5-1-2.25-2.5-2.5 1.5-.15 2.25-.9 2.5-2.5Z" fill="currentColor"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15l13-7.5z" fill="currentColor"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4 20c1.5-3.5 4.5-5 8-5s6.5 1.5 8 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-new" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.6M4 4v4h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-dl" viewBox="0 0 24 24"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M4 19h16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<header class="top">
+  <div class="top__in">
+    <a class="brand" href="/" aria-label="Video Finder home"><img src="/static/logo-light.png" alt="TSLAW Group"><b>Video <em>Finder</em></b></a>
+    <nav class="dnav" aria-label="Main">
+      <button data-view="search" aria-current="true">Ask</button>
+      <button data-view="upload">Upload</button>
+      <button data-view="library">Library</button>
+    </nav>
+    <div class="top__end">
+      <button class="iconbtn" id="newchat" title="New search" aria-label="New search"><svg><use href="#i-new"/></svg></button>
+      <span class="who">{{ name }}</span>
+      <button class="iconbtn" id="acct" aria-label="Account" aria-expanded="false"><svg><use href="#i-user"/></svg></button>
+    </div>
+  </div>
+  <div class="menu hidden" id="menu"><div>Signed in as <b>{{ name or "Guest" }}</b></div><a href="/logout">Sign out</a></div>
+</header>
 
 <main>
-  <section id="tab-search">
-    <form class="search" id="sform">
-      <input id="q" placeholder="Describe what's in the video, e.g. blue sofa bed with flower pattern" autocomplete="off" autofocus>
-      <button>Search</button>
-    </form>
-    <div class="hint">Describe what you see on screen (objects, colours, places, people). Works in English, Bahasa Melayu, 中文 and more.
-      Try: <a>blue velvet sofa bed with floral pattern</a> · <a>person talking to camera in an office</a> · <a>aerial shot of a city at night</a></div>
-    <div id="results"></div>
+  <!-- ASK / SEARCH (home) -->
+  <section class="view" id="view-search">
+    <div class="hero" id="hero">
+      <p class="eyebrow">AI video assistant</p>
+      <h1><span id="greet">Hello</span>{% if name %}, {{ name }}{% endif %}.<br><em>Which video do you need?</em></h1>
+      <p id="herosub">Describe what's in the video, or tap the microphone and just ask. I'll look through every scene and bring it to you.</p>
+      <div class="chips" id="chips"></div>
+    </div>
+    <div class="thread" id="thread" aria-live="polite"></div>
   </section>
 
-  <section id="tab-upload" class="hidden">
+  <!-- UPLOAD -->
+  <section class="view hidden" id="view-upload">
+    <div class="pagehead"><p class="eyebrow">Add to the library</p><h2>Upload <em>videos</em></h2>
+      <p>Any format works: MP4, MOV, iPhone videos, AVI, MKV and more. Each video becomes searchable a minute or two after it uploads.</p></div>
     <label class="drop" id="drop">
-      <b>Drop videos here or click to choose</b>
-      <span class="meta">Any video format: MP4, MOV, AVI, MKV, WMV, iPhone videos and more. You can pick hundreds at once.</span>
+      <span class="ic"><svg><use href="#i-upload"/></svg></span>
+      <b>Choose videos to upload</b>
+      <span class="meta">or drag and drop them here · select as many as you like</span>
       <input type="file" id="files" accept="video/*,.mkv,.avi,.wmv,.flv,.mts,.m2ts,.ts,.vob,.mxf" multiple hidden>
     </label>
     <div class="uplist" id="uplist"></div>
   </section>
 
-  <section id="tab-library" class="hidden">
-    <div class="libtop"><div id="libstats" class="meta"></div><input id="libfilter" placeholder="Filter by file name"></div>
+  <!-- LIBRARY -->
+  <section class="view hidden" id="view-library">
+    <div class="pagehead"><p class="eyebrow">Everything uploaded</p><h2>Video <em>library</em></h2></div>
+    <div class="stats" id="stats"></div>
+    <div class="libtools"><input id="libfilter" type="search" placeholder="Filter by file name" aria-label="Filter by file name"></div>
     <div class="lib" id="lib"></div>
   </section>
 </main>
 
+<form class="composer" id="composer" autocomplete="off">
+  <div class="listening hidden" id="listening"><span class="wave"><i></i><i></i><i></i><i></i><i></i></span><span id="listenTxt">Listening… speak now</span></div>
+  <div class="composer__in">
+    <button type="button" class="lang" id="lang" title="Voice language" aria-label="Voice language">EN</button>
+    <textarea id="q" rows="1" placeholder="Ask for a video…" aria-label="Describe the video you need" enterkeyhint="search"></textarea>
+    <button type="button" class="round mic" id="mic" aria-label="Search by voice"><svg><use href="#i-mic"/></svg></button>
+    <button type="submit" class="round send" id="send" aria-label="Search" disabled><svg><use href="#i-send"/></svg></button>
+  </div>
+</form>
+
+<nav class="tabbar" aria-label="Main">
+  <button data-view="search" aria-current="true"><svg><use href="#i-spark"/></svg>Ask</button>
+  <button data-view="upload"><svg><use href="#i-upload"/></svg>Upload</button>
+  <button data-view="library"><svg><use href="#i-lib"/></svg>Library</button>
+</nav>
+
 <dialog id="player">
-  <video id="vid" controls playsinline preload="metadata"></video>
-  <div class="dlg"><div class="rname" id="pname"></div><a id="pdl">Download</a><button id="pclose">Close</button></div>
-  <div class="jumps" id="jumps"></div>
+  <div class="pl">
+    <div class="pl__top"><div class="t" id="pname"></div><button class="iconbtn" id="pclose" aria-label="Close"><svg><use href="#i-x"/></svg></button></div>
+    <video id="vid" controls playsinline preload="metadata"></video>
+    <div class="pl__bot">
+      <div id="jumpwrap"><div class="lbl">Matching moments</div><div class="jumps" id="jumps"></div></div>
+      <div><a class="btn" id="pdl"><svg><use href="#i-dl"/></svg>Download</a></div>
+    </div>
+  </div>
 </dialog>
 
 <script>
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const fmtT = s => { s = Math.max(0, Math.round(s)); const h = Math.floor(s/3600), m = Math.floor(s%3600/60), x = String(s%60).padStart(2,'0'); return h ? `${h}:${String(m).padStart(2,'0')}:${x}` : `${m}:${x}`; };
-const fmtSize = b => b > 1e9 ? (b/1e9).toFixed(1)+' GB' : (b/1e6).toFixed(1)+' MB';
-async function api(url, opts) { const r = await fetch(url, opts); if (r.status === 401) location.href = '/login'; return r; }
+const fmtT = s => { s = Math.max(0, Math.round(s || 0)); const h = Math.floor(s/3600), m = Math.floor(s%3600/60), x = String(s%60).padStart(2,'0'); return h ? `${h}:${String(m).padStart(2,'0')}:${x}` : `${m}:${x}`; };
+const fmtSize = b => b >= 1e9 ? (b/1e9).toFixed(1)+' GB' : b >= 1e6 ? (b/1e6).toFixed(1)+' MB' : Math.max(1, Math.round(b/1e3))+' KB';
+const fmtDate = t => t ? new Date(t*1000).toLocaleDateString(undefined, {day:'numeric', month:'short'}) : '';
+const sayT = s => { s = Math.round(s || 0); const m = Math.floor(s / 60), x = s % 60; if (!s) return 'right at the start'; return (m ? plural(m, 'minute') + (x ? ' ' : '') : '') + (x ? plural(x, 'second') : '') + ' in'; };
+const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
+const store = { get(k, d) { try { return localStorage.getItem(k) ?? d; } catch { return d; } }, set(k, v) { try { localStorage.setItem(k, v); } catch {} } };
+async function api(url, opts) { const r = await fetch(url, opts); if (r.status === 401) { location.href = '/login'; throw new Error('login'); } return r; }
+function toast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.append(t); setTimeout(() => t.remove(), 3500); }
 
-// ---- tabs ----
-document.querySelectorAll('nav button').forEach(b => b.onclick = () => show(b.dataset.tab));
-function show(tab) {
-  document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
-  ['search','upload','library'].forEach(t => $('#tab-'+t).classList.toggle('hidden', t !== tab));
-  if (tab === 'library') loadLib();
+// ---------- views (Ask is always the first screen) ----------
+function show(view) {
+  document.querySelectorAll('[data-view]').forEach(b => b.setAttribute('aria-current', b.dataset.view === view));
+  ['search','upload','library'].forEach(v => $('#view-'+v).classList.toggle('hidden', v !== view));
+  $('#composer').classList.toggle('hidden', view !== 'search');
+  $('#newchat').classList.toggle('hidden', view !== 'search');
+  if (view === 'library') loadLib(); else clearTimeout(libTimer);
+  window.scrollTo(0, 0);
+}
+document.querySelectorAll('[data-view]').forEach(b => b.onclick = () => show(b.dataset.view));
+$('#acct').onclick = e => { e.stopPropagation(); const m = $('#menu'); m.classList.toggle('hidden'); $('#acct').setAttribute('aria-expanded', !m.classList.contains('hidden')); };
+document.addEventListener('click', e => { if (!e.target.closest('#menu')) $('#menu').classList.add('hidden'); });
+
+// ---------- greeting & suggestions ----------
+const hr = new Date().getHours();
+$('#greet').textContent = hr < 12 ? 'Good morning' : hr < 18 ? 'Good afternoon' : 'Good evening';
+const SUGGEST = ['Blue sofa bed with a floral pattern', 'Steel pipes stacked in a warehouse', 'Aerial view of a factory', 'Someone presenting on stage', 'Office building exterior'];
+$('#chips').innerHTML = SUGGEST.map(s => `<button class="chip" type="button"><svg><use href="#i-spark"/></svg>${esc(s)}</button>`).join('');
+$('#chips').querySelectorAll('.chip').forEach(c => c.onclick = () => ask(c.textContent));
+let stats = { videos: 0, searchable: 0 };
+api('/api/stats').then(r => r.json()).then(s => {
+  stats = s;
+  if (!s.videos) $('#herosub').innerHTML = 'The library is empty right now. <b>Upload some videos</b> first, then ask me to find anything in them.';
+  else $('#herosub').textContent = `I've looked through ${plural(s.searchable, 'video')} in the library. Describe what's in the video you need, or tap the microphone and just ask.`;
+}).catch(() => {});
+
+// ---------- composer ----------
+const q = $('#q');
+function autosize() { q.style.height = '40px'; q.style.height = Math.min(120, q.scrollHeight) + 'px'; $('#send').disabled = !q.value.trim(); }
+q.addEventListener('input', autosize);
+q.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('#composer').requestSubmit(); } });
+$('#composer').onsubmit = e => { e.preventDefault(); const t = q.value.trim(); if (t) ask(t); };
+$('#newchat').onclick = () => { $('#thread').innerHTML = ''; $('#hero').classList.remove('hidden'); q.value = ''; autosize(); window.scrollTo(0, 0); q.focus(); };
+
+// ---------- the assistant ----------
+let results = {};
+let busy = false;
+async function ask(text, opts = {}) {
+  if (busy) return;
+  busy = true;
+  q.value = ''; autosize(); q.blur();
+  $('#hero').classList.add('hidden');
+  const thread = $('#thread');
+  const u = document.createElement('div'); u.className = 'msg-user';
+  u.innerHTML = (opts.voice ? '<svg><use href="#i-mic"/></svg>' : '') + esc(text);
+  const a = document.createElement('div'); a.className = 'msg-ai';
+  a.innerHTML = `<div class="avatar"><svg><use href="#i-spark"/></svg></div><div class="ai-body"><div class="thinking"><span class="dots"><i></i><i></i><i></i></span>
+    <span>Looking through ${stats.searchable ? plural(stats.searchable, 'video') : 'the library'}…</span></div><div class="scanbar"></div></div>`;
+  thread.append(u, a);
+  u.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const started = Date.now();
+  let data;
+  try {
+    const r = await api('/api/search?q=' + encodeURIComponent(text));
+    if (!r.ok) throw new Error('search failed');
+    data = await r.json();
+  } catch (err) {
+    a.querySelector('.ai-body').innerHTML = `<div class="ai-text">Sorry, something went wrong while searching. Please try again.</div>`;
+    busy = false; return;
+  }
+  await new Promise(r => setTimeout(r, Math.max(0, 600 - (Date.now() - started))));  // let the "looking" state register
+  stats = { videos: data.videos, searchable: data.searchable };
+  renderAnswer(a.querySelector('.ai-body'), data, opts);
+  busy = false;
 }
 
-// ---- player ----
+function renderAnswer(body, data, opts) {
+  const res = data.results, what = esc(data.looking_for);
+  const strong = res.filter(r => r.strength === 'strong').length;
+  const pending = data.videos - data.searchable;
+  let html, speech;
+  if (!data.videos) {
+    html = `The library is empty, so there's nothing to search yet. Upload some videos and I'll be able to find them for you.`;
+    speech = say(opts.lang, 'empty');
+  } else if (!res.length) {
+    html = `I couldn't find any video showing <em>${what}</em> among the ${plural(data.searchable, 'video')} in the library.`;
+    speech = say(opts.lang, 'none', { what: data.looking_for });
+  } else {
+    const best = res[0], bestFrame = best.frames.reduce((x, y) => y.score > x.score ? y : x);
+    html = `I found <b>${plural(res.length, 'video')}</b> showing <em>${what}</em>. ` +
+      (strong ? `The best match is <b>${esc(best.filename)}</b>, ${bestFrame.t < 2 ? 'right at the start' : 'at ' + fmtT(bestFrame.t)}.` : `None is a perfect match, but these look closest.`);
+    speech = say(opts.lang, 'found', { n: res.length }) + ' ' + (strong ? say(opts.lang, 'best', { t: bestFrame.t }) : say(opts.lang, 'close'));
+  }
+  let sub = '';
+  if (!res.length && data.videos) sub = 'Try describing it another way, for example the colours, the setting or what is happening.';
+  if (pending > 0) sub += (sub ? ' ' : '') + `${plural(pending, 'video')} ${pending === 1 ? 'is' : 'are'} still being processed and can't be searched yet.`;
+  const id = 'r' + Math.random().toString(36).slice(2);
+  results[id] = res;
+  body.innerHTML = `<div class="ai-text">${html}</div>${sub ? `<div class="ai-sub">${esc(sub)}</div>` : ''}
+    ${!data.videos ? `<div class="ai-actions"><button class="btn btn--gold" data-go="upload"><svg><use href="#i-upload"/></svg>Upload videos</button></div>` : ''}
+    <div class="cards">${res.map((v, i) => card(v, id, i)).join('')}</div>`;
+  body.querySelectorAll('[data-go]').forEach(b => b.onclick = () => show(b.dataset.go));
+  body.querySelectorAll('[data-play]').forEach(b => b.onclick = () => {
+    const v = results[b.dataset.set][+b.dataset.i]; play(v.id, v.filename, +b.dataset.t, v.frames);
+  });
+  if (opts.voice) speak(speech, opts.lang);
+}
+
+function card(v, set, i) {
+  const best = v.frames.reduce((x, y) => y.score > x.score ? y : x);
+  const meta = [v.duration ? fmtT(v.duration) : '', v.uploaded_by, fmtDate(v.created_at)].filter(Boolean).map(esc).join(' · ');
+  return `<article class="vcard" style="animation-delay:${Math.min(i, 6) * 70}ms">
+    <button class="vcard__media" data-play data-set="${set}" data-i="${i}" data-t="${best.t}" aria-label="Play ${esc(v.filename)} from ${fmtT(best.t)}">
+      <img src="/thumb/${best.frame_id}" alt="" loading="lazy"><span class="play"><svg><use href="#i-play"/></svg></span>
+      <span class="badge ${v.strength}">${v.strength === 'strong' ? 'Strong match' : 'Possible match'}</span><span class="tstamp">▶ ${fmtT(best.t)}</span>
+    </button>
+    <div class="vcard__body"><h3 title="${esc(v.filename)}">${esc(v.filename)}</h3><div class="meta">${meta}</div>
+      ${v.frames.length > 1 ? `<div class="moments">${v.frames.map(f => `<button class="moment ${f === best ? 'on' : ''}" data-play data-set="${set}" data-i="${i}" data-t="${f.t}"><img src="/thumb/${f.frame_id}" alt="" loading="lazy"><span>▶ ${fmtT(f.t)}</span></button>`).join('')}</div>` : ''}
+    </div></article>`;
+}
+
+// ---------- voice ----------
+const LANGS = [{ code: 'en-US', label: 'EN', name: 'English' }, { code: 'ms-MY', label: 'BM', name: 'Bahasa Melayu' }, { code: 'zh-CN', label: '中文', name: '中文' }];
+let langIdx = Math.max(0, LANGS.findIndex(l => l.code === store.get('voiceLang', 'en-US')));
+const setLang = () => { $('#lang').textContent = LANGS[langIdx].label; $('#lang').title = 'Voice language: ' + LANGS[langIdx].name + ' (tap to change)'; };
+setLang();
+$('#lang').onclick = () => { langIdx = (langIdx + 1) % LANGS.length; store.set('voiceLang', LANGS[langIdx].code); setLang(); toast('Voice language: ' + LANGS[langIdx].name); };
+
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let rec = null;
+function setListening(on) {
+  $('#mic').classList.toggle('on', on);
+  $('#mic').setAttribute('aria-label', on ? 'Stop listening' : 'Search by voice');
+  $('#listening').classList.toggle('hidden', !on);
+  q.placeholder = on ? 'Listening…' : 'Ask for a video…';
+}
+$('#mic').onclick = () => {
+  if (rec) { rec.stop(); return; }
+  if (!SR) { toast("Voice search isn't supported in this browser. Please use Chrome, Edge or Safari."); return; }
+  if ('speechSynthesis' in window) speechSynthesis.cancel();
+  rec = new SR();
+  const rec_lang = LANGS[langIdx].code;
+  rec.lang = rec_lang; rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 1;
+  let heard = '';
+  rec.onresult = e => { heard = Array.from(e.results).map(r => r[0].transcript).join(''); q.value = heard; autosize(); $('#listenTxt').textContent = '“' + heard + '”'; };
+  rec.onerror = e => {
+    if (e.error === 'not-allowed' || e.error === 'service-not-allowed') toast('Microphone access is blocked. Allow it in your browser settings to use voice search.');
+    else if (e.error === 'no-speech') toast("I didn't hear anything. Tap the mic and try again.");
+    else if (e.error !== 'aborted') toast('Voice search stopped (' + e.error + '). Please try again.');
+  };
+  rec.onend = () => { rec = null; setListening(false); $('#listenTxt').textContent = 'Listening… speak now'; const t = heard.trim(); if (t) ask(t, { voice: true, lang: rec_lang }); };
+  try { rec.start(); setListening(true); } catch { rec = null; toast('Could not start the microphone. Please try again.'); }
+};
+// Spoken replies, in the language the request was spoken in.
+function say(lang, key, a = {}) {
+  const l = (lang || 'en').slice(0, 2), sec = Math.round(a.t || 0), m = Math.floor(sec / 60), x = sec % 60;
+  const T = {
+    en: { empty: 'The library is empty. Please upload some videos first.', none: `Sorry, I couldn't find any video showing ${a.what}.`,
+          found: `I found ${plural(a.n, 'video')}.`, best: `The best match is ${sayT(a.t)}.`, close: 'None is a perfect match, but these look closest.' },
+    ms: { empty: 'Perpustakaan video masih kosong. Sila muat naik video dahulu.', none: `Maaf, saya tidak jumpa video yang menunjukkan ${a.what}.`,
+          found: `Saya jumpa ${a.n} video.`, best: `Padanan terbaik ${sec < 2 ? 'ada di permulaan video' : 'pada ' + (m ? m + ' minit ' : '') + (x ? x + ' saat' : '')}.`,
+          close: 'Tiada yang betul-betul sepadan, tetapi ini yang paling hampir.' },
+    zh: { empty: '视频库还是空的，请先上传视频。', none: `抱歉，没有找到显示${a.what}的视频。`, found: `我找到了${a.n}个视频。`,
+          best: `最佳匹配在${sec < 2 ? '视频开头' : (m ? m + '分' : '') + (x ? x + '秒' : '')}。`, close: '没有完全匹配的，但这些最接近。' },
+  };
+  return (T[l] || T.en)[key];
+}
+function speak(text, lang = 'en-US') {
+  if (!('speechSynthesis' in window)) return;
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = lang; u.rate = 1.03;
+  const voices = speechSynthesis.getVoices(), base = lang.slice(0, 2).toLowerCase();
+  const v = (base === 'en' && voices.find(v => /en(-|_)(GB|US|AU)/i.test(v.lang) && /female|samantha|google uk|serena|karen/i.test(v.name))) ||
+            voices.find(v => v.lang.replace('_', '-').toLowerCase() === lang.toLowerCase()) || voices.find(v => v.lang.toLowerCase().startsWith(base));
+  if (v) u.voice = v;
+  speechSynthesis.cancel(); speechSynthesis.speak(u);
+}
+
+// ---------- player ----------
 function play(id, name, t, frames) {
+  if ('speechSynthesis' in window) speechSynthesis.cancel();
   const v = $('#vid');
   v.src = `/media/${id}`;
-  v.onloadedmetadata = () => { v.currentTime = t || 0; v.play().catch(()=>{}); };
+  v.onloadedmetadata = () => { v.currentTime = Math.max(0, (t || 0) - 0.5); v.play().catch(() => {}); };
   $('#pname').textContent = name;
   $('#pdl').href = `/media/${id}?download=1`;
-  $('#jumps').innerHTML = (frames || []).map(f => `<button data-t="${f.t}">▶ ${fmtT(f.t)}</button>`).join('');
-  $('#jumps').querySelectorAll('button').forEach(b => b.onclick = () => { v.currentTime = +b.dataset.t; v.play(); });
+  const fr = (frames || []).slice().sort((a, b) => a.t - b.t);
+  $('#jumpwrap').classList.toggle('hidden', fr.length < 1);
+  $('#jumps').innerHTML = fr.map(f => `<button data-t="${f.t}">▶ ${fmtT(f.t)}</button>`).join('');
+  $('#jumps').querySelectorAll('button').forEach(b => b.onclick = () => { v.currentTime = Math.max(0, +b.dataset.t - 0.5); v.play(); });
   $('#player').showModal();
 }
 $('#pclose').onclick = () => $('#player').close();
 $('#player').addEventListener('close', () => { const v = $('#vid'); v.pause(); v.removeAttribute('src'); v.load(); });
 
-// ---- search ----
-$('#sform').onsubmit = e => { e.preventDefault(); doSearch(); };
-document.querySelectorAll('.hint a').forEach(a => a.onclick = () => { $('#q').value = a.textContent; doSearch(); });
-let lastResults = [];
-async function doSearch() {
-  const q = $('#q').value.trim(); if (!q) return;
-  $('#results').innerHTML = '<div class="empty">Searching…</div>';
-  const r = await api('/api/search?q=' + encodeURIComponent(q));
-  const data = await r.json(); lastResults = data;
-  if (!data.length) { $('#results').innerHTML = '<div class="empty">No matching videos. Try describing it differently, or upload videos on the Upload tab.</div>'; return; }
-  $('#results').innerHTML = data.map((v, i) => `
-    <div class="result">
-      <div class="rhead"><span class="pill">${v.match}% match</span><span class="rname">${esc(v.filename)}</span>
-        <span class="meta">${v.duration ? fmtT(v.duration) : ''}${v.uploaded_by ? ' · uploaded by ' + esc(v.uploaded_by) : ''}</span></div>
-      <div class="frames">${v.frames.map(f => `<div class="frame" data-i="${i}" data-t="${f.t}"><img loading="lazy" src="/thumb/${f.frame_id}" alt=""><span>▶ ${fmtT(f.t)}</span></div>`).join('')}</div>
-    </div>`).join('');
-  $('#results').querySelectorAll('.frame').forEach(el => el.onclick = () => {
-    const v = lastResults[+el.dataset.i]; play(v.id, v.filename, +el.dataset.t, v.frames);
-  });
-}
-
-// ---- upload ----
+// ---------- upload ----------
 const drop = $('#drop'), queue = []; let active = 0; const MAX_PARALLEL = 3;
 $('#files').onchange = e => { addFiles(e.target.files); e.target.value = ''; };
 ['dragenter','dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
@@ -161,58 +512,66 @@ drop.addEventListener('drop', e => addFiles(e.dataTransfer.files));
 function addFiles(list) {
   for (const f of list) {
     const row = document.createElement('div'); row.className = 'up';
-    row.innerHTML = `<div class="n">${esc(f.name)}</div><span class="meta">${fmtSize(f.size)}</span><div class="prog"><i></i></div><span class="meta s">waiting</span>`;
+    row.innerHTML = `<div class="n">${esc(f.name)}</div><div class="s">${fmtSize(f.size)} · waiting</div><div class="prog"><i></i></div>`;
     $('#uplist').prepend(row); queue.push({ f, row });
   }
   pump();
 }
+window.addEventListener('beforeunload', e => { if (active || queue.length) { e.preventDefault(); e.returnValue = ''; } });
 function pump() {
   while (active < MAX_PARALLEL && queue.length) {
     const { f, row } = queue.shift(); active++;
     const xhr = new XMLHttpRequest(), fd = new FormData(); fd.append('file', f);
+    const s = row.querySelector('.s');
     xhr.open('POST', '/api/upload');
-    xhr.upload.onprogress = e => { if (e.lengthComputable) { row.querySelector('i').style.width = (100*e.loaded/e.total)+'%'; row.querySelector('.s').textContent = Math.round(100*e.loaded/e.total)+'%'; } };
+    xhr.upload.onprogress = e => { if (e.lengthComputable) { const p = Math.round(100 * e.loaded / e.total); row.querySelector('i').style.width = p + '%'; s.textContent = `${fmtSize(f.size)} · ${p}%`; } };
     xhr.onload = () => {
-      let msg = 'uploaded ✓ (indexing)';
       if (xhr.status === 401) location.href = '/login';
-      if (xhr.status !== 200) { try { msg = '✗ ' + JSON.parse(xhr.responseText).error; } catch { msg = '✗ failed (' + xhr.status + ')'; } }
-      row.querySelector('.s').textContent = msg; active--; pump();
+      if (xhr.status === 200) { s.textContent = 'Uploaded · processing'; s.className = 's ok'; }
+      else { let m = 'Failed'; try { m = JSON.parse(xhr.responseText).error; } catch {} s.textContent = m; s.className = 's bad'; }
+      active--; pump();
     };
-    xhr.onerror = () => { row.querySelector('.s').textContent = '✗ network error'; active--; pump(); };
+    xhr.onerror = () => { s.textContent = 'Network error'; s.className = 's bad'; active--; pump(); };
     xhr.send(fd);
   }
 }
 
-// ---- library ----
+// ---------- library ----------
 let libTimer = null, libData = [];
 async function loadLib() {
   clearTimeout(libTimer);
-  const r = await api('/api/videos'); libData = await r.json(); renderLib();
-  if (libData.some(v => !['ready','error'].includes(v.status)) && !$('#tab-library').classList.contains('hidden')) libTimer = setTimeout(loadLib, 3000);
+  try { libData = await (await api('/api/videos')).json(); } catch { return; }
+  renderLib();
+  if (libData.some(v => !['ready','error'].includes(v.status)) && !$('#view-library').classList.contains('hidden')) libTimer = setTimeout(loadLib, 3000);
 }
 $('#libfilter').oninput = renderLib;
 function renderLib() {
   const f = $('#libfilter').value.toLowerCase();
   const ready = libData.filter(v => v.status === 'ready').length;
   const total = libData.reduce((a, v) => a + (v.size || 0), 0);
-  $('#libstats').textContent = `${libData.length} videos · ${ready} searchable · ${fmtSize(total)}`;
-  const label = v => v.status === 'ready' ? 'Searchable' : v.status === 'error' ? 'Error: ' + (v.error || '') :
-    v.status === 'converting' ? 'Converting for web…' : v.status === 'indexing' ? `Indexing ${Math.round(100*(v.progress||0))}%` : 'Waiting in line';
-  $('#lib').innerHTML = libData.filter(v => v.filename.toLowerCase().includes(f)).map(v => `
-    <div class="card">
-      <div class="cov" data-id="${v.id}" style="${v.cover ? `background-image:url(/thumb/${v.cover})` : ''}"></div>
-      <div class="body"><div class="t" title="${esc(v.filename)}">${esc(v.filename)}</div>
-        <div class="row"><span class="st ${v.status}" title="${esc(v.error || '')}">${esc(label(v))}</span><button class="del" data-id="${v.id}">Delete</button></div>
-        <div class="meta">${v.duration ? fmtT(v.duration) + ' · ' : ''}${fmtSize(v.size || 0)}${v.uploaded_by ? ' · ' + esc(v.uploaded_by) : ''}</div></div>
-    </div>`).join('') || '<div class="empty">No videos yet.</div>';
-  $('#lib').querySelectorAll('.cov').forEach(el => el.onclick = () => { const v = libData.find(x => x.id == el.dataset.id); if (v.status === 'ready') play(v.id, v.filename, 0); });
+  const hours = libData.reduce((a, v) => a + (v.duration || 0), 0) / 3600;
+  $('#stats').innerHTML = [[libData.length, 'Videos'], [ready, 'Searchable'], [hours >= 1 ? hours.toFixed(1) + 'h' : Math.round(hours * 60) + 'm', 'Footage'], [fmtSize(total), 'Stored']]
+    .map(([n, l]) => `<div class="stat"><b>${n}</b><span>${l}</span></div>`).join('');
+  const label = v => v.status === 'ready' ? ['ready', 'Searchable'] : v.status === 'error' ? ['error', 'Error'] :
+    v.status === 'converting' ? ['wait', 'Converting…'] : v.status === 'indexing' ? ['wait', `Analysing ${Math.round(100 * (v.progress || 0))}%`] : ['wait', 'In queue'];
+  const list = libData.filter(v => v.filename.toLowerCase().includes(f));
+  $('#lib').innerHTML = list.map(v => { const [cls, txt] = label(v); return `
+    <div class="lcard">
+      <button class="cov" data-id="${v.id}" style="${v.cover ? `background-image:url(/thumb/${v.cover})` : ''}" aria-label="Play ${esc(v.filename)}"></button>
+      <div class="b"><div class="t" title="${esc(v.filename)}">${esc(v.filename)}</div>
+        <div class="meta">${[v.duration ? fmtT(v.duration) : '', fmtSize(v.size || 0), v.uploaded_by].filter(Boolean).map(esc).join(' · ')}</div>
+        <div class="row"><span class="st ${cls}" title="${esc(v.error || '')}">${esc(txt)}</span><button class="del" data-id="${v.id}">Delete</button></div></div>
+    </div>`; }).join('') || `<div class="empty" style="grid-column:1/-1">${libData.length ? 'No videos match that name.' : 'No videos yet. Upload some to get started.'}</div>`;
+  $('#lib').querySelectorAll('.cov').forEach(el => el.onclick = () => { const v = libData.find(x => x.id == el.dataset.id); if (v.status === 'ready') play(v.id, v.filename, 0); else toast('This video is still being processed.'); });
   $('#lib').querySelectorAll('.del').forEach(el => el.onclick = async () => {
     const v = libData.find(x => x.id == el.dataset.id);
     if (!confirm(`Delete "${v.filename}" for everyone?`)) return;
     const r = await api('/api/videos/' + v.id, { method: 'DELETE' });
-    if (!r.ok) alert((await r.json()).error || 'Could not delete'); loadLib();
+    if (!r.ok) toast((await r.json()).error || 'Could not delete'); loadLib();
   });
 }
+
+show('search');
 </script>
 </body>
 </html>

@@ -9,22 +9,30 @@ Click a thumbnail and the video plays from that moment.
 
 ## What it does
 
-- **Upload any video:** MP4, MOV, AVI, MKV, WMV, iPhone (HEVC) and more. Drag in hundreds at once.
-  Videos a browser can't play are converted to standard MP4 automatically.
-- **Search by description:** objects, colours, patterns, places, people, scenes.
-  You can search in English, Bahasa Melayu, Chinese and 50+ other languages.
-- **Team access:** everyone signs in with one shared team password and their name, so the
-  library shows who uploaded what. It works on phones too.
-- **No tagging needed:** the app "looks" at a frame every 2 seconds using an AI vision model
-  (CLIP) that runs on the server. No per-search AI fees, and videos aren't sent to any AI company.
+- **Ask like you'd ask a colleague:** type or **speak** "find me the videos with a blue sofa bed with
+  flower patterns". The assistant searches every scene, answers in plain language, and shows the
+  matching videos with the exact moments. Tap a moment and the video plays from there.
+- **Voice search** in English, Bahasa Melayu and Chinese (tap the language chip next to the mic).
+  When you ask by voice, it also answers out loud in the same language.
+- **Honest results:** if nothing in the library matches, it says so instead of showing random videos.
+  Matches are labelled *Strong match* or *Possible match*.
+- **Upload any video:** MP4, MOV, AVI, MKV, WMV, iPhone (HEVC) and more. Videos a browser can't play
+  are converted to standard MP4 automatically.
+- **Team access, mobile-first:** one shared team password, works on phones and desktops, and the
+  first screen is always the assistant.
 
-## How it works
+## How the AI search works
 
-1. When a video is uploaded, ffmpeg pulls out one frame every 2 seconds.
-2. The CLIP model turns each frame into a list of numbers (an "embedding") describing what it shows.
-   Near-identical frames are skipped.
-3. When you search, your sentence is turned into numbers the same way. The frames whose numbers
-   are closest to your sentence are the best matches. Results are grouped per video.
+1. When a video is uploaded, ffmpeg takes one snapshot every 2 seconds.
+2. A vision AI model, Google's **SigLIP** (multilingual), looks at each snapshot and stores a
+   numeric "fingerprint" of what it shows. Near-identical snapshots are skipped.
+3. Your request is cleaned up ("find me the videos where there are..." becomes "...") and turned
+   into a fingerprint the same way.
+4. SigLIP scores how likely each snapshot is to show what you asked for. Only snapshots above a
+   calibrated confidence level count as matches, and results are grouped per video.
+
+The model runs on your own server. Videos are never sent to an outside AI service, and there is no
+per-search cost.
 
 ## Settings (environment variables)
 
@@ -34,6 +42,7 @@ Click a thumbnail and the video plays from that moment.
 | `SECRET_KEY` | Any long random string. Keeps people signed in across restarts. |
 | `DATA_DIR` | Where videos and the index are stored (`/data` in Docker; mount a persistent disk there). |
 | `SAMPLE_EVERY_SEC` | How often to grab a frame (default `2`). Lower means more precise but slower. |
+| `MATCH_MINIMUM` / `MATCH_STRONG` | Confidence cut-offs (defaults `-10` / `-7.5`). Raise them to show fewer, surer results. |
 
 ## Run it on a computer (for testing)
 
@@ -55,15 +64,16 @@ Google Cloud Run with a volume, a VPS, ...). You need:
 
 1. **A persistent volume mounted at `/data`.** This is where the videos live, so size it for
    your library (e.g. 1,000 videos × 200 MB ≈ 200 GB).
-2. **About 2 GB of RAM and 1 or more CPUs.** Indexing a 5-minute video takes about 10–30 s on CPU.
+2. **About 3 GB of RAM and 2 or more CPUs.** Analysing a 5-minute video takes roughly 20–60 s on CPU.
 3. `APP_PASSWORD` and `SECRET_KEY` set.
 
 ## Limits and ideas for later
 
 - Search uses **what's visible**, not what's said. Speech search (auto-transcribing with
   Whisper) would be a good next addition.
-- It understands broad visual concepts well (blue sofa, flower pattern, beach, office, car).
-  It's weaker on fine detail like brand names or tiny text.
+- It understands visual concepts well (sofa, colours, patterns, factory, beach, people presenting).
+  It's weaker on fine detail like brand names, tiny text or exact counts.
+- Voice search uses the browser's built-in speech recognition (Chrome, Edge and Safari; not Firefox).
 - One shared password suits a small team. For individual accounts or Google/Microsoft sign-in,
   put it behind a login service such as Cloudflare Access.
 - For very large libraries (tens of thousands of videos or several TB), move video storage to
