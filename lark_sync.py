@@ -329,8 +329,20 @@ def _loop():
 def start():
     with db() as c:
         c.execute("CREATE TABLE IF NOT EXISTS lark_skip (file_token TEXT PRIMARY KEY)")
-        c.execute("UPDATE lark_sources SET status='ok' WHERE status='syncing'")
+        # an import interrupted by a restart/update resumes straight away (finished videos are skipped)
+        interrupted = [r["id"] for r in c.execute("SELECT id FROM lark_sources WHERE status IN ('syncing','queued')")]
+        c.execute("UPDATE lark_sources SET status='queued', message='Resuming after restart…' WHERE status IN ('syncing','queued')")
+    for f in os.listdir(VIDEO_DIR):  # half-finished downloads
+        if f.endswith(".part"):
+            try:
+                os.remove(os.path.join(VIDEO_DIR, f))
+            except OSError:
+                pass
+    for sid in interrupted:
+        _pending.add(sid)
     threading.Thread(target=_loop, daemon=True).start()
+    if interrupted:
+        _wake.set()
 
 
 def sources():
