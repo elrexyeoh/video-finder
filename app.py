@@ -24,6 +24,9 @@ app.config.update(
     PERMANENT_SESSION_LIFETIME=60 * 60 * 24 * 30,
 )
 engine.start()
+import lark_sync  # noqa: E402  (needs the database set up by engine.start)
+
+lark_sync.start()
 
 
 @app.before_request
@@ -97,7 +100,7 @@ def upload():
 def videos():
     with db() as c:
         rows = c.execute(
-            "SELECT id, filename, size, duration, status, progress, error, uploaded_by, created_at, "
+            "SELECT id, filename, title, source, size, duration, status, progress, error, uploaded_by, created_at, "
             "(SELECT id FROM frames WHERE video_id=videos.id ORDER BY t LIMIT 1) AS cover "
             "FROM videos ORDER BY id DESC"
         ).fetchall()
@@ -107,7 +110,7 @@ def videos():
 @app.delete("/api/videos/<int:vid>")
 def delete_video(vid):
     with db() as c:
-        row = c.execute("SELECT stored_name FROM videos WHERE id=?", (vid,)).fetchone()
+        row = c.execute("SELECT stored_name, source, source_id FROM videos WHERE id=?", (vid,)).fetchone()
         if not row:
             abort(404)
         if c.execute("SELECT status FROM videos WHERE id=?", (vid,)).fetchone()["status"] in ("indexing", "converting"):
@@ -115,6 +118,8 @@ def delete_video(vid):
         frame_ids = [r["id"] for r in c.execute("SELECT id FROM frames WHERE video_id=?", (vid,))]
         c.execute("DELETE FROM frames WHERE video_id=?", (vid,))
         c.execute("DELETE FROM videos WHERE id=?", (vid,))
+    if row["source"] == "lark" and row["source_id"]:
+        lark_sync.skip_file(row["source_id"])
     for fid in frame_ids:
         try:
             os.remove(os.path.join(THUMB_DIR, f"{fid}.jpg"))
@@ -144,6 +149,35 @@ def tts():
     resp = send_file(path, mimetype="audio/mpeg")
     resp.headers["Cache-Control"] = "private, max-age=86400"
     return resp
+
+
+@app.get("/api/lark")
+def lark_list():
+    return jsonify(configured=lark_sync.configured(), sync_minutes=lark_sync.SYNC_MINUTES, sources=lark_sync.sources())
+
+
+@app.post("/api/lark")
+def lark_add():
+    if not lark_sync.configured():
+        return jsonify(error="not_configured"), 400
+    url = str((request.get_json(silent=True) or {}).get("url", ""))[:1000]
+    try:
+        sid = lark_sync.add_source(url, session.get("name", ""))
+    except ValueError:
+        return jsonify(error="bad_link"), 400
+    return jsonify(id=sid)
+
+
+@app.post("/api/lark/<int:sid>/sync")
+def lark_sync_now(sid):
+    lark_sync.request_sync(sid)
+    return jsonify(ok=True)
+
+
+@app.delete("/api/lark/<int:sid>")
+def lark_remove(sid):
+    lark_sync.remove_source(sid)
+    return jsonify(ok=True)
 
 
 @app.get("/api/stats")

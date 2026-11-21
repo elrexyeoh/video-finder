@@ -38,6 +38,11 @@ window.I18N = (() => {
       login_eyebrow: 'AI 视频助理', login_title: '智能视频<em>搜索</em>', login_sub: '说出画面内容，即刻找到视频。',
       name: '您的名字', name_ph: '例如：Alex', pw: '团队密码', signin: '登录', signing_in: '正在登录…', wrong_pw: '密码错误，请重试。',
       foot: 'TSLAW Group · 内部使用',
+      text_match: '表格信息匹配', lark_title: '从 Lark 多维表格导入', lark_desc: '粘贴存放视频的多维表格链接。系统会自动导入附件中的视频及其表格信息，并每小时同步新视频。',
+      lark_ph: '粘贴 Lark 多维表格链接…', lark_connect: '连接并导入', lark_sync: '立即同步', lark_remove: '移除', lark_last: '上次同步：', lark_never: '尚未同步',
+      lark_counts: 'Lark 中有 {found} 个视频，已导入 {imported} 个', lark_started: '已开始同步，视频会陆续出现在视频库中。', lark_bad_link: '这不是有效的 Lark 多维表格链接。',
+      lark_confirm_rm: '移除此连接？已导入的视频会保留。', lark_not_cfg: 'Lark 连接尚未设置。请管理员在 Railway 中添加 LARK_APP_ID 和 LARK_APP_SECRET。',
+      ls_ok: '已同步', ls_error: '出错', ls_syncing: '同步中', ls_queued: '排队中', ls_new: '新',
     },
     en: {
       menu: 'Menu', nav_ask: 'Ask AI', nav_ask_long: 'AI video search', nav_upload: 'Upload videos', nav_library: 'Library', admin: 'Admin',
@@ -73,6 +78,11 @@ window.I18N = (() => {
       login_eyebrow: 'AI video assistant', login_title: 'Video <em>Finder</em>', login_sub: 'Describe a scene, and I’ll find the video.',
       name: 'Your name', name_ph: 'e.g. Alex', pw: 'Team password', signin: 'Sign in', signing_in: 'Signing in…', wrong_pw: 'Wrong password. Please try again.',
       foot: 'TSLAW Group · Internal use',
+      text_match: 'Matched table info', lark_title: 'Import from Lark Base', lark_desc: 'Paste the link to the Base table that holds your videos. Video attachments and their table details are imported automatically, and new videos are synced every hour.',
+      lark_ph: 'Paste a Lark Base link…', lark_connect: 'Connect & import', lark_sync: 'Sync now', lark_remove: 'Remove', lark_last: 'Last sync:', lark_never: 'never',
+      lark_counts: '{found} videos in Lark, {imported} imported', lark_started: 'Sync started. Videos will appear in the library as they arrive.', lark_bad_link: 'That isn’t a valid Lark Base link.',
+      lark_confirm_rm: 'Remove this connection? Imported videos are kept.', lark_not_cfg: 'Lark isn’t set up yet. An admin needs to add LARK_APP_ID and LARK_APP_SECRET in Railway.',
+      ls_ok: 'Synced', ls_error: 'Error', ls_syncing: 'Syncing', ls_queued: 'Queued', ls_new: 'New',
     },
     ms: {
       menu: 'Menu', nav_ask: 'Tanya AI', nav_ask_long: 'Carian video AI', nav_upload: 'Muat naik video', nav_library: 'Pustaka video', admin: 'Pentadbir',
@@ -107,6 +117,11 @@ window.I18N = (() => {
       login_eyebrow: 'Pembantu video AI', login_title: 'Pencari <em>Video</em>', login_sub: 'Terangkan babak, saya akan cari videonya.',
       name: 'Nama anda', name_ph: 'cth. Alex', pw: 'Kata laluan pasukan', signin: 'Log masuk', signing_in: 'Sedang log masuk…', wrong_pw: 'Kata laluan salah. Sila cuba lagi.',
       foot: 'TSLAW Group · Kegunaan dalaman',
+      text_match: 'Sepadan maklumat jadual', lark_title: 'Import dari Lark Base', lark_desc: 'Tampal pautan jadual Base yang menyimpan video anda. Lampiran video dan maklumat jadualnya diimport secara automatik, dan video baharu disegerakkan setiap jam.',
+      lark_ph: 'Tampal pautan Lark Base…', lark_connect: 'Sambung & import', lark_sync: 'Segerak sekarang', lark_remove: 'Buang', lark_last: 'Segerak terakhir:', lark_never: 'belum',
+      lark_counts: '{found} video dalam Lark, {imported} diimport', lark_started: 'Penyegerakan bermula. Video akan muncul dalam pustaka.', lark_bad_link: 'Itu bukan pautan Lark Base yang sah.',
+      lark_confirm_rm: 'Buang sambungan ini? Video yang diimport akan kekal.', lark_not_cfg: 'Lark belum disediakan. Pentadbir perlu menambah LARK_APP_ID dan LARK_APP_SECRET dalam Railway.',
+      ls_ok: 'Disegerak', ls_error: 'Ralat', ls_syncing: 'Menyegerak', ls_queued: 'Dalam giliran', ls_new: 'Baharu',
     },
   };
   const VOICE = { zh: 'zh-CN', en: 'en-US', ms: 'ms-MY' };

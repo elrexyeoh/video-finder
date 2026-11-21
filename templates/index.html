@@ -11,7 +11,7 @@
 <link rel="apple-touch-icon" href="/static/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/static/theme.css?v=3">
+<link rel="stylesheet" href="/static/theme.css?v=4">
 <style>
 /* ================= layout ================= */
 body{background:var(--ivory);min-height:100dvh}
@@ -157,6 +157,30 @@ main{padding-top:var(--top)}
 .empty{text-align:center;color:var(--ink-3);padding:48px 16px;grid-column:1/-1}
 .meta{font-size:12.5px;color:var(--ink-3)}
 
+/* ---------- Lark import ---------- */
+.lark{margin-top:26px;background:#fff;border:1px solid var(--line);border-radius:4px;padding:18px}
+.lark__head{display:flex;gap:14px;align-items:flex-start}
+.lark__logo{flex:none;width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,#00D6B9,#3370FF 60%,#1E3A8A);display:grid;place-items:center;color:#fff;font-weight:800;font-size:13px;letter-spacing:.02em}
+.lark h3{margin:0;font-size:17px}
+.lark p{margin:2px 0 0;color:var(--ink-2);font-size:14px}
+.lark form{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.lark input{flex:1;min-width:220px;height:44px;border:1px solid var(--line);border-radius:999px;padding:0 16px;font:inherit;font-size:15px;background:var(--paper);color:var(--ink)}
+.lark .btn{color:#fff;border:0;background:var(--navy-1000)}
+.notice{margin-top:12px;background:var(--ivory);border-left:3px solid var(--gold-500);padding:10px 12px;font-size:13.5px;color:var(--ink-2)}
+.src{margin-top:12px;border-top:1px solid var(--line);padding-top:12px;display:grid;grid-template-columns:1fr auto;gap:4px 12px;align-items:center}
+.src .nm{font-weight:700;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.src .msg{grid-column:1/-1;font-size:13px;color:var(--ink-2)}
+.src .msg.bad{color:#b42318}
+.src .acts{display:flex;gap:6px}
+.src .acts button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 12px;font-size:12.5px;font-weight:600;color:var(--ink)}
+.pill{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:999px;margin-left:6px;vertical-align:1px}
+.pill.ok{background:#e7f5ee;color:#1d7a4a}.pill.error{background:#fdecea;color:#b42318}.pill.syncing,.pill.queued{background:#fbf3df;color:var(--gold-700)}
+.tag-lark{display:inline-block;font-size:10.5px;font-weight:800;color:#fff;background:#3370FF;border-radius:4px;padding:0 5px;margin-right:5px;vertical-align:1px}
+.facts{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.facts span{font-size:12px;color:rgba(255,255,255,.8);background:rgba(255,255,255,.07);border:1px solid var(--line-light);border-radius:999px;padding:2px 9px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.facts span b{color:var(--gold-400);font-weight:600}
+.badge.text{left:auto;right:10px;background:rgba(51,112,255,.92);color:#fff}
+
 /* ---------- player ---------- */
 dialog{border:0;padding:0;margin:auto;background:var(--navy-1000);color:#fff;width:100%;max-width:100%;height:100%;max-height:100%}
 dialog::backdrop{background:rgba(5,12,30,.85)}
@@ -276,6 +300,14 @@ dialog::backdrop{background:rgba(5,12,30,.85)}
       <input type="file" id="files" accept="video/*,.mkv,.avi,.wmv,.flv,.mts,.m2ts,.ts,.vob,.mxf" multiple hidden>
     </label>
     <div class="uplist" id="uplist"></div>
+
+    <div class="lark" id="lark">
+      <div class="lark__head"><span class="lark__logo">Lark</span>
+        <div><h3 data-i18n="lark_title"></h3><p data-i18n="lark_desc"></p></div></div>
+      <div class="notice hidden" id="larkSetup" data-i18n="lark_not_cfg"></div>
+      <form id="larkForm" class="hidden"><input id="larkUrl" type="url" data-i18n-ph="lark_ph" required><button class="btn" data-i18n="lark_connect"></button></form>
+      <div id="larkList"></div>
+    </div>
   </section>
 
   <!-- ===== LIBRARY (admin) ===== -->
@@ -311,7 +343,7 @@ dialog::backdrop{background:rgba(5,12,30,.85)}
   </div>
 </dialog>
 
-<script src="/static/i18n.js?v=3"></script>
+<script src="/static/i18n.js?v=4"></script>
 <script>
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -349,6 +381,7 @@ function show(view) {
   $('#newchat').classList.toggle('hidden', view !== 'ask' || !document.body.classList.contains('has-thread'));
   closeDrawer();
   if (view === 'library') loadLib(); else clearTimeout(libTimer);
+  if (view === 'upload') loadLark(); else clearTimeout(larkTimer);
   window.scrollTo(0, 0);
 }
 document.querySelectorAll('[data-view]').forEach(b => b.onclick = () => show(b.dataset.view));
@@ -434,7 +467,7 @@ function renderAnswer(body, data, opts) {
   else {
     const best = res[0], bf = best.frames.reduce((x, y) => y.score > x.score ? y : x);
     html = t('found', { n: res.length, what }) + ' ' +
-      (strong ? t('best', { file: esc(best.filename), when: bf.t < 2 ? t('at_start') : t('at_time', { t: fmtT(bf.t) }) }) : t('close_only'));
+      (strong ? t('best', { file: esc(best.title || best.filename), when: bf.t < 2 ? t('at_start') : t('at_time', { t: fmtT(bf.t) }) }) : t('close_only'));
     speech = t('say_found', { n: res.length }) + ' ' + (strong ? t('say_best', { s: bf.t }) : t('close_only'));
   }
   const subs = [];
@@ -458,11 +491,18 @@ function card(v, set, i) {
   return `<article class="vcard" style="animation-delay:${Math.min(i, 6) * 80}ms">
     <button class="vcard__media" data-play data-set="${set}" data-i="${i}" data-t="${best.t}" aria-label="${esc(v.filename)} ${fmtT(best.t)}">
       <img src="/thumb/${best.frame_id}" alt="" loading="lazy"><span class="play"><svg><use href="#i-play"/></svg></span>
-      <span class="badge ${v.strength}">${esc(t(v.strength === 'strong' ? 'strong' : 'possible'))}</span><span class="tstamp">▶ ${fmtT(best.t)}</span>
+      <span class="badge ${v.strength}">${esc(t(v.strength === 'strong' ? 'strong' : 'possible'))}</span>${v.text_match ? `<span class="badge text">${esc(t('text_match'))}</span>` : ''}<span class="tstamp">▶ ${fmtT(best.t)}</span>
     </button>
-    <div class="vcard__body"><h3 title="${esc(v.filename)}">${esc(v.filename)}</h3><div class="meta">${meta}</div>
+    <div class="vcard__body"><h3 title="${esc(v.title || v.filename)}">${v.source === 'lark' ? '<span class="tag-lark">Lark</span>' : ''}${esc(v.title || v.filename)}</h3><div class="meta">${v.title ? esc(v.filename) + ' · ' : ''}${meta}</div>
+      ${facts(v.meta, v.title)}
       ${v.frames.length > 1 ? `<div class="moments">${v.frames.map(f => `<button class="moment ${f === best ? 'on' : ''}" data-play data-set="${set}" data-i="${i}" data-t="${f.t}"><img src="/thumb/${f.frame_id}" alt="" loading="lazy"><span>▶ ${fmtT(f.t)}</span></button>`).join('')}</div>` : ''}
     </div></article>`;
+}
+
+function facts(meta, title) {
+  if (!meta) return '';
+  const items = Object.entries(meta).filter(([k, v]) => v && v !== title).slice(0, 4);
+  return items.length ? `<div class="facts">${items.map(([k, v]) => `<span title="${esc(k + ': ' + v)}"><b>${esc(k)}</b> ${esc(v.length > 40 ? v.slice(0, 40) + '…' : v)}</span>`).join('')}</div>` : '';
 }
 
 // ---------- voice ----------
@@ -566,6 +606,34 @@ function pump() {
   }
 }
 
+// ---------- Lark import ----------
+let larkTimer = null, larkData = { configured: false, sources: [] };
+async function loadLark() {
+  clearTimeout(larkTimer);
+  try { larkData = await (await api('/api/lark')).json(); } catch { return; }
+  renderLark();
+  if (larkData.sources.some(s => ['queued', 'syncing'].includes(s.status)) && !$('#view-upload').classList.contains('hidden')) larkTimer = setTimeout(loadLark, 3000);
+}
+function renderLark() {
+  $('#larkSetup').classList.toggle('hidden', larkData.configured);
+  $('#larkForm').classList.toggle('hidden', !larkData.configured);
+  const when = ts => ts ? new Date(ts * 1000).toLocaleString(I18N.locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : t('lark_never');
+  $('#larkList').innerHTML = larkData.sources.map(s => {
+    const msg = s.status === 'error' ? s.message : s.status === 'syncing' ? (s.message || '') : s.status === 'queued' ? t('s_queue') : t('lark_counts', { found: s.found || 0, imported: s.imported || 0 });
+    return `<div class="src"><div class="nm" title="${esc(s.url)}">${esc(s.name || s.url)}<span class="pill ${esc(s.status)}">${esc(t('ls_' + s.status))}</span></div>
+      <div class="acts"><button data-sync="${s.id}">${esc(t('lark_sync'))}</button><button data-rm="${s.id}">${esc(t('lark_remove'))}</button></div>
+      <div class="msg ${s.status === 'error' ? 'bad' : ''}">${esc(msg)} · ${esc(t('lark_last'))} ${esc(when(s.last_sync))}</div></div>`;
+  }).join('');
+  $('#larkList').querySelectorAll('[data-sync]').forEach(b => b.onclick = async () => { await api(`/api/lark/${b.dataset.sync}/sync`, { method: 'POST' }); toast(t('lark_started')); setTimeout(loadLark, 800); });
+  $('#larkList').querySelectorAll('[data-rm]').forEach(b => b.onclick = async () => { if (!confirm(t('lark_confirm_rm'))) return; await api('/api/lark/' + b.dataset.rm, { method: 'DELETE' }); loadLark(); });
+}
+$('#larkForm').onsubmit = async e => {
+  e.preventDefault();
+  const r = await api('/api/lark', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: $('#larkUrl').value }) });
+  if (!r.ok) { toast(t('lark_bad_link')); return; }
+  $('#larkUrl').value = ''; toast(t('lark_started')); loadLark();
+};
+
 // ---------- library ----------
 let libTimer = null, libData = [];
 async function loadLib() {
@@ -584,11 +652,11 @@ function renderLib() {
     .map(([n, l]) => `<div class="stat"><b>${n}</b><span>${esc(l)}</span></div>`).join('');
   const label = v => v.status === 'ready' ? ['ready', t('s_ready')] : v.status === 'error' ? ['error', t('s_error')] :
     v.status === 'converting' ? ['wait', t('s_conv')] : v.status === 'indexing' ? ['wait', t('s_idx', { p: Math.round(100 * (v.progress || 0)) })] : ['wait', t('s_queue')];
-  const list = libData.filter(v => v.filename.toLowerCase().includes(f));
+  const list = libData.filter(v => (v.filename + ' ' + (v.title || '')).toLowerCase().includes(f));
   $('#lib').innerHTML = list.map(v => { const [cls, txt] = label(v); return `
     <div class="lcard">
       <button class="cov" data-id="${v.id}" style="${v.cover ? `background-image:url(/thumb/${v.cover})` : ''}" aria-label="${esc(v.filename)}"></button>
-      <div class="b"><div class="t" title="${esc(v.filename)}">${esc(v.filename)}</div>
+      <div class="b"><div class="t" title="${esc(v.title || v.filename)}">${v.source === 'lark' ? '<span class="tag-lark">Lark</span>' : ''}${esc(v.title || v.filename)}</div>
         <div class="meta">${[v.duration ? fmtT(v.duration) : '', fmtSize(v.size || 0), v.uploaded_by].filter(Boolean).map(esc).join(' · ')}</div>
         <div class="row"><span class="st ${cls}" title="${esc(v.error || '')}">${esc(txt)}</span><button class="del" data-id="${v.id}">${esc(t('delete'))}</button></div></div>
     </div>`; }).join('') || `<div class="empty">${esc(t(libData.length ? 'no_match_name' : 'no_videos'))}</div>`;

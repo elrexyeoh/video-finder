@@ -158,6 +158,15 @@ def init_db():
         cols = [r["name"] for r in c.execute("PRAGMA table_info(frames)")]
         if "model" not in cols:
             c.execute("ALTER TABLE frames ADD COLUMN model TEXT")
+        vcols = [r["name"] for r in c.execute("PRAGMA table_info(videos)")]
+        for col in ("source TEXT", "source_id TEXT", "source_ref TEXT", "title TEXT", "meta TEXT", "meta_text TEXT"):
+            if col.split()[0] not in vcols:
+                c.execute(f"ALTER TABLE videos ADD COLUMN {col}")
+        c.execute("CREATE INDEX IF NOT EXISTS videos_source ON videos(source, source_id)")
+        c.execute("""CREATE TABLE IF NOT EXISTS lark_sources (
+            id INTEGER PRIMARY KEY AUTOINCREMENT, url TEXT NOT NULL, app_token TEXT, table_id TEXT, name TEXT,
+            status TEXT DEFAULT 'new', message TEXT, found INTEGER DEFAULT 0, imported INTEGER DEFAULT 0,
+            last_sync REAL, created_at REAL, added_by TEXT)""")
         # Anything interrupted by a restart goes back in the queue.
         c.execute("UPDATE videos SET status='queued', progress=0 WHERE status IN ('indexing','converting')")
 
@@ -412,32 +421,69 @@ class Engine:
                 logits = (logits + score(english)) / 2
 
         keep = logits >= MINIMUM
-        if not keep.any():
+        if keep.any():
+            keep &= logits >= float(logits[keep].max()) - RELATIVE_GAP
+
+        def top_frames(mask):
+            per = {}
+            for i in np.argsort(-logits):
+                if not mask[i]:
+                    continue
+                lst = per.setdefault(int(fvid[i]), [])
+                # one thumbnail per 4-second stretch, for variety
+                if len(lst) < frames_per_video and all(abs(float(ft[i]) - f["t"]) > 4 for f in lst):
+                    lst.append({"frame_id": int(fids[i]), "t": float(ft[i]), "score": round(float(logits[i]), 2)})
+            return per
+
+        per_video = top_frames(keep) if keep.any() else {}
+        # Text match on titles / table columns imported from Lark (e.g. product names).
+        text_hits = self._text_matches([visual, result.get("looking_for"), result.get("translated")])
+        missing = text_hits - set(per_video)
+        if missing:
+            extra = top_frames(np.isin(fvid, list(missing)))
+            for v in missing:
+                if v in extra:
+                    per_video[v] = extra[v][:2]
+
+        if text_hits:  # a solid match on the table details beats weak picture guesses
+            per_video = {v: f for v, f in per_video.items() if v in text_hits or f[0]["score"] >= STRONG}
+        ranked = sorted(per_video.items(), key=lambda kv: (0 if kv[0] in text_hits else 1 if kv[1][0]["score"] >= STRONG else 2,
+                                                           -kv[1][0]["score"]))[:limit]
+        if not ranked:
             return result
-        best = float(logits[keep].max())
-        keep &= logits >= best - RELATIVE_GAP
-
-        per_video = {}
-        for i in np.argsort(-logits):
-            if not keep[i]:
-                break
-            lst = per_video.setdefault(int(fvid[i]), [])
-            # one thumbnail per 4-second stretch, for variety
-            if len(lst) < frames_per_video and all(abs(float(ft[i]) - f["t"]) > 4 for f in lst):
-                lst.append({"frame_id": int(fids[i]), "t": float(ft[i]), "score": round(float(logits[i]), 2)})
-
-        ranked = sorted(per_video.items(), key=lambda kv: -kv[1][0]["score"])[:limit]
         with db() as c:
             meta = {r["id"]: dict(r) for r in c.execute(
-                f"SELECT id, filename, duration, uploaded_by, created_at FROM videos WHERE id IN "
+                f"SELECT id, filename, title, meta, source, duration, uploaded_by, created_at FROM videos WHERE id IN "
                 f"({','.join('?' * len(ranked))})", [v for v, _ in ranked])}
         for v, frames in ranked:
             if v in meta:
+                m = meta[v]
+                m["meta"] = json.loads(m["meta"]) if m.get("meta") else None
                 top = frames[0]["score"]
-                result["results"].append({**meta[v], "score": top,
-                                          "strength": "strong" if top >= STRONG else "possible",
+                result["results"].append({**m, "score": top, "text_match": v in text_hits,
+                                          "strength": "strong" if (top >= STRONG or v in text_hits) else "possible",
                                           "frames": sorted(frames, key=lambda f: f["t"])})
         return result
+
+    def _text_matches(self, phrases):
+        """Videos whose title or Lark table columns contain the request (e.g. a product name)."""
+        phrases = {p.strip().lower() for p in phrases if p and len(p.strip()) >= 2}
+        if not phrases:
+            return set()
+        hits = set()
+        with db() as c:
+            rows = c.execute("SELECT id, lower(coalesce(title,'') || ' ' || coalesce(meta_text,'')) AS txt FROM videos "
+                             "WHERE status='ready' AND (title IS NOT NULL OR meta_text IS NOT NULL)").fetchall()
+        for r in rows:
+            txt = r["txt"]
+            for p in phrases:
+                words = [w for w in re.split(r"[\s,，。.!?、/]+", p) if len(w) >= 3]
+                # distinctive latin words (product names, codes) inside a Chinese or mixed sentence
+                names = re.findall(r"[a-z0-9\u00c0-\u024f][a-z0-9\u00c0-\u024f\-]{3,}", p)
+                if p in txt or (len(words) >= 2 and all(w in txt for w in words)) or (names and all(n in txt for n in names)):
+                    hits.add(r["id"])
+                    break
+        return hits
 
 
 engine = Engine()

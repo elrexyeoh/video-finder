@@ -48,6 +48,24 @@ Only the short request text and reply sentence are sent to OpenAI, never videos 
 OpenAI is slow or unreachable, the app silently falls back to the free local behaviour.
 Optional: `OPENAI_CHAT_MODEL`, `OPENAI_TTS_MODEL`, `OPENAI_TTS_VOICE` (default `coral`).
 
+## Optional: import videos from Lark Base (多维表格)
+
+Admins can paste a Lark Base link on the Upload page. The app imports every video attachment,
+keeps the row's other columns (product name, category, notes…) as searchable details, and
+re-syncs every hour (`LARK_SYNC_MINUTES`). It only reads from Lark; nothing in Lark is changed.
+Deleting an imported video in the app keeps it from being re-imported.
+
+One-time setup in the Lark developer console (open.larksuite.com → Developer Console):
+1. **Create Custom App** (企业自建应用). Name it e.g. "Video Finder".
+2. **Permissions & Scopes:** add `bitable:app:readonly` (read Base), `docs:document.media:download`
+   (download attachments) and, if your Base lives inside a Wiki, `wiki:wiki:readonly`.
+3. **Version Management & Release:** create a version and publish it. Your Lark admin may need to approve it.
+4. Copy the **App ID** and **App Secret** (Credentials & Basic Info) into Railway Variables as
+   `LARK_APP_ID` and `LARK_APP_SECRET`.
+5. Open the Base in Lark → **···** (top right) → **More** → **Add document app** (添加文档应用) →
+   choose the app. If the Base uses advanced permissions, also give the app a role that can view the table.
+6. In Video Finder: Upload → *Import from Lark Base* → paste the Base link → *Connect & import*.
+
 ## Settings (environment variables)
 
 | Variable | What it's for |
