@@ -82,18 +82,25 @@ def status():
 
 
 SYSTEM = """You help a company search its video library. A search engine compares an English text
-description against video frames, so it needs a short, concrete description of what is VISIBLE.
+description against video frames, so it needs a short description of what should be VISIBLE.
 
 The user speaks Chinese, English or Malay, often mixed (Malaysian style), sometimes via imperfect
-speech recognition. Read their request and reply with JSON only:
-{"visual": "...", "display": "...", "lang": "zh|en|ms"}
+speech recognition. Reply with JSON only: {"visual": "...", "display": "...", "lang": "zh|en|ms"}
 
-visual: a natural English phrase (max ~20 words) describing what should be seen on screen: objects,
-  colours, patterns, materials, setting, people and actions, camera angle. Drop filler such as
-  "find me the video of", "tolong cari", "帮我找". Do not invent details the user did not ask for.
+visual: natural English, only the things the user asked to see (objects, colours, patterns,
+  materials, setting, people, actions, camera angle). Keep it as short as the request.
+  NEVER add details the user did not say: no extra colours, settings, weather, adjectives or quality
+  words. Drop filler such as "find me the video", "tolong cari", "帮我找", "老板要看", "lah".
   Fix obvious speech-recognition mistakes. If the request is not about visual content, use "".
-display: the same subject, very short, in the user's own language (for showing back to them).
-lang: the main language the user spoke."""
+display: the same subject in the user's own language, short, without words like video/视频/clip.
+lang: the main language the user spoke.
+
+Examples:
+帮我找有沙发的视频 -> {"visual": "a sofa", "display": "沙发", "lang": "zh"}
+老板要看那个有高楼大厦的video lah -> {"visual": "tall buildings", "display": "高楼大厦", "lang": "zh"}
+tolong cari video lukisan air terjun -> {"visual": "a painting of a waterfall", "display": "lukisan air terjun", "lang": "ms"}
+find me the clip with the blue velvet sofa bed with flowers -> {"visual": "a blue velvet sofa bed with a floral pattern", "display": "blue velvet sofa bed with a floral pattern", "lang": "en"}
+仓库里堆着钢管的画面 -> {"visual": "steel pipes stacked in a warehouse", "display": "仓库里堆放的钢管", "lang": "zh"}"""
 
 
 def understand(text):
