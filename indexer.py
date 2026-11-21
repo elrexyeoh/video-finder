@@ -22,6 +22,8 @@ from fractions import Fraction
 import numpy as np
 from PIL import Image
 
+import openai_helper
+
 DATA_DIR = os.environ.get("DATA_DIR", os.path.join(os.path.dirname(__file__), "data"))
 VIDEO_DIR = os.path.join(DATA_DIR, "videos")
 THUMB_DIR = os.path.join(DATA_DIR, "thumbs")
@@ -39,6 +41,10 @@ PROMPT = "a photo of {}"
 #   below      -> not shown at all
 STRONG = float(os.environ.get("MATCH_STRONG", "-7.5"))
 MINIMUM = float(os.environ.get("MATCH_MINIMUM", "-10"))
+# Chinese requests are also translated to English (locally) and both are scored together:
+# the vision model is most precise in English, and averaging guards against bad translations.
+TRANSLATE_MODEL = os.environ.get("TRANSLATE_MODEL", "Helsinki-NLP/opus-mt-zh-en")
+_CJK = re.compile(r"[\u3400-\u9fff\uf900-\ufaff]")
 # Also drop results far weaker than the best one found.
 RELATIVE_GAP = float(os.environ.get("MATCH_GAP", "2.5"))
 
@@ -164,6 +170,10 @@ class Engine:
         self._bias = 0.0
         self._model_lock = threading.Lock()
         self._infer_lock = threading.Lock()
+        self._mt = None
+        self._mt_tok = None
+        self._mt_lock = threading.Lock()
+        self._mt_cache = {}
         self._jobs = queue.Queue()
         self._index_lock = threading.Lock()
         self._frame_ids = np.zeros(0, dtype=np.int64)
@@ -207,6 +217,32 @@ class Engine:
             o = o if torch.is_tensor(o) else o.pooler_output
             return torch.nn.functional.normalize(o, dim=-1).numpy()[0].astype(np.float32)
 
+    def translate(self, text):
+        """Chinese -> English with a small local model. Returns None if unavailable."""
+        if not _CJK.search(text) or not TRANSLATE_MODEL:
+            return None
+        if text in self._mt_cache:
+            return self._mt_cache[text]
+        try:
+            import torch
+            from transformers import MarianMTModel, MarianTokenizer
+
+            with self._mt_lock:
+                if self._mt is None:
+                    self._mt_tok = MarianTokenizer.from_pretrained(TRANSLATE_MODEL)
+                    self._mt = MarianMTModel.from_pretrained(TRANSLATE_MODEL).eval()
+                with torch.no_grad():
+                    out = self._mt.generate(**self._mt_tok([text], return_tensors="pt", truncation=True),
+                                            max_new_tokens=48, num_beams=2)
+                en = self._mt_tok.decode(out[0], skip_special_tokens=True).strip().rstrip(".。")
+        except Exception:
+            traceback.print_exc()
+            return None
+        if len(self._mt_cache) > 2000:
+            self._mt_cache.clear()
+        self._mt_cache[text] = en or None
+        return en or None
+
     # ---------- lifecycle ----------
     def start(self):
         init_db()
@@ -239,6 +275,7 @@ class Engine:
     def _worker(self):
         try:
             self._load()  # warm up so the first search is fast
+            self.translate("沙发")
             self._upgrade_old_frames()
         except Exception:
             traceback.print_exc()
@@ -356,8 +393,23 @@ class Engine:
             mat, fids, fvid, ft = self._matrix, self._frame_ids, self._frame_video, self._frame_t
         if len(fids) == 0:
             return result
-        q = self.embed_text(visual)
-        logits = (mat.astype(np.float32) @ q) * self._scale + self._bias
+        m32 = mat.astype(np.float32)
+        score = lambda text: (m32 @ self.embed_text(text)) * self._scale + self._bias
+        logits = score(visual)
+        # Best: an OpenAI model rewrites the request as a precise English scene description.
+        understood = openai_helper.understand(query)
+        if understood and understood["visual"]:
+            result.update(engine="openai", translated=understood["visual"])
+            if understood["display"]:
+                result["looking_for"] = understood["display"]
+            logits = 0.6 * score(understood["visual"]) + 0.4 * logits
+        else:
+            # Free fallback: local Chinese->English translation, averaged with the original.
+            english = self.translate(visual)
+            result["engine"] = "local"
+            if english:
+                result["translated"] = english
+                logits = (logits + score(english)) / 2
 
         keep = logits >= MINIMUM
         if not keep.any():

@@ -5,7 +5,8 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 # Bake the AI models into the image so the app starts fast and works without downloading them.
 ENV HF_HOME=/models
-RUN python -c "from transformers import AutoModel, AutoProcessor as P; m='google/siglip-base-patch16-256-multilingual'; AutoModel.from_pretrained(m); P.from_pretrained(m)"
+RUN python -c "from transformers import AutoModel, AutoProcessor as P; m='google/siglip-base-patch16-256-multilingual'; AutoModel.from_pretrained(m); P.from_pretrained(m)" \
+ && python -c "from transformers import MarianMTModel as M, MarianTokenizer as T; m='Helsinki-NLP/opus-mt-zh-en'; M.from_pretrained(m); T.from_pretrained(m)"
 COPY . .
 # Videos, thumbnails and the search index live here. Mount a persistent volume at /data.
 ENV DATA_DIR=/data PYTHONUNBUFFERED=1

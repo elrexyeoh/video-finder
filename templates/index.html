@@ -472,7 +472,7 @@ function listen() {
   if (busy) return;
   if (rec) { rec.stop(); return; }
   if (!SR) { toast(t('voice_unsupported')); q.focus(); return; }
-  if ('speechSynthesis' in window) speechSynthesis.cancel();
+  stopSpeaking(); unlockAudio();
   const lang = I18N.voiceCode();
   rec = new SR(); rec.lang = lang; rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 1;
   let heard = '', aborted = false;
@@ -488,20 +488,37 @@ function listen() {
 }
 $('#orb').onclick = listen;
 $('#miniorb').onclick = listen;
-function speak(text, lang) {
+// Spoken replies: natural OpenAI voice when configured, otherwise the browser's own voice.
+let CFG = {};
+api('/api/config').then(r => r.json()).then(c => { CFG = c; }).catch(() => {});
+const voicePlayer = new Audio();
+function unlockAudio() { if (!CFG.natural_voice) return; try { voicePlayer.src = '/static/silence.mp3'; voicePlayer.play().catch(() => {}); } catch {} }
+function stopSpeaking() { try { voicePlayer.pause(); } catch {} if ('speechSynthesis' in window) speechSynthesis.cancel(); }
+async function speak(text, lang) {
+  text = text.replace(/<[^>]+>/g, '');
+  stopSpeaking();
+  if (CFG.natural_voice) {
+    try {
+      const r = await fetch('/api/tts', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text, lang: lang || I18N.lang }) });
+      if (r.status === 200) { voicePlayer.src = URL.createObjectURL(await r.blob()); await voicePlayer.play(); return; }
+    } catch {}
+  }
+  browserSpeak(text, lang);
+}
+function browserSpeak(text, lang) {
   if (!('speechSynthesis' in window)) return;
   const code = I18N.voiceCode(lang), base = code.slice(0, 2).toLowerCase();
-  const u = new SpeechSynthesisUtterance(text.replace(/<[^>]+>/g, ''));
+  const u = new SpeechSynthesisUtterance(text);
   u.lang = code; u.rate = 1.02;
   const voices = speechSynthesis.getVoices();
   const v = voices.find(v => v.lang.replace('_', '-').toLowerCase() === code.toLowerCase()) || voices.find(v => v.lang.toLowerCase().startsWith(base));
   if (v) u.voice = v;
-  speechSynthesis.cancel(); speechSynthesis.speak(u);
+  speechSynthesis.speak(u);
 }
 
 // ---------- player ----------
 function play(id, name, at, frames) {
-  if ('speechSynthesis' in window) speechSynthesis.cancel();
+  stopSpeaking();
   const v = $('#vid');
   v.src = `/media/${id}`;
   v.onloadedmetadata = () => { v.currentTime = Math.max(0, (at || 0) - 0.5); v.play().catch(() => {}); };

@@ -9,7 +9,8 @@ from flask import (Flask, abort, jsonify, redirect, render_template, request,
                    send_file, session, url_for)
 from werkzeug.utils import secure_filename
 
-from indexer import THUMB_DIR, VIDEO_DIR, db, engine
+import openai_helper
+from indexer import DATA_DIR, THUMB_DIR, VIDEO_DIR, db, engine
 
 APP_PASSWORD = os.environ.get("APP_PASSWORD", "")
 ALLOWED_EXT = {".mp4", ".mov", ".m4v", ".mkv", ".avi", ".webm", ".wmv", ".mpg", ".mpeg", ".3gp", ".3g2",
@@ -125,6 +126,24 @@ def delete_video(vid):
         pass
     engine.reload_matrix()
     return jsonify(ok=True)
+
+
+@app.get("/api/config")
+def config():
+    st = openai_helper.status()
+    ok = st.get("enabled") and not st.get("error")
+    return jsonify(natural_voice=bool(ok and st.get("tts_model")), smart_search=bool(ok and st.get("chat_model")), openai=st)
+
+
+@app.post("/api/tts")
+def tts():
+    body = request.get_json(silent=True) or {}
+    path = openai_helper.speak(str(body.get("text", ""))[:600], str(body.get("lang", "en")), os.path.join(DATA_DIR, "tts"))
+    if not path:
+        return ("", 204)
+    resp = send_file(path, mimetype="audio/mpeg")
+    resp.headers["Cache-Control"] = "private, max-age=86400"
+    return resp
 
 
 @app.get("/api/stats")

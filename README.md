@@ -34,6 +34,20 @@ Click a thumbnail and the video plays from that moment.
 The model runs on your own server. Videos are never sent to an outside AI service, and there is no
 per-search cost.
 
+## Optional: OpenAI for smarter search and a natural voice
+
+Add an `OPENAI_API_KEY` variable (Railway: service → Variables) and the app automatically:
+
+- **Understands requests better:** an OpenAI model rewrites what was said, in Chinese, English,
+  Malay or a mix, into a precise English scene description before searching. Without a key, a free
+  local Chinese→English translator is used instead.
+- **Speaks naturally:** replies use OpenAI's text-to-speech voice instead of the browser's built-in
+  voice. Replies are cached, so repeated sentences cost nothing.
+
+Only the short request text and reply sentence are sent to OpenAI, never videos or images. If
+OpenAI is slow or unreachable, the app silently falls back to the free local behaviour.
+Optional: `OPENAI_CHAT_MODEL`, `OPENAI_TTS_MODEL`, `OPENAI_TTS_VOICE` (default `coral`).
+
 ## Settings (environment variables)
 
 | Variable | What it's for |
