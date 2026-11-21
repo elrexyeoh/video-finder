@@ -58,13 +58,15 @@ button.orb:active{transform:scale(.97)}
           mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 2.5px));
   animation:spin 9s linear infinite}
 .orb__core{position:absolute;inset:6%;border-radius:50%;overflow:hidden;display:grid;place-items:center;isolation:isolate;
+  /* Safari ignores border-radius clipping on blurred/blended children: force a circular clip */
+  clip-path:circle(50% at 50% 50%);-webkit-mask-image:-webkit-radial-gradient(white,black);mask-image:radial-gradient(circle,#000 99%,transparent 100%);transform:translateZ(0);
   background:radial-gradient(circle at 32% 28%,#2b5cb3 0%,#143470 38%,#0B1F45 74%);
   box-shadow:inset 0 0 calc(var(--size)*.2) rgba(220,192,128,.24),inset 0 calc(var(--size)*-.05) calc(var(--size)*.14) rgba(0,0,0,.45),0 calc(var(--size)*.09) calc(var(--size)*.26) rgba(0,0,0,.45);
   animation:breathe 4.5s ease-in-out infinite}
-.blob{position:absolute;width:72%;height:72%;border-radius:50%;filter:blur(calc(var(--size)*.07));mix-blend-mode:screen;opacity:.78;will-change:transform}
-.b1{background:radial-gradient(circle,#D9BC78,transparent 64%);left:-12%;top:34%;animation:d1 9s ease-in-out infinite}
-.b2{background:radial-gradient(circle,#3a6fd0,transparent 64%);right:-16%;top:-8%;animation:d2 11s ease-in-out infinite}
-.b3{background:radial-gradient(circle,#F3E2B0,transparent 60%);left:24%;bottom:-28%;width:56%;height:56%;animation:d3 7s ease-in-out infinite}
+.blob{position:absolute;width:80%;height:80%;border-radius:50%;mix-blend-mode:screen;opacity:.78}
+.b1{background:radial-gradient(circle,rgba(217,188,120,.95) 0%,rgba(217,188,120,.45) 32%,transparent 68%);left:-12%;top:34%;animation:d1 9s ease-in-out infinite}
+.b2{background:radial-gradient(circle,rgba(58,111,208,.95) 0%,rgba(58,111,208,.45) 32%,transparent 68%);right:-16%;top:-8%;animation:d2 11s ease-in-out infinite}
+.b3{background:radial-gradient(circle,rgba(243,226,176,.62) 0%,rgba(243,226,176,.32) 34%,transparent 68%);left:24%;bottom:-28%;width:56%;height:56%;animation:d3 7s ease-in-out infinite}
 .orb__sheen{position:absolute;inset:0;border-radius:50%;pointer-events:none;background:radial-gradient(ellipse at 34% 16%,rgba(255,255,255,.38),transparent 40%)}
 .orb__mic{position:relative;z-index:2;width:30%;height:30%;color:#F6E7BE;filter:drop-shadow(0 2px 10px rgba(0,0,0,.45));transition:opacity .35s var(--ease),transform .35s var(--ease)}
 .orb__bars{position:absolute;z-index:2;display:flex;gap:7%;align-items:center;justify-content:center;width:42%;height:34%;opacity:0;transform:scale(.7);transition:opacity .35s var(--ease),transform .35s var(--ease)}
