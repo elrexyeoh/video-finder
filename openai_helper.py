@@ -20,12 +20,13 @@ API = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1").rstrip("/")
 KEY = os.environ.get("OPENAI_API_KEY", "").strip()
 CHAT_PREFS = [m for m in [os.environ.get("OPENAI_CHAT_MODEL")] if m] + ["gpt-4.1-mini", "gpt-4o-mini", "gpt-5-mini", "gpt-5-nano"]
 TTS_PREFS = [m for m in [os.environ.get("OPENAI_TTS_MODEL")] if m] + ["gpt-4o-mini-tts", "tts-1"]
+STT_PREFS = [m for m in [os.environ.get("OPENAI_STT_MODEL")] if m] + ["gpt-4o-transcribe", "gpt-4o-mini-transcribe", "whisper-1"]
 TTS_VOICE = os.environ.get("OPENAI_TTS_VOICE", "coral")
 TIMEOUT = float(os.environ.get("OPENAI_TIMEOUT", "5"))
 _down_until = [0.0]  # after a failure, skip OpenAI briefly so searches stay fast
 
 _lock = threading.Lock()
-_models = {"chat": None, "tts": None, "checked": 0.0, "error": None}
+_models = {"chat": None, "tts": None, "stt": None, "checked": 0.0, "error": None}
 _cache = {}
 
 
@@ -57,9 +58,10 @@ def _pick_models():
             ids = {m["id"] for m in _req("/models", method="GET").get("data", [])}
             _models["chat"] = next((m for m in CHAT_PREFS if m in ids), None)
             _models["tts"] = next((m for m in TTS_PREFS if m in ids), None)
+            _models["stt"] = next((m for m in STT_PREFS if m in ids), None)
             _models["error"] = None if _models["chat"] else "no suitable chat model on this account"
         except Exception as e:  # bad key, network, ...
-            _models["chat"] = _models["tts"] = None
+            _models["chat"] = _models["tts"] = _models["stt"] = None
             _models["error"] = _describe(e)
         _models["checked"] = time.time()
         return _models
@@ -78,7 +80,8 @@ def status():
     if not KEY:
         return {"enabled": False}
     m = _pick_models()
-    return {"enabled": True, "chat_model": m["chat"], "tts_model": m["tts"], "voice": TTS_VOICE, "error": m["error"]}
+    return {"enabled": True, "chat_model": m["chat"], "tts_model": m["tts"], "stt_model": m["stt"], "voice": TTS_VOICE,
+            "error": m["error"]}
 
 
 SYSTEM = """You help a company search its video library. A search engine compares an English text
@@ -164,3 +167,34 @@ def speak(text, lang, cache_dir):
         f.write(audio)
     os.replace(tmp, path)
     return path
+
+
+STT_PROMPT = {
+    "zh": "这是马来西亚同事在视频库里找视频的语音，可能夹杂中文、英文和马来语，例如：帮我找浮雕壁画室内设计的视频、不锈钢厨房、星空房。",
+    "ms": "Permintaan suara untuk mencari video, mungkin bercampur Bahasa Melayu, Inggeris dan Cina.",
+    "en": "A spoken request to find a video in a company library; may mix English, Chinese and Malay.",
+}
+
+
+def transcribe(audio, filename, mime, lang):
+    """Speech -> text with OpenAI. Returns the text ('' if nothing was said) or None on failure."""
+    if not enabled() or not audio:
+        return None
+    model = _pick_models()["stt"]
+    if not model:
+        return None
+    boundary = "----vf" + hashlib.sha1(os.urandom(8)).hexdigest()
+    fields = {"model": model, "prompt": STT_PROMPT.get((lang or "zh")[:2], STT_PROMPT["zh"]), "response_format": "json"}
+    body = b""
+    for k, v in fields.items():
+        body += f'--{boundary}\r\nContent-Disposition: form-data; name="{k}"\r\n\r\n{v}\r\n'.encode()
+    body += (f'--{boundary}\r\nContent-Disposition: form-data; name="file"; filename="{filename}"\r\n'
+             f"Content-Type: {mime}\r\n\r\n").encode() + audio + f"\r\n--{boundary}--\r\n".encode()
+    r = urllib.request.Request(API + "/audio/transcriptions", data=body, method="POST", headers={
+        "Authorization": f"Bearer {KEY}", "Content-Type": f"multipart/form-data; boundary={boundary}"})
+    try:
+        with urllib.request.urlopen(r, timeout=20) as resp:
+            return (json.loads(resp.read()).get("text") or "").strip()
+    except Exception as e:
+        _failed(e, "transcribe")
+        return None

@@ -15,7 +15,7 @@
 <script src="/static/pwa.js?v=1"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/static/theme.css?v=8">
+<link rel="stylesheet" href="/static/theme.css?v=9">
 <style>
 /* ================= layout ================= */
 body{background:var(--ivory);min-height:100dvh}
@@ -416,7 +416,7 @@ dialog::backdrop{background:rgba(5,12,30,.85)}
   </div>
 </dialog>
 
-<script src="/static/i18n.js?v=12"></script>
+<script src="/static/i18n.js?v=13"></script>
 <script>
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -481,7 +481,7 @@ function setStage(state) {
     $('#status').textContent = t('thinking', { n: stats.searchable });
   }
 }
-$('#cancel').onclick = () => { if (rec) { rec.abort(); } setStage('idle'); };
+$('#cancel').onclick = () => { if (rec) { rec.abort(); } if (recorder) { recorder.cancel(); } setStage('idle'); };
 
 // ---------- composer ----------
 const q = $('#q');
@@ -605,13 +605,76 @@ function detailsHtml(d) {
 }
 
 // ---------- voice ----------
+// Default: record the request and let OpenAI transcribe it (works the same in every browser and in
+// the installed app, and copes with mixed Chinese/Malay/English). Recording stops by itself when the
+// speaker pauses. Falls back to the phone's built-in speech recognition if OpenAI isn't available.
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-let rec = null;
+let rec = null, recorder = null;
 function listen() {
   if (busy) return;
   if (rec) { rec.stop(); return; }
-  if (!SR) { toast(t('voice_unsupported')); q.focus(); return; }
+  if (recorder) { recorder.finish(); return; }
   stopSpeaking(); unlockAudio();
+  if (CFG.voice_input && navigator.mediaDevices?.getUserMedia && window.MediaRecorder) listenOpenAI();
+  else listenBrowser();
+}
+
+async function listenOpenAI() {
+  const AC = window.AudioContext || window.webkitAudioContext;
+  const ac = AC ? new AC() : null;  // created inside the tap so iPhones allow it
+  let stream;
+  try { stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } }); }
+  catch (e) { ac?.close(); toast(t(e && e.name === 'NotAllowedError' ? 'mic_blocked' : 'mic_fail')); return; }
+  const type = ['audio/webm;codecs=opus', 'audio/mp4', 'audio/webm', 'audio/ogg'].find(m => MediaRecorder.isTypeSupported?.(m)) || '';
+  let mr;
+  try { mr = new MediaRecorder(stream, type ? { mimeType: type } : undefined); }
+  catch { stream.getTracks().forEach(tr => tr.stop()); ac?.close(); listenBrowser(); return; }
+  const chunks = [];
+  mr.ondataavailable = e => e.data && e.data.size && chunks.push(e.data);
+  let spoke = false, cancelled = false, timer = null, raf = null;
+  const done = () => { clearInterval(timer); cancelAnimationFrame(raf); stream.getTracks().forEach(tr => tr.stop()); ac?.close(); recorder = null; $('#orb').style.removeProperty('--lvl'); };
+  recorder = { finish: () => mr.state !== 'inactive' && mr.stop(), cancel: () => { cancelled = true; mr.state !== 'inactive' && mr.stop(); } };
+
+  // voice level -> orb animation, and end-of-speech detection
+  if (ac) {
+    const an = ac.createAnalyser(); an.fftSize = 1024; ac.createMediaStreamSource(stream).connect(an);
+    const buf = new Float32Array(an.fftSize);
+    const started = Date.now(); let floor = 0.01, n = 0, lastVoice = Date.now();
+    const level = () => { an.getFloatTimeDomainData(buf); let sum = 0; for (const v of buf) sum += v * v; return Math.sqrt(sum / buf.length); };
+    const draw = () => { const l = level(); $('#orb').style.setProperty('--lvl', Math.min(1, l * 9).toFixed(3)); raf = requestAnimationFrame(draw); };
+    draw();
+    timer = setInterval(() => {
+      const l = level(), age = Date.now() - started;
+      if (age < 400) { floor = (floor * n + l) / ++n; return; }  // learn the room's background noise
+      if (l > Math.max(floor * 3, 0.02)) { spoke = true; lastVoice = Date.now(); }
+      if (spoke && Date.now() - lastVoice > 1300) recorder?.finish();               // paused after speaking
+      if (!spoke && age > 7000) { cancelled = true; toast(t('no_speech')); recorder?.finish(); }  // never spoke
+      if (age > 20000) recorder?.finish();                                          // hard limit
+    }, 100);
+  } else {
+    timer = setInterval(() => {}, 1000);
+    setTimeout(() => recorder?.finish(), 8000);
+  }
+
+  mr.onstop = async () => {
+    done();
+    if (cancelled || !chunks.length) { setStage('idle'); return; }
+    setStage('thinking'); $('#status').textContent = t('transcribing'); $('#live').textContent = '';
+    const blob = new Blob(chunks, { type: mr.mimeType || type || 'audio/webm' });
+    const fd = new FormData(); fd.append('audio', blob, 'speech'); fd.append('lang', I18N.lang);
+    let text = null;
+    try { const r = await api('/api/transcribe', { method: 'POST', body: fd }); if (r.ok) text = (await r.json()).text; } catch {}
+    if (text === null) { CFG.voice_input = false; setStage('idle'); toast(t('voice_fallback')); return; }  // use the phone's recogniser from now on
+    if (!text.trim()) { setStage('idle'); toast(t('no_speech')); return; }
+    $('#live').textContent = '“' + text.trim() + '”';
+    ask(text.trim(), { voice: true, lang: I18N.lang });
+  };
+  mr.start(250);
+  setStage('listening');
+}
+
+function listenBrowser() {
+  if (!SR) { toast(t('voice_unsupported')); q.focus(); return; }
   const lang = I18N.voiceCode();
   rec = new SR(); rec.lang = lang; rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 1;
   let heard = '', aborted = false;

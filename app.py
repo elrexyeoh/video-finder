@@ -175,7 +175,23 @@ def delete_video(vid):
 def config():
     st = openai_helper.status()
     ok = st.get("enabled") and not st.get("error")
-    return jsonify(natural_voice=bool(ok and st.get("tts_model")), smart_search=bool(ok and st.get("chat_model")), openai=st)
+    return jsonify(natural_voice=bool(ok and st.get("tts_model")), smart_search=bool(ok and st.get("chat_model")),
+                   voice_input=bool(ok and st.get("stt_model")), openai=st)
+
+
+@app.post("/api/transcribe")
+def transcribe():
+    f = request.files.get("audio")
+    if not f:
+        return jsonify(error="no audio"), 400
+    audio = f.read(8 * 1024 * 1024)
+    mime = (f.mimetype or "audio/webm").split(";")[0]
+    ext = {"audio/mp4": "m4a", "audio/x-m4a": "m4a", "audio/aac": "m4a", "audio/mpeg": "mp3", "audio/wav": "wav",
+           "audio/ogg": "ogg", "audio/webm": "webm"}.get(mime, "webm")
+    text = openai_helper.transcribe(audio, f"speech.{ext}", mime, request.form.get("lang", "zh"))
+    if text is None:
+        return jsonify(error="unavailable"), 503
+    return jsonify(text=text)
 
 
 @app.post("/api/tts")

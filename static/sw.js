@@ -1,8 +1,8 @@
 // Video Finder service worker: makes the app installable, opens fast, and shows a friendly
 // screen when offline. Searches, videos and thumbnails always come live from the server.
-const VERSION = 'vf-1';
+const VERSION = 'vf-2';
 const SHELL = '/offline';
-const PRECACHE = [SHELL, '/static/theme.css?v=8', '/static/icons/icon-192.png', '/static/logo-light.png'];
+const PRECACHE = [SHELL, '/static/theme.css?v=9', '/static/icons/icon-192.png', '/static/logo-light.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(VERSION).then(c => c.addAll(PRECACHE.map(u => new Request(u, { cache: 'reload' })))).then(() => self.skipWaiting()));
