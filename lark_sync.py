@@ -9,6 +9,7 @@ Setup (Lark developer console): create a custom app, give it read-only Base and 
 scopes, publish it, then add the app to the Base from the Base's "···" menu. Put the app's
 credentials in the LARK_APP_ID and LARK_APP_SECRET environment variables.
 """
+import datetime
 import json
 import os
 import re
@@ -151,6 +152,18 @@ def cell_text(v):
     return ""
 
 
+DATE_TYPES = {5, 1001, 1002}  # date, created time, last modified time
+TZ = datetime.timezone(datetime.timedelta(hours=float(os.environ.get("LARK_TZ_HOURS", "8"))))
+
+
+def fmt_date(v):
+    """Lark dates are millisecond timestamps -> 2026-01-27 (shown in Malaysia time by default)."""
+    try:
+        return datetime.datetime.fromtimestamp(int(v) / 1000, TZ).strftime("%Y-%m-%d")
+    except (TypeError, ValueError, OverflowError, OSError):
+        return cell_text(v)
+
+
 def is_video(att):
     ext = os.path.splitext(att.get("name") or "")[1].lower()
     return (att.get("type") or "").startswith("video/") or ext in VIDEO_EXT
@@ -225,6 +238,7 @@ def sync_source(sid):
                 continue
             primary = next((f["field_name"] for f in fields if f.get("is_primary")), None)
             names = {f["field_name"] for f in fields}
+            types = {f["field_name"]: f.get("type") for f in fields}
             params = {"page_size": 500}
             if src["view_id"] and src["table_id"]:
                 params["view_id"] = src["view_id"]  # same order and filter as the view the link came from
@@ -239,7 +253,7 @@ def sync_source(sid):
                 for k in [f["field_name"] for f in fields] + [k for k in cells if k not in names]:  # table column order
                     if k in att_fields or k not in cells:
                         continue
-                    txt = cell_text(cells[k]).strip()
+                    txt = (fmt_date(cells[k]) if types.get(k) in DATE_TYPES else cell_text(cells[k])).strip()
                     if txt:
                         meta[k] = txt[:500]
                 title = meta.get(primary) if primary else None
