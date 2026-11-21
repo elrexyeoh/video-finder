@@ -11,7 +11,7 @@
 <link rel="apple-touch-icon" href="/static/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/static/theme.css?v=5">
+<link rel="stylesheet" href="/static/theme.css?v=6">
 <style>
 /* ================= layout ================= */
 body{background:var(--ivory);min-height:100dvh}
@@ -47,9 +47,10 @@ body.on-ask{background:var(--navy-1000);color:#fff}
 main{padding-top:var(--top)}
 
 /* ================= ASK (boss mode) ================= */
-.aurora .bd-city{opacity:.8;transition:opacity .8s var(--ease)}
+.aurora .bd-tower{transition:opacity .8s var(--ease)}
 .aurora::after{content:"";position:absolute;left:0;right:0;bottom:0;height:150px;background:linear-gradient(to top,rgba(11,31,69,.95),rgba(11,31,69,0))}
-.has-thread .aurora .bd-city{opacity:.32}
+.has-thread .aurora .bd-tower{opacity:.3}
+.has-thread .aurora .bd-city{opacity:.15}
 .has-thread .aurora .bd-waves{opacity:.6}
 #view-ask{position:relative;min-height:calc(100dvh - var(--top));padding-bottom:calc(96px + var(--safe))}
 .stage{position:relative;z-index:2;min-height:calc(100dvh - var(--top) - 96px - var(--safe));display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px 16px 12px}
@@ -60,11 +61,11 @@ main{padding-top:var(--top)}
 .greet::before,.greet::after{content:"";width:26px;height:1px;background:var(--gold-500);opacity:.7}
 .stage h1{font-family:var(--serif);font-weight:500;font-size:clamp(28px,7.4vw,48px);line-height:1.15;margin:0 0 clamp(22px,5vh,44px);max-width:640px}
 .stage h1 em{font-style:italic;color:var(--gold-400)}
-.status{margin:clamp(22px,4vh,36px) 0 0;font-size:17px;font-weight:600;letter-spacing:.04em;color:#fff;min-height:1.6em}
+.status{text-shadow:0 1px 12px rgba(7,19,44,.95);margin:clamp(22px,4vh,36px) 0 0;font-size:17px;font-weight:600;letter-spacing:.04em;color:#fff;min-height:1.6em}
 .live{margin:10px 0 0;font-family:var(--serif);font-size:clamp(22px,5.6vw,30px);line-height:1.3;color:var(--gold-300);max-width:640px;min-height:1.3em}
-.hint{margin:6px 0 0;font-size:14px;color:rgba(255,255,255,.55);max-width:520px}
+.hint{margin:6px 0 0;font-size:14px;color:rgba(255,255,255,.72);max-width:520px;text-shadow:0 1px 10px rgba(7,19,44,.95),0 0 3px rgba(7,19,44,.9)}
 .chips{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:22px;max-width:640px}
-.chip{border:1px solid var(--line-light);background:rgba(255,255,255,.05);color:rgba(255,255,255,.82);border-radius:999px;padding:8px 14px;font-size:13.5px;transition:border-color .3s,background .3s}
+.chip{border:1px solid rgba(220,192,128,.3);background:rgba(9,24,54,.72);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);color:rgba(255,255,255,.82);border-radius:999px;padding:8px 14px;font-size:13.5px;transition:border-color .3s,background .3s}
 .chip:hover{border-color:var(--gold-500);background:rgba(201,169,97,.12)}
 .stage[data-state=listening] .hint,.stage[data-state=listening] .chips,.stage[data-state=thinking] .hint,.stage[data-state=thinking] .chips,
 .stage[data-state=listening] h1,.stage[data-state=thinking] h1{visibility:hidden}
@@ -236,7 +237,7 @@ dialog::backdrop{background:rgba(5,12,30,.85)}
   <symbol id="i-out" viewBox="0 0 24 24"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 16l-4-4 4-4M6 12h10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
 </svg>
 
-<div class="aurora" aria-hidden="true"><i></i><i></i><i></i><img class="bd-waves" src="/static/waves.svg?v=1" alt=""><img class="bd-city" src="/static/skyline.svg?v=1" alt=""></div>
+<div class="aurora" aria-hidden="true"><i></i><i></i><i></i><img class="bd-waves" src="/static/waves.svg?v=1" alt=""><img class="bd-city" src="/static/skyline.svg?v=1" alt=""><img class="bd-tower" src="/static/tower-art.webp?v=1" alt=""></div>
 
 <header class="top">
   <button class="iconbtn menubtn" id="menubtn" aria-label="Menu" data-i18n-aria="menu"><svg><use href="#i-menu"/></svg></button>
@@ -347,7 +348,7 @@ dialog::backdrop{background:rgba(5,12,30,.85)}
   </div>
 </dialog>
 
-<script src="/static/i18n.js?v=5"></script>
+<script src="/static/i18n.js?v=6"></script>
 <script>
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

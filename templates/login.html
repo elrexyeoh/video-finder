@@ -8,7 +8,7 @@
 <link rel="apple-touch-icon" href="/static/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;600;700&family=Noto+Serif+SC:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/static/theme.css?v=5">
+<link rel="stylesheet" href="/static/theme.css?v=6">
 <style>
   body{min-height:100dvh;background:var(--navy-1000);color:#fff;overflow-x:hidden}
   #dust{position:fixed;inset:0;z-index:1;pointer-events:none}
@@ -27,8 +27,8 @@
   @keyframes sheen{0%{background-position:100% 0}45%,100%{background-position:0 0}}
   .sub{margin:14px auto 30px;max-width:420px;color:rgba(255,255,255,.72);font-size:16px}
   form{width:100%;max-width:400px;margin:0 auto;padding:26px 22px 24px;text-align:left;border-radius:4px;
-    background:linear-gradient(160deg,rgba(255,255,255,.09),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.14);
-    backdrop-filter:blur(18px) saturate(1.2);-webkit-backdrop-filter:blur(18px) saturate(1.2);box-shadow:0 30px 80px rgba(0,0,0,.35)}
+    background:linear-gradient(160deg,rgba(11,31,69,.55),rgba(11,31,69,.3));border:1px solid rgba(255,255,255,.14);
+    backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);box-shadow:0 30px 80px rgba(0,0,0,.35)}
   label{display:block;font-size:11.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.6);margin:0 0 7px}
   .f + .f{margin-top:16px}
   input{width:100%;height:52px;padding:0 20px;border-radius:999px;border:1px solid rgba(255,255,255,.2);background:rgba(7,19,44,.45);color:#fff;font:inherit;font-size:16px;transition:border-color .3s,box-shadow .3s}
@@ -48,11 +48,16 @@
   .d1{animation-delay:.05s}.d2{animation-delay:.2s}.d3{animation-delay:.4s}.d4{animation-delay:.55s}.d5{animation-delay:.7s}.d6{animation-delay:.85s}.d7{animation-delay:1.05s}
   @media (min-height:820px){.emblem{margin-bottom:34px}}
   .sub,.foot,.eyebrow{text-shadow:0 1px 12px rgba(7,19,44,.95),0 0 3px rgba(7,19,44,.9)}
-  @media (min-width:900px){.aurora .bd-city{height:min(48vh,540px)}}
+  @media (min-width:1000px){
+    /* two columns: sign-in on the left, the corporate skyline on the right */
+    .wrap{width:min(500px,40vw);margin-left:7vw}
+    .aurora .bd-tower{left:auto;right:2vw;transform:none;height:min(96vh,1000px)}
+    .aurora .bd-city{height:min(40vh,460px);opacity:.28}
+  }
 </style>
 </head>
 <body>
-<div class="aurora" aria-hidden="true"><i></i><i></i><i></i><img class="bd-waves" src="/static/waves.svg?v=1" alt=""><img class="bd-city" src="/static/skyline.svg?v=1" alt=""></div>
+<div class="aurora" aria-hidden="true"><i></i><i></i><i></i><img class="bd-waves" src="/static/waves.svg?v=1" alt=""><img class="bd-city" src="/static/skyline.svg?v=1" alt=""><img class="bd-tower" src="/static/tower-art.webp?v=1" alt=""></div>
 <canvas id="dust" aria-hidden="true"></canvas>
 <div class="langsw" id="langsw" role="group" aria-label="Language"></div>
 
@@ -80,7 +85,7 @@
   <p class="foot rv d7" data-i18n="foot"></p>
 </div>
 
-<script src="/static/i18n.js?v=5"></script>
+<script src="/static/i18n.js?v=6"></script>
 <script>
 I18N.apply(document);
 I18N.mountSwitch(document.getElementById('langsw'));
