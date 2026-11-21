@@ -1,45 +1,118 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0B1F45">
-<title>Video Finder · Sign in</title>
+<title>Video Finder · TSLAW Group</title>
 <link rel="icon" href="/static/favicon.png">
 <link rel="apple-touch-icon" href="/static/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;600;700&family=Noto+Serif+SC:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/theme.css?v=3">
 <style>
-  :root{--navy-1000:#0B1F45;--navy-950:#0F2A5C;--gold-400:#DCC080;--gold-500:#C9A961;--ink:#0A1530;--ink-3:#6A7288;
-    --gold-grad:linear-gradient(115deg,#9C7F3F 0%,#D9BC78 28%,#F3E2B0 46%,#C9A961 62%,#8E7238 100%)}
-  *{box-sizing:border-box}
-  body{margin:0;min-height:100dvh;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:24px 16px;
-    background:radial-gradient(120% 80% at 50% 0%,#1A4085 0%,var(--navy-950) 40%,var(--navy-1000) 100%);color:#fff;font:15px/1.6 "Manrope",system-ui,sans-serif}
-  .logo{height:34px;margin-bottom:28px}
-  form{width:100%;max-width:380px}
-  .eyebrow{display:flex;align-items:center;gap:12px;font-size:11.5px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-400);margin:0 0 12px}
-  .eyebrow::before{content:"";width:28px;height:1px;background:var(--gold-500)}
-  h1{font-family:"Cormorant Garamond",serif;font-weight:500;font-size:44px;line-height:1.05;margin:0 0 8px}
-  h1 em{color:var(--gold-400)}
-  p{margin:0 0 24px;color:rgba(255,255,255,.7)}
-  label{display:block;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.6);margin:16px 0 6px}
-  input{width:100%;height:50px;padding:0 18px;border-radius:999px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#fff;font:inherit;font-size:16px}
-  input:focus{outline:0;border-color:var(--gold-500);background:rgba(255,255,255,.1)}
-  button{margin-top:26px;width:100%;height:52px;border:0;border-radius:999px;background:var(--gold-grad);color:var(--navy-1000);font:inherit;font-weight:700;letter-spacing:.04em;cursor:pointer}
-  .err{margin-top:14px;color:#ffb4a8;font-size:14px;text-align:center}
+  body{min-height:100dvh;background:var(--navy-1000);color:#fff;overflow-x:hidden}
+  #dust{position:fixed;inset:0;z-index:1;pointer-events:none}
+  .langsw{position:fixed;top:max(14px,env(safe-area-inset-top));right:14px;z-index:5}
+  .wrap{position:relative;z-index:2;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:72px 18px calc(28px + var(--safe))}
+  .logo{height:30px;width:auto}
+  .rule{width:0;height:1px;margin:22px auto 26px;background:linear-gradient(90deg,transparent,var(--gold-500),transparent);animation:rule 1.4s .5s var(--ease) forwards}
+  @keyframes rule{to{width:min(220px,60vw)}}
+  .emblem{margin:0 auto 26px}
+  .eyebrow{justify-content:center;color:var(--gold-400);margin-bottom:12px}
+  .eyebrow::after{content:"";width:28px;height:1px;background:var(--gold-500)}
+  h1{font-family:var(--serif);font-weight:500;font-size:clamp(40px,11vw,72px);line-height:1.08;letter-spacing:-.005em;margin:0;
+     background:linear-gradient(100deg,#fff 0%,#fff 38%,#F6E7BE 50%,#fff 62%,#fff 100%);background-size:260% 100%;
+     -webkit-background-clip:text;background-clip:text;color:transparent;animation:sheen 7s ease-in-out 1.6s infinite}
+  h1 em{font-style:italic;background:var(--gold-grad);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent}
+  @keyframes sheen{0%{background-position:100% 0}45%,100%{background-position:0 0}}
+  .sub{margin:14px auto 30px;max-width:420px;color:rgba(255,255,255,.72);font-size:16px}
+  form{width:100%;max-width:400px;margin:0 auto;padding:26px 22px 24px;text-align:left;border-radius:4px;
+    background:linear-gradient(160deg,rgba(255,255,255,.09),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.14);
+    backdrop-filter:blur(18px) saturate(1.2);-webkit-backdrop-filter:blur(18px) saturate(1.2);box-shadow:0 30px 80px rgba(0,0,0,.35)}
+  label{display:block;font-size:11.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.6);margin:0 0 7px}
+  .f + .f{margin-top:16px}
+  input{width:100%;height:52px;padding:0 20px;border-radius:999px;border:1px solid rgba(255,255,255,.2);background:rgba(7,19,44,.45);color:#fff;font:inherit;font-size:16px;transition:border-color .3s,box-shadow .3s}
+  input::placeholder{color:rgba(255,255,255,.35)}
+  input:focus{outline:0;border-color:var(--gold-500);box-shadow:0 0 0 4px rgba(201,169,97,.18)}
+  .go{position:relative;overflow:hidden;margin-top:24px;width:100%;height:54px;border:0;border-radius:999px;background:var(--gold-grad);background-size:200% 100%;color:var(--navy-1000);font-weight:700;font-size:15.5px;letter-spacing:.06em;transition:background-position .8s var(--ease),transform .3s var(--ease)}
+  .go:hover{background-position:100% 0}
+  .go:active{transform:scale(.98)}
+  .go::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.6) 50%,transparent 70%);transform:translateX(-120%);animation:sweep 3.6s 2.2s var(--ease) infinite}
+  @keyframes sweep{0%{transform:translateX(-120%)}40%,100%{transform:translateX(120%)}}
+  .go[disabled]{opacity:.8;cursor:default}
+  .spin{display:inline-block;width:16px;height:16px;border:2px solid rgba(11,31,69,.3);border-top-color:var(--navy-1000);border-radius:50%;vertical-align:-3px;margin-right:8px;animation:spin .8s linear infinite}
+  .err{margin:14px 0 0;color:#ffb4a8;font-size:14px;text-align:center}
+  .foot{margin-top:28px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.4)}
+  .rv{opacity:0;transform:translateY(16px);animation:rv 1s var(--ease) forwards}
+  @keyframes rv{to{opacity:1;transform:none}}
+  .d1{animation-delay:.05s}.d2{animation-delay:.2s}.d3{animation-delay:.4s}.d4{animation-delay:.55s}.d5{animation-delay:.7s}.d6{animation-delay:.85s}.d7{animation-delay:1.05s}
+  @media (min-height:820px){.emblem{margin-bottom:34px}}
 </style>
 </head>
 <body>
-<img class="logo" src="/static/logo-light.png" alt="TSLAW Group">
-<form method="post">
-  <p class="eyebrow">AI video assistant</p>
-  <h1>Video <em>Finder</em></h1>
-  <p>Describe a scene, and I'll find the video.</p>
-  <label for="name">Your name</label>
-  <input id="name" name="name" placeholder="e.g. Alex" autocomplete="name" required>
-  <label for="pw">Team password</label>
-  <input id="pw" name="password" type="password" required autocomplete="current-password">
-  <button>Sign in</button>
-  {% if error %}<div class="err">{{ error }}</div>{% endif %}
-</form>
+<div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+<canvas id="dust" aria-hidden="true"></canvas>
+<div class="langsw" id="langsw" role="group" aria-label="Language"></div>
+
+<div class="wrap">
+  <img class="logo rv d1" src="/static/logo-light.png" alt="TSLAW Group">
+  <div class="rule"></div>
+  <div class="orb emblem rv d2" data-state="idle" style="--size:clamp(96px,26vw,128px)" aria-hidden="true">
+    <span class="orb__glow"></span><span class="orb__ring"></span>
+    <span class="orb__core"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span><span class="orb__sheen"></span>
+      <svg class="orb__mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </span>
+  </div>
+  <p class="eyebrow rv d3" data-i18n="login_eyebrow"></p>
+  <h1 class="rv d4" data-i18n-html="login_title"></h1>
+  <p class="sub rv d5" data-i18n="login_sub"></p>
+
+  <form method="post" class="rv d6" id="form">
+    <div class="f"><label for="name" data-i18n="name"></label>
+      <input id="name" name="name" data-i18n-ph="name_ph" autocomplete="name" required value="{{ name or '' }}"></div>
+    <div class="f"><label for="pw" data-i18n="pw"></label>
+      <input id="pw" name="password" type="password" required autocomplete="current-password"></div>
+    <button class="go" id="go"><span data-i18n="signin"></span></button>
+    {% if error %}<p class="err" role="alert" data-i18n="wrong_pw"></p>{% endif %}
+  </form>
+  <p class="foot rv d7" data-i18n="foot"></p>
+</div>
+
+<script src="/static/i18n.js?v=3"></script>
+<script>
+I18N.apply(document);
+I18N.mountSwitch(document.getElementById('langsw'));
+document.getElementById('{{ 'pw' if name else 'name' }}').focus({ preventScroll: true });
+document.getElementById('form').addEventListener('submit', () => {
+  const b = document.getElementById('go');
+  b.disabled = true; b.innerHTML = '<span class="spin"></span>' + I18N.t('signing_in');
+});
+
+// Gold dust drifting upward behind the content.
+(() => {
+  const c = document.getElementById('dust'), x = c.getContext('2d');
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  let W, H, P = [];
+  const dpr = Math.min(2, devicePixelRatio || 1);
+  const size = () => { W = innerWidth; H = innerHeight; c.width = W * dpr; c.height = H * dpr; c.style.width = W + 'px'; c.style.height = H + 'px'; x.setTransform(dpr, 0, 0, dpr, 0, 0); };
+  const spawn = (y) => ({ x: Math.random() * W, y: y ?? H + 10, r: Math.random() * 1.6 + .4, v: Math.random() * .35 + .12, s: Math.random() * Math.PI * 2, a: Math.random() * .5 + .25 });
+  size(); addEventListener('resize', size);
+  const N = Math.round(Math.min(70, W * H / 16000));
+  for (let i = 0; i < N; i++) P.push(spawn(Math.random() * H));
+  let last = performance.now();
+  (function frame(now) {
+    const dt = Math.min(50, now - last) / 16.7; last = now;
+    x.clearRect(0, 0, W, H);
+    for (const p of P) {
+      p.y -= p.v * dt; p.s += .02 * dt; p.x += Math.sin(p.s) * .15 * dt;
+      if (p.y < -10) Object.assign(p, spawn());
+      const tw = .55 + .45 * Math.sin(p.s * 2);
+      x.beginPath(); x.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      x.fillStyle = `rgba(234,215,164,${p.a * tw})`; x.shadowColor = 'rgba(234,215,164,.8)'; x.shadowBlur = 6; x.fill();
+    }
+    if (!document.hidden) requestAnimationFrame(frame); else document.addEventListener('visibilitychange', () => { last = performance.now(); requestAnimationFrame(frame); }, { once: true });
+  })(last);
+})();
+</script>
 </body>
 </html>

@@ -1,0 +1,93 @@
+/* Shared design tokens + the animated AI orb, used by the login and main screens.
+   Colours, type and shapes follow the TSLAW Group corporate website. */
+:root{
+  --navy-1000:#0B1F45; --navy-950:#0F2A5C; --navy-900:#143470; --navy-800:#1A4085; --navy-700:#2652A0;
+  --gold-300:#EAD7A4; --gold-400:#DCC080; --gold-500:#C9A961; --gold-600:#A98B47; --gold-700:#84754D;
+  --ivory:#F7F4EC; --paper:#FBFAF6;
+  --ink:#0A1530; --ink-2:#3B4560; --ink-3:#6A7288;
+  --line:rgba(10,21,48,.12); --line-light:rgba(255,255,255,.14);
+  --gold-grad:linear-gradient(115deg,#9C7F3F 0%,#D9BC78 28%,#F3E2B0 46%,#C9A961 62%,#8E7238 100%);
+  --serif:"Cormorant Garamond","Noto Serif SC","Songti SC",serif;
+  --sans:"Manrope",system-ui,-apple-system,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans SC",sans-serif;
+  --ease:cubic-bezier(.2,.7,.1,1);
+  --top:60px; --safe:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;font:15px/1.6 var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--gold-500);outline-offset:3px}
+.hidden{display:none!important}
+.eyebrow{display:flex;align-items:center;gap:12px;margin:0 0 14px;font-size:11.5px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-700)}
+.eyebrow::before{content:"";width:28px;height:1px;background:var(--gold-500)}
+
+/* ---------- language switch ---------- */
+.langsw{display:flex;border:1px solid var(--line-light);border-radius:999px;padding:3px;background:rgba(255,255,255,.05)}
+.langsw button{white-space:nowrap;border:0;background:none;color:rgba(255,255,255,.65);font-size:12px;font-weight:700;padding:6px 10px;border-radius:999px;line-height:1;transition:color .3s}
+.langsw button[aria-pressed=true]{background:var(--gold-grad);color:var(--navy-1000)}
+
+/* ---------- moving aurora background ---------- */
+.aurora{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;background:radial-gradient(120% 80% at 50% 0%,#163a7c 0%,#0F2A5C 38%,#0B1F45 75%)}
+.aurora i{position:absolute;border-radius:50%;filter:blur(70px);will-change:transform}
+.aurora i:nth-child(1){width:70vmax;height:70vmax;left:-25vmax;top:-30vmax;background:radial-gradient(circle,rgba(38,82,160,.75),transparent 62%);animation:au1 19s ease-in-out infinite alternate}
+.aurora i:nth-child(2){width:55vmax;height:55vmax;right:-22vmax;bottom:-24vmax;background:radial-gradient(circle,rgba(201,169,97,.42),transparent 62%);animation:au2 23s ease-in-out infinite alternate}
+.aurora i:nth-child(3){width:40vmax;height:40vmax;left:30%;top:40%;background:radial-gradient(circle,rgba(26,64,133,.6),transparent 62%);animation:au3 17s ease-in-out infinite alternate}
+@keyframes au1{to{transform:translate(18vmax,14vmax) scale(1.15)}}
+@keyframes au2{to{transform:translate(-16vmax,-12vmax) scale(1.2)}}
+@keyframes au3{to{transform:translate(-22vmax,-18vmax) scale(.85)}}
+
+/* ---------- the AI orb ---------- */
+.orb{--size:220px;position:relative;display:block;flex:none;width:var(--size);height:var(--size);border:0;padding:0;background:none;border-radius:50%;cursor:pointer;transition:transform .5s var(--ease)}
+button.orb:hover{transform:scale(1.03)}
+button.orb:active{transform:scale(.97)}
+.orb__glow{position:absolute;inset:-38%;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle,rgba(220,192,128,.34) 0%,rgba(38,82,160,.2) 38%,transparent 66%);animation:glow 4.5s ease-in-out infinite}
+.orb__ring{position:absolute;inset:0;border-radius:50%;
+  background:conic-gradient(from 0deg,#8E7238,#F3E2B0,#C9A961,#2652A0 52%,#0F2A5C 66%,#D9BC78 84%,#8E7238);
+  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 2.5px));
+          mask:radial-gradient(farthest-side,transparent calc(100% - 3px),#000 calc(100% - 2.5px));
+  animation:spin 9s linear infinite}
+.orb__core{position:absolute;inset:6%;border-radius:50%;overflow:hidden;display:grid;place-items:center;isolation:isolate;
+  background:radial-gradient(circle at 32% 28%,#2b5cb3 0%,#143470 38%,#0B1F45 74%);
+  box-shadow:inset 0 0 calc(var(--size)*.2) rgba(220,192,128,.24),inset 0 calc(var(--size)*-.05) calc(var(--size)*.14) rgba(0,0,0,.45),0 calc(var(--size)*.09) calc(var(--size)*.26) rgba(0,0,0,.45);
+  animation:breathe 4.5s ease-in-out infinite}
+.blob{position:absolute;width:72%;height:72%;border-radius:50%;filter:blur(calc(var(--size)*.07));mix-blend-mode:screen;opacity:.78;will-change:transform}
+.b1{background:radial-gradient(circle,#D9BC78,transparent 64%);left:-12%;top:34%;animation:d1 9s ease-in-out infinite}
+.b2{background:radial-gradient(circle,#3a6fd0,transparent 64%);right:-16%;top:-8%;animation:d2 11s ease-in-out infinite}
+.b3{background:radial-gradient(circle,#F3E2B0,transparent 60%);left:24%;bottom:-28%;width:56%;height:56%;animation:d3 7s ease-in-out infinite}
+.orb__sheen{position:absolute;inset:0;border-radius:50%;pointer-events:none;background:radial-gradient(ellipse at 34% 16%,rgba(255,255,255,.38),transparent 40%)}
+.orb__mic{position:relative;z-index:2;width:30%;height:30%;color:#F6E7BE;filter:drop-shadow(0 2px 10px rgba(0,0,0,.45));transition:opacity .35s var(--ease),transform .35s var(--ease)}
+.orb__bars{position:absolute;z-index:2;display:flex;gap:7%;align-items:center;justify-content:center;width:42%;height:34%;opacity:0;transform:scale(.7);transition:opacity .35s var(--ease),transform .35s var(--ease)}
+.orb__bars i{flex:1;height:22%;border-radius:99px;background:linear-gradient(#F6E7BE,#C9A961)}
+.orb__orbit{position:absolute;inset:9%;border-radius:50%;opacity:0;transition:opacity .3s;animation:spin 1.3s linear infinite}
+.orb__orbit i{position:absolute;top:-4px;left:calc(50% - 4px);width:8px;height:8px;border-radius:50%;background:#F6E7BE;box-shadow:0 0 14px 3px rgba(246,231,190,.8)}
+.orb__ripple{position:absolute;inset:0;border-radius:50%;border:1.5px solid rgba(220,192,128,.65);opacity:0;pointer-events:none}
+
+.orb[data-state=listening] .orb__mic{opacity:0;transform:scale(.5)}
+.orb[data-state=listening] .orb__bars{opacity:1;transform:none}
+.orb[data-state=listening] .orb__bars i{animation:eq .95s ease-in-out infinite}
+.orb[data-state=listening] .orb__bars i:nth-child(2){animation-delay:.15s}
+.orb[data-state=listening] .orb__bars i:nth-child(3){animation-delay:.3s}
+.orb[data-state=listening] .orb__bars i:nth-child(4){animation-delay:.45s}
+.orb[data-state=listening] .orb__bars i:nth-child(5){animation-delay:.6s}
+.orb[data-state=listening] .orb__ripple{animation:ripple 2.4s var(--ease) infinite}
+.orb[data-state=listening] .orb__ripple:nth-of-type(3){animation-delay:.8s}
+.orb[data-state=listening] .orb__ripple:nth-of-type(4){animation-delay:1.6s}
+.orb[data-state=listening] .orb__ring{animation-duration:2.6s}
+.orb[data-state=listening] .orb__glow{animation-duration:1.3s}
+.orb[data-state=listening] .orb__core{animation:breathe 1.3s ease-in-out infinite}
+.orb[data-state=thinking] .orb__mic{opacity:0;transform:scale(.5)}
+.orb[data-state=thinking] .orb__orbit{opacity:1}
+.orb[data-state=thinking] .orb__ring{animation-duration:1s}
+.orb[data-state=thinking] .blob{animation-duration:2.4s}
+.orb[data-state=thinking] .orb__glow{animation-duration:1.6s}
+
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.035)}}
+@keyframes glow{0%,100%{opacity:.75;transform:scale(1)}50%{opacity:1;transform:scale(1.08)}}
+@keyframes ripple{from{opacity:.75;transform:scale(1)}to{opacity:0;transform:scale(1.75)}}
+@keyframes eq{0%,100%{height:20%}50%{height:100%}}
+@keyframes d1{0%,100%{transform:translate(0,0)}33%{transform:translate(28%,-22%)}66%{transform:translate(8%,18%)}}
+@keyframes d2{0%,100%{transform:translate(0,0)}40%{transform:translate(-30%,26%)}70%{transform:translate(-8%,8%)}}
+@keyframes d3{0%,100%{transform:translate(0,0)}50%{transform:translate(-26%,-30%)}}
+
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition:none!important}}

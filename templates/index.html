@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
@@ -10,139 +10,119 @@
 <link rel="icon" href="/static/favicon.png">
 <link rel="apple-touch-icon" href="/static/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/theme.css?v=3">
 <style>
-:root{
-  --navy-1000:#0B1F45; --navy-950:#0F2A5C; --navy-900:#143470; --navy-800:#1A4085; --navy-700:#2652A0;
-  --gold-300:#EAD7A4; --gold-400:#DCC080; --gold-500:#C9A961; --gold-600:#A98B47; --gold-700:#84754D;
-  --ivory:#F7F4EC; --paper:#FBFAF6; --white:#fff;
-  --ink:#0A1530; --ink-2:#3B4560; --ink-3:#6A7288;
-  --line:rgba(10,21,48,.12); --line-light:rgba(255,255,255,.14);
-  --gold-grad:linear-gradient(115deg,#9C7F3F 0%,#D9BC78 28%,#F3E2B0 46%,#C9A961 62%,#8E7238 100%);
-  --serif:"Cormorant Garamond","Times New Roman",serif;
-  --sans:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
-  --ease:cubic-bezier(.2,.7,.1,1);
-  --top:60px; --tab:62px; --safe:env(safe-area-inset-bottom,0px);
-}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;background:var(--ivory);color:var(--ink);font:15px/1.6 var(--sans);-webkit-font-smoothing:antialiased}
-button{font:inherit;color:inherit;cursor:pointer}
-:focus-visible{outline:2px solid var(--gold-500);outline-offset:2px}
-.hidden{display:none!important}
-.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
-
-/* ---------- top bar ---------- */
-.top{position:fixed;inset:0 0 auto;z-index:40;height:var(--top);background:rgba(11,31,69,.94);backdrop-filter:blur(14px) saturate(1.2);-webkit-backdrop-filter:blur(14px) saturate(1.2);border-bottom:1px solid var(--line-light);color:#fff}
-.top__in{height:100%;max-width:1200px;margin:0 auto;padding:0 16px;display:flex;align-items:center;gap:14px}
-.brand{display:flex;align-items:center;gap:10px;min-width:0;text-decoration:none;color:#fff}
-.brand img{height:26px;width:auto;display:block}
-.brand b{font-family:var(--serif);font-weight:600;font-size:21px;letter-spacing:.01em;white-space:nowrap;padding-left:10px;border-left:1px solid var(--line-light)}
+/* ================= layout ================= */
+body{background:var(--ivory);min-height:100dvh}
+body.on-ask{background:var(--navy-1000);color:#fff}
+.top{position:fixed;inset:0 0 auto;z-index:40;height:var(--top);display:flex;align-items:center;gap:10px;padding:0 12px;
+  background:rgba(11,31,69,.86);backdrop-filter:blur(14px) saturate(1.2);-webkit-backdrop-filter:blur(14px) saturate(1.2);border-bottom:1px solid var(--line-light);color:#fff}
+.brand{display:flex;align-items:center;gap:10px;min-width:0;color:#fff;text-decoration:none}
+.brand img{height:24px;width:auto;display:block}
+.brand b{font-family:var(--serif);font-weight:600;font-size:20px;white-space:nowrap;padding-left:10px;border-left:1px solid var(--line-light)}
 .brand b em{font-style:italic;color:var(--gold-400)}
-.dnav{display:none;gap:4px;margin-left:18px}
-.dnav button{background:none;border:0;color:rgba(255,255,255,.72);padding:8px 14px;border-radius:999px;font-size:14px;font-weight:600;letter-spacing:.02em}
-.dnav button[aria-current=true]{color:var(--navy-1000);background:var(--gold-grad)}
-.top__end{margin-left:auto;display:flex;align-items:center;gap:6px}
-.iconbtn{width:40px;height:40px;border-radius:50%;border:1px solid var(--line-light);background:rgba(255,255,255,.04);color:#fff;display:grid;place-items:center}
+.top__end{margin-left:auto;display:flex;gap:8px;align-items:center}
+.iconbtn{flex:none;width:40px;height:40px;border-radius:50%;border:1px solid var(--line-light);background:rgba(255,255,255,.05);color:#fff;display:grid;place-items:center}
 .iconbtn svg{width:19px;height:19px}
-.who{font-size:13px;color:rgba(255,255,255,.7);display:none}
-.menu{position:absolute;right:16px;top:calc(var(--top) - 4px);background:#fff;color:var(--ink);border-radius:4px;box-shadow:0 18px 40px rgba(10,21,48,.22);min-width:200px;padding:6px;border:1px solid var(--line)}
-.menu div{padding:10px 12px;font-size:13px;color:var(--ink-3);border-bottom:1px solid var(--line);margin-bottom:4px}
-.menu a,.menu button{display:block;width:100%;text-align:left;padding:10px 12px;border:0;background:none;border-radius:4px;text-decoration:none;color:var(--ink);font-size:14px}
-.menu a:hover,.menu button:hover{background:var(--ivory)}
+.menubtn{display:grid}
 
-/* ---------- bottom tab bar (phones) ---------- */
-.tabbar{position:fixed;inset:auto 0 0;z-index:40;height:calc(var(--tab) + var(--safe));padding-bottom:var(--safe);background:var(--navy-1000);display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line-light)}
-.tabbar button{background:none;border:0;color:rgba(255,255,255,.55);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
-.tabbar svg{width:22px;height:22px}
-.tabbar button[aria-current=true]{color:var(--gold-400)}
+/* side rail (desktop) & drawer (phones): admin tools live here */
+.rail{display:none}
+.drawer{position:fixed;inset:0 auto 0 0;z-index:70;width:min(300px,84vw);background:var(--navy-1000);color:#fff;border-right:1px solid var(--line-light);
+  transform:translateX(-102%);transition:transform .45s var(--ease);display:flex;flex-direction:column;padding:calc(18px + env(safe-area-inset-top)) 14px calc(18px + var(--safe))}
+.drawer.open{transform:none}
+.scrim{position:fixed;inset:0;z-index:65;background:rgba(3,10,26,.55);opacity:0;pointer-events:none;transition:opacity .4s}
+.scrim.open{opacity:1;pointer-events:auto}
+.drawer img{height:26px;align-self:flex-start;margin:4px 8px 22px}
+.navitem{display:flex;align-items:center;gap:14px;width:100%;padding:13px 14px;border:0;border-radius:4px;background:none;color:rgba(255,255,255,.78);font-size:15px;font-weight:600;text-align:left;text-decoration:none}
+.navitem svg{width:21px;height:21px;flex:none;color:var(--gold-400)}
+.navitem[aria-current=true]{background:rgba(201,169,97,.14);color:#fff}
+.navitem:hover{background:rgba(255,255,255,.06)}
+.navsec{font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.4);margin:18px 14px 6px}
+.drawer__foot{margin-top:auto;border-top:1px solid var(--line-light);padding-top:12px}
+.drawer__who{font-size:13px;color:rgba(255,255,255,.55);padding:4px 14px 8px}
+.drawer__who b{color:#fff}
 
-main{padding-top:var(--top);min-height:100dvh}
-.view{max-width:900px;margin:0 auto;padding:20px 16px calc(var(--tab) + var(--safe) + 24px)}
+main{padding-top:var(--top)}
 
-/* ---------- assistant / search ---------- */
-#view-search{padding-bottom:calc(var(--tab) + var(--safe) + 108px)}
-.hero{padding:6vh 0 8px;text-align:left}
-.eyebrow{display:flex;align-items:center;gap:12px;margin:0 0 16px;font-size:11.5px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-700)}
-.eyebrow::before{content:"";width:28px;height:1px;background:var(--gold-500)}
-.hero h1{font-family:var(--serif);font-weight:500;font-size:clamp(34px,8.5vw,60px);line-height:1.04;letter-spacing:-.01em;margin:0}
-.hero h1 em{color:var(--gold-700);font-style:italic}
-.hero p{color:var(--ink-2);margin:16px 0 0;max-width:560px;font-size:16px}
-.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
-.chip{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:9px 14px;font-size:13.5px;color:var(--ink-2);text-align:left;transition:border-color .3s var(--ease),background .3s}
-.chip:hover{border-color:var(--gold-500);background:#fff}
-.chip svg{width:13px;height:13px;vertical-align:-2px;margin-right:6px;color:var(--gold-600)}
+/* ================= ASK (boss mode) ================= */
+#view-ask{position:relative;min-height:calc(100dvh - var(--top));padding-bottom:calc(96px + var(--safe))}
+.stage{position:relative;z-index:2;min-height:calc(100dvh - var(--top) - 96px - var(--safe));display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px 16px 12px}
+.has-thread .stage{display:none}
+.has-thread .stage.overlay{display:flex;position:fixed;inset:0;z-index:80;min-height:0;background:rgba(7,19,44,.92);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);animation:fade .35s var(--ease)}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.greet{font-size:12px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--gold-400);margin:0 0 10px;display:flex;align-items:center;gap:12px}
+.greet::before,.greet::after{content:"";width:26px;height:1px;background:var(--gold-500);opacity:.7}
+.stage h1{font-family:var(--serif);font-weight:500;font-size:clamp(28px,7.4vw,48px);line-height:1.15;margin:0 0 clamp(22px,5vh,44px);max-width:640px}
+.stage h1 em{font-style:italic;color:var(--gold-400)}
+.status{margin:clamp(22px,4vh,36px) 0 0;font-size:17px;font-weight:600;letter-spacing:.04em;color:#fff;min-height:1.6em}
+.live{margin:10px 0 0;font-family:var(--serif);font-size:clamp(22px,5.6vw,30px);line-height:1.3;color:var(--gold-300);max-width:640px;min-height:1.3em}
+.hint{margin:6px 0 0;font-size:14px;color:rgba(255,255,255,.55);max-width:520px}
+.chips{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:22px;max-width:640px}
+.chip{border:1px solid var(--line-light);background:rgba(255,255,255,.05);color:rgba(255,255,255,.82);border-radius:999px;padding:8px 14px;font-size:13.5px;transition:border-color .3s,background .3s}
+.chip:hover{border-color:var(--gold-500);background:rgba(201,169,97,.12)}
+.stage[data-state=listening] .hint,.stage[data-state=listening] .chips,.stage[data-state=thinking] .hint,.stage[data-state=thinking] .chips,
+.stage[data-state=listening] h1,.stage[data-state=thinking] h1{visibility:hidden}
+.stage .cancel{display:none;margin-top:22px}
+.stage.overlay .cancel,.stage[data-state=listening] .cancel{display:inline-flex}
 
-.thread{display:flex;flex-direction:column;gap:18px;margin-top:8px}
-.msg-user{align-self:flex-end;max-width:85%;background:var(--navy-950);color:#fff;padding:11px 16px;border-radius:18px 18px 4px 18px;font-size:15px;word-wrap:break-word}
+/* ---------- conversation ---------- */
+.thread{position:relative;z-index:2;max-width:860px;margin:0 auto;padding:18px 16px 10px;display:flex;flex-direction:column;gap:18px}
+.thread:empty{display:none}
+.msg-user{align-self:flex-end;max-width:85%;background:rgba(201,169,97,.16);border:1px solid rgba(201,169,97,.35);color:#fff;padding:10px 16px;border-radius:18px 18px 4px 18px;word-wrap:break-word}
 .msg-user svg{width:13px;height:13px;vertical-align:-1px;margin-right:6px;color:var(--gold-400)}
 .msg-ai{display:flex;gap:12px;align-items:flex-start}
-.avatar{flex:none;width:34px;height:34px;border-radius:50%;background:var(--gold-grad);display:grid;place-items:center;color:var(--navy-1000);box-shadow:0 4px 12px rgba(169,139,71,.3)}
-.avatar svg{width:17px;height:17px}
+.avatar{flex:none;width:34px;height:34px}
 .ai-body{flex:1;min-width:0}
-.ai-text{font-size:15.5px;color:var(--ink);padding-top:5px}
-.ai-text b{font-weight:700}
-.ai-text em{font-style:normal;color:var(--gold-700);font-weight:600}
-.ai-sub{font-size:13px;color:var(--ink-3);margin-top:4px}
-.thinking{display:flex;align-items:center;gap:10px;color:var(--ink-2);padding-top:6px}
-.dots{display:inline-flex;gap:4px}.dots i{width:6px;height:6px;border-radius:50%;background:var(--gold-500);animation:blink 1.2s infinite both}
+.ai-text{font-size:15.5px;line-height:1.65;padding-top:4px;color:rgba(255,255,255,.94)}
+.ai-text b{font-weight:700;color:#fff}
+.ai-text em{font-style:normal;color:var(--gold-400);font-weight:600}
+.ai-sub{font-size:13px;color:rgba(255,255,255,.55);margin-top:4px}
+.thinking{display:flex;align-items:center;gap:10px;color:rgba(255,255,255,.7);padding-top:6px}
+.dots{display:inline-flex;gap:4px}.dots i{width:6px;height:6px;border-radius:50%;background:var(--gold-400);animation:blink 1.2s infinite both}
 .dots i:nth-child(2){animation-delay:.2s}.dots i:nth-child(3){animation-delay:.4s}
 @keyframes blink{0%,80%,100%{opacity:.25;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}
-.scanbar{height:2px;margin-top:10px;background:linear-gradient(90deg,transparent,var(--gold-500),transparent);background-size:40% 100%;background-repeat:no-repeat;animation:scan 1.3s linear infinite;width:100%;max-width:280px}
-@keyframes scan{from{background-position:-40% 0}to{background-position:140% 0}}
 
 .cards{display:grid;grid-template-columns:1fr;gap:14px;margin-top:14px}
-.vcard{background:#fff;border:1px solid var(--line);border-radius:4px;overflow:hidden;animation:rise .5s var(--ease) both}
-@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-.vcard__media{position:relative;display:block;width:100%;aspect-ratio:16/9;border:0;padding:0;background:var(--navy-1000);overflow:hidden}
+.vcard{background:rgba(255,255,255,.04);border:1px solid var(--line-light);border-radius:4px;overflow:hidden;animation:rise .55s var(--ease) both}
+@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.vcard__media{position:relative;display:block;width:100%;aspect-ratio:16/9;border:0;padding:0;background:#000;overflow:hidden}
 .vcard__media img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .6s var(--ease)}
 .vcard__media:hover img{transform:scale(1.03)}
-.vcard__media .play{position:absolute;inset:0;margin:auto;width:54px;height:54px;border-radius:50%;background:rgba(11,31,69,.6);backdrop-filter:blur(4px);display:grid;place-items:center;color:#fff;border:1px solid rgba(255,255,255,.35)}
+.vcard__media .play{position:absolute;inset:0;margin:auto;width:56px;height:56px;border-radius:50%;background:rgba(11,31,69,.55);backdrop-filter:blur(4px);display:grid;place-items:center;color:var(--gold-300);border:1px solid rgba(220,192,128,.5)}
 .vcard__media .play svg{width:20px;height:20px;margin-left:3px}
-.tstamp{position:absolute;left:10px;bottom:10px;background:rgba(11,31,69,.82);color:#fff;font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;letter-spacing:.02em}
+.tstamp{position:absolute;left:10px;bottom:10px;background:rgba(11,31,69,.85);color:#fff;font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px}
 .badge{position:absolute;left:10px;top:10px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:4px 10px;border-radius:999px}
 .badge.strong{background:var(--gold-grad);color:var(--navy-1000)}
 .badge.possible{background:rgba(255,255,255,.9);color:var(--ink-2)}
 .vcard__body{padding:12px 14px 14px}
-.vcard h3{margin:0;font-size:15px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.meta{font-size:12.5px;color:var(--ink-3)}
+.vcard h3{margin:0;font-size:15px;font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vcard .meta{color:rgba(255,255,255,.55)}
 .moments{display:flex;gap:8px;margin-top:10px;overflow-x:auto;scrollbar-width:none}
 .moments::-webkit-scrollbar{display:none}
-.moment{flex:none;width:96px;border:1px solid var(--line);background:none;padding:0;border-radius:4px;overflow:hidden;text-align:left}
+.moment{flex:none;width:96px;border:1px solid var(--line-light);background:none;padding:0;border-radius:4px;overflow:hidden;text-align:left;color:rgba(255,255,255,.8)}
 .moment img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block}
-.moment span{display:block;font-size:11.5px;font-weight:600;padding:3px 6px;color:var(--ink-2)}
+.moment span{display:block;font-size:11.5px;font-weight:600;padding:3px 6px}
 .moment.on{border-color:var(--gold-500)}
 .ai-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 
-/* ---------- composer ---------- */
-.composer{position:fixed;left:0;right:0;bottom:calc(var(--tab) + var(--safe));z-index:30;padding:10px 12px 12px;background:linear-gradient(to top,var(--ivory) 70%,rgba(247,244,236,0))}
-.composer__in{max-width:900px;margin:0 auto;display:flex;align-items:flex-end;gap:8px;background:#fff;border:1px solid var(--line);border-radius:28px;padding:6px 6px 6px 8px;box-shadow:0 10px 30px rgba(10,21,48,.10);transition:border-color .3s,box-shadow .3s}
-.composer__in:focus-within{border-color:var(--gold-500);box-shadow:0 10px 30px rgba(169,139,71,.18)}
-.lang{flex:none;height:40px;min-width:44px;padding:0 10px;border-radius:999px;border:1px solid var(--line);background:var(--paper);font-size:12px;font-weight:700;letter-spacing:.04em;color:var(--ink-2)}
-.composer textarea{flex:1;min-width:0;border:0;outline:0;resize:none;background:none;color:var(--ink);font:inherit;font-size:16px;line-height:1.4;padding:9px 4px;max-height:120px;height:40px}
-.composer textarea::placeholder{color:var(--ink-3)}
-.round{flex:none;width:44px;height:44px;border-radius:50%;border:0;display:grid;place-items:center;transition:transform .3s var(--ease)}
-.round svg{width:20px;height:20px}
-.round:active{transform:scale(.94)}
-.mic{background:var(--navy-1000);color:var(--gold-400);position:relative}
-.mic.on{background:var(--gold-grad);color:var(--navy-1000)}
-.mic.on::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid var(--gold-500);animation:ring 1.3s var(--ease) infinite}
-@keyframes ring{from{transform:scale(.85);opacity:1}to{transform:scale(1.35);opacity:0}}
-.send{background:var(--gold-grad);color:var(--navy-1000)}
-.send[disabled]{opacity:.35;cursor:default}
-.listening{max-width:900px;margin:0 auto 8px;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--ink-2);padding:0 8px}
-.wave{display:inline-flex;gap:3px;align-items:center;height:16px}
-.wave i{width:3px;background:var(--gold-600);border-radius:2px;animation:wave 1s ease-in-out infinite}
-.wave i:nth-child(1){animation-delay:0s}.wave i:nth-child(2){animation-delay:.15s}.wave i:nth-child(3){animation-delay:.3s}.wave i:nth-child(4){animation-delay:.45s}.wave i:nth-child(5){animation-delay:.6s}
-@keyframes wave{0%,100%{height:4px}50%{height:16px}}
+/* ---------- dock (bottom) ---------- */
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:30;padding:10px 12px calc(12px + var(--safe));background:linear-gradient(to top,rgba(11,31,69,1) 55%,rgba(11,31,69,0))}
+.dock__in{max-width:860px;margin:0 auto;display:flex;align-items:center;gap:10px}
+.field{flex:1;min-width:0;display:flex;align-items:flex-end;gap:6px;background:rgba(255,255,255,.07);border:1px solid var(--line-light);border-radius:26px;padding:4px 4px 4px 16px;transition:border-color .3s,background .3s}
+.field:focus-within{border-color:var(--gold-500);background:rgba(255,255,255,.1)}
+.field textarea{flex:1;min-width:0;border:0;outline:0;resize:none;background:none;color:#fff;font:inherit;font-size:16px;line-height:1.4;padding:9px 0;height:42px;max-height:120px}
+.field textarea::placeholder{color:rgba(255,255,255,.45)}
+.send{flex:none;width:42px;height:42px;border-radius:50%;border:0;background:var(--gold-grad);color:var(--navy-1000);display:grid;place-items:center;transition:opacity .2s,transform .3s var(--ease)}
+.send svg{width:19px;height:19px}
+.send[disabled]{opacity:.25}
+.dock .orb{--size:56px;display:none}
+.has-thread .dock .orb{display:block}
 
-/* ---------- buttons ---------- */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:42px;padding:0 20px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--ink);font-size:13.5px;font-weight:600;letter-spacing:.03em;text-decoration:none}
-.btn svg{width:16px;height:16px}
-.btn--gold{background:var(--gold-grad);border:0;color:var(--navy-1000)}
-.btn--navy{background:var(--navy-1000);border:0;color:#fff}
-
-/* ---------- upload ---------- */
-.pagehead h2{font-family:var(--serif);font-weight:500;font-size:clamp(30px,7vw,46px);line-height:1.05;margin:0}
+/* ================= ADMIN pages (light) ================= */
+.view{max-width:1000px;margin:0 auto;padding:24px 16px calc(40px + var(--safe))}
+.pagehead h2{font-family:var(--serif);font-weight:500;font-size:clamp(30px,7vw,46px);line-height:1.1;margin:0}
 .pagehead h2 em{color:var(--gold-700)}
 .pagehead p{color:var(--ink-2);margin:8px 0 20px}
 .drop{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;border:1.5px dashed rgba(169,139,71,.55);border-radius:4px;background:var(--paper);padding:36px 18px;cursor:pointer;transition:background .3s,border-color .3s}
@@ -159,13 +139,11 @@ main{padding-top:var(--top);min-height:100dvh}
 .up .s.ok{color:#1d7a4a}.up .s.bad{color:#b42318}
 .prog{grid-column:1/-1;height:4px;background:var(--ivory);border-radius:99px;overflow:hidden}
 .prog i{display:block;height:100%;width:0;background:var(--gold-grad);transition:width .3s}
-
-/* ---------- library ---------- */
-.libtools{display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
-.libtools input{flex:1;min-width:0;height:42px;border:1px solid var(--line);border-radius:999px;padding:0 16px;background:#fff;font:inherit;font-size:16px;color:var(--ink)}
-.stats{display:flex;gap:18px;margin:0 0 18px;flex-wrap:wrap}
-.stat b{display:block;font-size:24px;font-weight:700;line-height:1.1;letter-spacing:-.01em;color:var(--navy-950)}
-.stat span{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:700}
+.libtools input{width:100%;height:44px;border:1px solid var(--line);border-radius:999px;padding:0 18px;background:#fff;font:inherit;font-size:16px;color:var(--ink);margin-bottom:16px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:0 0 18px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:4px;padding:12px}
+.stat b{display:block;font-size:22px;font-weight:700;line-height:1.15;color:var(--navy-950)}
+.stat span{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);font-weight:700}
 .lib{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
 .lcard{background:#fff;border:1px solid var(--line);border-radius:4px;overflow:hidden;display:flex;flex-direction:column}
 .lcard .cov{aspect-ratio:16/9;background:var(--navy-1000) center/cover;border:0;padding:0;display:block;width:100%}
@@ -176,46 +154,47 @@ main{padding-top:var(--top);min-height:100dvh}
 .st.ready{color:#1d7a4a}.st.error{color:#b42318}.st.wait{color:var(--gold-700)}
 .del{border:0;background:none;color:var(--ink-3);font-size:12px;padding:4px}
 .del:hover{color:#b42318}
-.empty{text-align:center;color:var(--ink-3);padding:48px 16px}
+.empty{text-align:center;color:var(--ink-3);padding:48px 16px;grid-column:1/-1}
+.meta{font-size:12.5px;color:var(--ink-3)}
 
 /* ---------- player ---------- */
 dialog{border:0;padding:0;margin:auto;background:var(--navy-1000);color:#fff;width:100%;max-width:100%;height:100%;max-height:100%}
-dialog::backdrop{background:rgba(5,12,30,.82)}
+dialog::backdrop{background:rgba(5,12,30,.85)}
 .pl{display:flex;flex-direction:column;height:100%}
 .pl__top{display:flex;align-items:center;gap:10px;padding:10px 12px;padding-top:max(10px,env(safe-area-inset-top))}
 .pl__top .t{flex:1;min-width:0;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pl video{width:100%;flex:1;min-height:0;background:#000;display:block}
 .pl__bot{padding:12px 14px calc(14px + var(--safe));display:flex;flex-direction:column;gap:10px}
-.pl__bot .lbl{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-400);font-weight:700}
+.lbl{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-400);font-weight:700}
 .jumps{display:flex;gap:8px;overflow-x:auto}
 .jumps button{flex:none;border:1px solid var(--line-light);background:rgba(255,255,255,.06);color:#fff;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:600}
-.pl .btn{background:transparent;color:#fff;border-color:var(--line-light)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:42px;padding:0 20px;border-radius:999px;border:1px solid var(--line-light);background:transparent;color:#fff;font-size:13.5px;font-weight:600;letter-spacing:.03em;text-decoration:none}
+.btn svg{width:16px;height:16px}
+.btn--gold{background:var(--gold-grad);border:0;color:var(--navy-1000)}
+.toast{position:fixed;left:50%;top:calc(var(--top) + 12px);transform:translateX(-50%);background:var(--navy-950);border:1px solid var(--line-light);color:#fff;padding:10px 16px;border-radius:999px;font-size:13.5px;z-index:90;box-shadow:0 10px 30px rgba(0,0,0,.25);max-width:calc(100% - 32px);text-align:center;animation:fade .3s}
 
-.toast{position:fixed;left:50%;top:calc(var(--top) + 12px);transform:translateX(-50%);background:var(--navy-1000);color:#fff;padding:10px 16px;border-radius:999px;font-size:13.5px;z-index:60;box-shadow:0 10px 30px rgba(0,0,0,.2);max-width:calc(100% - 32px);text-align:center}
-
-/* ---------- larger screens ---------- */
-@media (min-width:700px){
-  .cards{grid-template-columns:repeat(2,1fr)}
-  .lib{grid-template-columns:repeat(3,1fr)}
-}
-@media (min-width:900px){
-  :root{--tab:0px;--top:70px}
-  .tabbar{display:none}
-  .dnav{display:flex}
-  .who{display:block}
-  .brand img{height:30px}
-  .composer{bottom:0;padding-bottom:20px}
-  #view-search{padding-bottom:130px}
+/* ================= wider screens ================= */
+@media (min-width:700px){ .cards{grid-template-columns:repeat(2,1fr)} .lib{grid-template-columns:repeat(3,1fr)} }
+@media (max-width:520px){ .stats{grid-template-columns:repeat(2,1fr)} .brand b{display:none} .brand img{height:22px} }
+@media (max-width:360px){ .langsw button{padding:6px 8px} }
+@media (max-height:760px){ .stage .chips{display:none} .stage h1{margin-bottom:22px} }
+@media (min-width:1000px){
+  :root{--rail:88px}
+  .menubtn{display:none}
+  .rail{display:flex;flex-direction:column;align-items:center;gap:6px;position:fixed;inset:var(--top) auto 0 0;z-index:35;width:var(--rail);padding:16px 8px;background:rgba(11,31,69,.96);border-right:1px solid var(--line-light)}
+  .rail .navitem{flex-direction:column;gap:6px;padding:12px 4px;font-size:11.5px;text-align:center;justify-content:center;letter-spacing:.02em}
+  .rail .navitem svg{width:22px;height:22px}
+  .rail .grow{flex:1}
+  main,.dock{padding-left:var(--rail)}
+  .dock{padding-left:calc(var(--rail) + 12px)}
   .lib{grid-template-columns:repeat(4,1fr)}
   dialog{width:min(1000px,94vw);height:auto;max-height:94vh;border-radius:4px}
   .pl video{max-height:70vh}
 }
-@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
-<body>
+<body class="on-ask">
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
-  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m20 20-3.5-3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
   <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V4m0 0-4.5 4.5M12 4l4.5 4.5M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-lib" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="m10 9.5 4.5 2.5-4.5 2.5z" fill="currentColor"/></symbol>
   <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
@@ -223,164 +202,225 @@ dialog::backdrop{background:rgba(5,12,30,.82)}
   <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3c.6 4.2 2.8 6.4 7 7-4.2.6-6.4 2.8-7 7-.6-4.2-2.8-6.4-7-7 4.2-.6 6.4-2.8 7-7Z" fill="currentColor"/><path d="M19 15.5c.25 1.6 1 2.35 2.5 2.5-1.5.25-2.25 1-2.5 2.5-.25-1.5-1-2.25-2.5-2.5 1.5-.15 2.25-.9 2.5-2.5Z" fill="currentColor"/></symbol>
   <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15l13-7.5z" fill="currentColor"/></symbol>
   <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
-  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M4 20c1.5-3.5 4.5-5 8-5s6.5 1.5 8 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
   <symbol id="i-new" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.6M4 4v4h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-dl" viewBox="0 0 24 24"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M4 19h16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-out" viewBox="0 0 24 24"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 16l-4-4 4-4M6 12h10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
 </svg>
 
+<div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+
 <header class="top">
-  <div class="top__in">
-    <a class="brand" href="/" aria-label="Video Finder home"><img src="/static/logo-light.png" alt="TSLAW Group"><b>Video <em>Finder</em></b></a>
-    <nav class="dnav" aria-label="Main">
-      <button data-view="search" aria-current="true">Ask</button>
-      <button data-view="upload">Upload</button>
-      <button data-view="library">Library</button>
-    </nav>
-    <div class="top__end">
-      <button class="iconbtn" id="newchat" title="New search" aria-label="New search"><svg><use href="#i-new"/></svg></button>
-      <span class="who">{{ name }}</span>
-      <button class="iconbtn" id="acct" aria-label="Account" aria-expanded="false"><svg><use href="#i-user"/></svg></button>
-    </div>
+  <button class="iconbtn menubtn" id="menubtn" aria-label="Menu" data-i18n-aria="menu"><svg><use href="#i-menu"/></svg></button>
+  <a class="brand" href="/" aria-label="Video Finder"><img src="/static/logo-light.png" alt="TSLAW Group"><b>Video <em>Finder</em></b></a>
+  <div class="top__end">
+    <button class="iconbtn hidden" id="newchat" data-i18n-title="new_search"><svg><use href="#i-new"/></svg></button>
+    <div class="langsw" id="langsw" role="group" aria-label="Language"></div>
   </div>
-  <div class="menu hidden" id="menu"><div>Signed in as <b>{{ name or "Guest" }}</b></div><a href="/logout">Sign out</a></div>
 </header>
 
+<!-- desktop side rail -->
+<nav class="rail" aria-label="Main">
+  <button class="navitem" data-view="ask" aria-current="true"><svg><use href="#i-spark"/></svg><span data-i18n="nav_ask"></span></button>
+  <button class="navitem" data-view="upload"><svg><use href="#i-upload"/></svg><span data-i18n="nav_upload"></span></button>
+  <button class="navitem" data-view="library"><svg><use href="#i-lib"/></svg><span data-i18n="nav_library"></span></button>
+  <span class="grow"></span>
+  <a class="navitem" href="/logout"><svg><use href="#i-out"/></svg><span data-i18n="signout"></span></a>
+</nav>
+
+<!-- phone drawer -->
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-label="Menu">
+  <img src="/static/logo-light.png" alt="TSLAW Group">
+  <button class="navitem" data-view="ask" aria-current="true"><svg><use href="#i-spark"/></svg><span data-i18n="nav_ask_long"></span></button>
+  <div class="navsec" data-i18n="admin"></div>
+  <button class="navitem" data-view="upload"><svg><use href="#i-upload"/></svg><span data-i18n="nav_upload"></span></button>
+  <button class="navitem" data-view="library"><svg><use href="#i-lib"/></svg><span data-i18n="nav_library"></span></button>
+  <div class="drawer__foot">
+    <div class="drawer__who"><span data-i18n="signed_in_as"></span> <b>{{ name or "—" }}</b></div>
+    <a class="navitem" href="/logout"><svg><use href="#i-out"/></svg><span data-i18n="signout"></span></a>
+  </div>
+</aside>
+
 <main>
-  <!-- ASK / SEARCH (home) -->
-  <section class="view" id="view-search">
-    <div class="hero" id="hero">
-      <p class="eyebrow">AI video assistant</p>
-      <h1><span id="greet">Hello</span>{% if name %}, {{ name }}{% endif %}.<br><em>Which video do you need?</em></h1>
-      <p id="herosub">Describe what's in the video, or tap the microphone and just ask. I'll look through every scene and bring it to you.</p>
+  <!-- ===== ASK: the boss's screen ===== -->
+  <section id="view-ask">
+    <div class="stage" id="stage" data-state="idle">
+      <p class="greet" id="greet"></p>
+      <h1 id="stageTitle"></h1>
+      <button class="orb" id="orb" style="--size:clamp(180px,52vw,240px)" type="button">
+        <span class="orb__glow"></span><span class="orb__ripple"></span><span class="orb__ripple"></span><span class="orb__ripple"></span>
+        <span class="orb__ring"></span>
+        <span class="orb__core"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span><span class="orb__sheen"></span>
+          <svg class="orb__mic"><use href="#i-mic"/></svg>
+          <span class="orb__bars"><i></i><i></i><i></i><i></i><i></i></span>
+          <span class="orb__orbit"><i></i></span>
+        </span>
+      </button>
+      <p class="status" id="status"></p>
+      <p class="live" id="live"></p>
+      <p class="hint" id="hint"></p>
       <div class="chips" id="chips"></div>
+      <button class="btn cancel" id="cancel" type="button"><svg><use href="#i-x"/></svg><span data-i18n="cancel"></span></button>
     </div>
     <div class="thread" id="thread" aria-live="polite"></div>
   </section>
 
-  <!-- UPLOAD -->
+  <!-- ===== UPLOAD (admin) ===== -->
   <section class="view hidden" id="view-upload">
-    <div class="pagehead"><p class="eyebrow">Add to the library</p><h2>Upload <em>videos</em></h2>
-      <p>Any format works: MP4, MOV, iPhone videos, AVI, MKV and more. Each video becomes searchable a minute or two after it uploads.</p></div>
+    <div class="pagehead"><p class="eyebrow" data-i18n="up_eyebrow"></p><h2 data-i18n-html="up_title"></h2><p data-i18n="up_desc"></p></div>
     <label class="drop" id="drop">
       <span class="ic"><svg><use href="#i-upload"/></svg></span>
-      <b>Choose videos to upload</b>
-      <span class="meta">or drag and drop them here · select as many as you like</span>
+      <b data-i18n="up_choose"></b>
+      <span class="meta" data-i18n="up_drag"></span>
       <input type="file" id="files" accept="video/*,.mkv,.avi,.wmv,.flv,.mts,.m2ts,.ts,.vob,.mxf" multiple hidden>
     </label>
     <div class="uplist" id="uplist"></div>
   </section>
 
-  <!-- LIBRARY -->
+  <!-- ===== LIBRARY (admin) ===== -->
   <section class="view hidden" id="view-library">
-    <div class="pagehead"><p class="eyebrow">Everything uploaded</p><h2>Video <em>library</em></h2></div>
+    <div class="pagehead"><p class="eyebrow" data-i18n="lib_eyebrow"></p><h2 data-i18n-html="lib_title"></h2></div>
     <div class="stats" id="stats"></div>
-    <div class="libtools"><input id="libfilter" type="search" placeholder="Filter by file name" aria-label="Filter by file name"></div>
+    <div class="libtools"><input id="libfilter" type="search" data-i18n-ph="filter"></div>
     <div class="lib" id="lib"></div>
   </section>
 </main>
 
-<form class="composer" id="composer" autocomplete="off">
-  <div class="listening hidden" id="listening"><span class="wave"><i></i><i></i><i></i><i></i><i></i></span><span id="listenTxt">Listening… speak now</span></div>
-  <div class="composer__in">
-    <button type="button" class="lang" id="lang" title="Voice language" aria-label="Voice language">EN</button>
-    <textarea id="q" rows="1" placeholder="Ask for a video…" aria-label="Describe the video you need" enterkeyhint="search"></textarea>
-    <button type="button" class="round mic" id="mic" aria-label="Search by voice"><svg><use href="#i-mic"/></svg></button>
-    <button type="submit" class="round send" id="send" aria-label="Search" disabled><svg><use href="#i-send"/></svg></button>
+<form class="dock" id="dock" autocomplete="off">
+  <div class="dock__in">
+    <div class="field">
+      <textarea id="q" rows="1" enterkeyhint="search"></textarea>
+      <button type="submit" class="send" id="send" disabled data-i18n-aria="search"><svg><use href="#i-send"/></svg></button>
+    </div>
+    <button class="orb" id="miniorb" type="button">
+      <span class="orb__ring"></span>
+      <span class="orb__core"><span class="blob b1"></span><span class="blob b2"></span><span class="orb__sheen"></span><svg class="orb__mic"><use href="#i-mic"/></svg></span>
+    </button>
   </div>
 </form>
 
-<nav class="tabbar" aria-label="Main">
-  <button data-view="search" aria-current="true"><svg><use href="#i-spark"/></svg>Ask</button>
-  <button data-view="upload"><svg><use href="#i-upload"/></svg>Upload</button>
-  <button data-view="library"><svg><use href="#i-lib"/></svg>Library</button>
-</nav>
-
 <dialog id="player">
   <div class="pl">
-    <div class="pl__top"><div class="t" id="pname"></div><button class="iconbtn" id="pclose" aria-label="Close"><svg><use href="#i-x"/></svg></button></div>
+    <div class="pl__top"><div class="t" id="pname"></div><button class="iconbtn" id="pclose"><svg><use href="#i-x"/></svg></button></div>
     <video id="vid" controls playsinline preload="metadata"></video>
     <div class="pl__bot">
-      <div id="jumpwrap"><div class="lbl">Matching moments</div><div class="jumps" id="jumps"></div></div>
-      <div><a class="btn" id="pdl"><svg><use href="#i-dl"/></svg>Download</a></div>
+      <div id="jumpwrap"><div class="lbl" data-i18n="moments"></div><div class="jumps" id="jumps"></div></div>
+      <div><a class="btn" id="pdl"><svg><use href="#i-dl"/></svg><span data-i18n="download"></span></a></div>
     </div>
   </div>
 </dialog>
 
+<script src="/static/i18n.js?v=3"></script>
 <script>
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmtT = s => { s = Math.max(0, Math.round(s || 0)); const h = Math.floor(s/3600), m = Math.floor(s%3600/60), x = String(s%60).padStart(2,'0'); return h ? `${h}:${String(m).padStart(2,'0')}:${x}` : `${m}:${x}`; };
 const fmtSize = b => b >= 1e9 ? (b/1e9).toFixed(1)+' GB' : b >= 1e6 ? (b/1e6).toFixed(1)+' MB' : Math.max(1, Math.round(b/1e3))+' KB';
-const fmtDate = t => t ? new Date(t*1000).toLocaleDateString(undefined, {day:'numeric', month:'short'}) : '';
-const sayT = s => { s = Math.round(s || 0); const m = Math.floor(s / 60), x = s % 60; if (!s) return 'right at the start'; return (m ? plural(m, 'minute') + (x ? ' ' : '') : '') + (x ? plural(x, 'second') : '') + ' in'; };
-const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
-const store = { get(k, d) { try { return localStorage.getItem(k) ?? d; } catch { return d; } }, set(k, v) { try { localStorage.setItem(k, v); } catch {} } };
+const fmtDate = t => t ? new Date(t*1000).toLocaleDateString(I18N.locale(), {day:'numeric', month:'short'}) : '';
+const t = I18N.t;
+const NAME = {{ (name or "")|tojson }};
 async function api(url, opts) { const r = await fetch(url, opts); if (r.status === 401) { location.href = '/login'; throw new Error('login'); } return r; }
-function toast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.append(t); setTimeout(() => t.remove(), 3500); }
+function toast(msg) { document.querySelectorAll('.toast').forEach(x => x.remove()); const el = document.createElement('div'); el.className = 'toast'; el.textContent = msg; document.body.append(el); setTimeout(() => el.remove(), 3500); }
 
-// ---------- views (Ask is always the first screen) ----------
+// ---------- language ----------
+I18N.mountSwitch($('#langsw'), () => { renderStatic(); if (!$('#view-library').classList.contains('hidden')) renderLib(); });
+function renderStatic() {
+  I18N.apply(document);
+  const hr = new Date().getHours();
+  $('#greet').textContent = t(hr < 12 ? 'morning' : hr < 18 ? 'afternoon' : 'evening') + (NAME ? ' · ' + NAME : '');
+  $('#stageTitle').innerHTML = t('stage_title');
+  $('#q').placeholder = t('type_ph');
+  $('#orb').setAttribute('aria-label', t('tap_to_speak')); $('#miniorb').setAttribute('aria-label', t('tap_to_speak'));
+  const ex = t('examples');
+  $('#hint').textContent = t('try_saying', { ex: ex[0] });
+  $('#chips').innerHTML = ex.slice(1).map(s => `<button class="chip" type="button">${esc(s)}</button>`).join('');
+  $('#chips').querySelectorAll('.chip').forEach(c => c.onclick = () => ask(c.textContent));
+  setStage($('#stage').dataset.state);
+}
+
+// ---------- views: Ask always first; Upload/Library tucked in the menu ----------
 function show(view) {
   document.querySelectorAll('[data-view]').forEach(b => b.setAttribute('aria-current', b.dataset.view === view));
-  ['search','upload','library'].forEach(v => $('#view-'+v).classList.toggle('hidden', v !== view));
-  $('#composer').classList.toggle('hidden', view !== 'search');
-  $('#newchat').classList.toggle('hidden', view !== 'search');
+  ['ask','upload','library'].forEach(v => $('#view-'+v).classList.toggle('hidden', v !== view));
+  document.body.classList.toggle('on-ask', view === 'ask');
+  $('#dock').classList.toggle('hidden', view !== 'ask');
+  $('.aurora').classList.toggle('hidden', view !== 'ask');
+  $('#newchat').classList.toggle('hidden', view !== 'ask' || !document.body.classList.contains('has-thread'));
+  closeDrawer();
   if (view === 'library') loadLib(); else clearTimeout(libTimer);
   window.scrollTo(0, 0);
 }
 document.querySelectorAll('[data-view]').forEach(b => b.onclick = () => show(b.dataset.view));
-$('#acct').onclick = e => { e.stopPropagation(); const m = $('#menu'); m.classList.toggle('hidden'); $('#acct').setAttribute('aria-expanded', !m.classList.contains('hidden')); };
-document.addEventListener('click', e => { if (!e.target.closest('#menu')) $('#menu').classList.add('hidden'); });
+const openDrawer = () => { $('#drawer').classList.add('open'); $('#scrim').classList.add('open'); };
+const closeDrawer = () => { $('#drawer').classList.remove('open'); $('#scrim').classList.remove('open'); };
+$('#menubtn').onclick = openDrawer; $('#scrim').onclick = closeDrawer;
 
-// ---------- greeting & suggestions ----------
-const hr = new Date().getHours();
-$('#greet').textContent = hr < 12 ? 'Good morning' : hr < 18 ? 'Good afternoon' : 'Good evening';
-const SUGGEST = ['Blue sofa bed with a floral pattern', 'Steel pipes stacked in a warehouse', 'Aerial view of a factory', 'Someone presenting on stage', 'Office building exterior'];
-$('#chips').innerHTML = SUGGEST.map(s => `<button class="chip" type="button"><svg><use href="#i-spark"/></svg>${esc(s)}</button>`).join('');
-$('#chips').querySelectorAll('.chip').forEach(c => c.onclick = () => ask(c.textContent));
 let stats = { videos: 0, searchable: 0 };
-api('/api/stats').then(r => r.json()).then(s => {
-  stats = s;
-  if (!s.videos) $('#herosub').innerHTML = 'The library is empty right now. <b>Upload some videos</b> first, then ask me to find anything in them.';
-  else $('#herosub').textContent = `I've looked through ${plural(s.searchable, 'video')} in the library. Describe what's in the video you need, or tap the microphone and just ask.`;
-}).catch(() => {});
+const loadStats = () => api('/api/stats').then(r => r.json()).then(s => { stats = s; setStage($('#stage').dataset.state); }).catch(() => {});
+
+// ---------- the orb stage ----------
+function setStage(state) {
+  const st = $('#stage'); st.dataset.state = state;
+  $('#orb').dataset.state = state; $('#miniorb').dataset.state = state;
+  const threadMode = document.body.classList.contains('has-thread');
+  st.classList.toggle('overlay', threadMode && state !== 'idle');
+  if (state === 'idle') {
+    $('#status').textContent = stats.videos ? t('tap_to_speak') : t('empty_short');
+    $('#live').textContent = '';
+  } else if (state === 'listening') {
+    $('#status').textContent = t('listening');
+  } else if (state === 'thinking') {
+    $('#status').textContent = t('thinking', { n: stats.searchable });
+  }
+}
+$('#cancel').onclick = () => { if (rec) { rec.abort(); } setStage('idle'); };
 
 // ---------- composer ----------
 const q = $('#q');
-function autosize() { q.style.height = '40px'; q.style.height = Math.min(120, q.scrollHeight) + 'px'; $('#send').disabled = !q.value.trim(); }
+function autosize() { q.style.height = '42px'; q.style.height = Math.min(120, q.scrollHeight) + 'px'; $('#send').disabled = !q.value.trim(); }
 q.addEventListener('input', autosize);
-q.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('#composer').requestSubmit(); } });
-$('#composer').onsubmit = e => { e.preventDefault(); const t = q.value.trim(); if (t) ask(t); };
-$('#newchat').onclick = () => { $('#thread').innerHTML = ''; $('#hero').classList.remove('hidden'); q.value = ''; autosize(); window.scrollTo(0, 0); q.focus(); };
+q.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('#dock').requestSubmit(); } });
+$('#dock').onsubmit = e => { e.preventDefault(); const v = q.value.trim(); if (v) ask(v); };
+$('#newchat').onclick = () => { $('#thread').innerHTML = ''; document.body.classList.remove('has-thread'); $('#newchat').classList.add('hidden'); setStage('idle'); window.scrollTo(0, 0); };
 
-// ---------- the assistant ----------
-let results = {};
-let busy = false;
+// ---------- asking ----------
+let results = {}, busy = false;
 async function ask(text, opts = {}) {
-  if (busy) return;
-  busy = true;
+  if (busy) return; busy = true;
   q.value = ''; autosize(); q.blur();
-  $('#hero').classList.add('hidden');
+  const lang = opts.lang || I18N.lang;
+  const threadMode = document.body.classList.contains('has-thread');
   const thread = $('#thread');
   const u = document.createElement('div'); u.className = 'msg-user';
   u.innerHTML = (opts.voice ? '<svg><use href="#i-mic"/></svg>' : '') + esc(text);
   const a = document.createElement('div'); a.className = 'msg-ai';
-  a.innerHTML = `<div class="avatar"><svg><use href="#i-spark"/></svg></div><div class="ai-body"><div class="thinking"><span class="dots"><i></i><i></i><i></i></span>
-    <span>Looking through ${stats.searchable ? plural(stats.searchable, 'video') : 'the library'}…</span></div><div class="scanbar"></div></div>`;
-  thread.append(u, a);
-  u.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  a.innerHTML = `<span class="orb avatar" data-state="thinking" style="--size:34px"><span class="orb__ring"></span><span class="orb__core"><span class="blob b1"></span><span class="blob b2"></span></span></span><div class="ai-body"></div>`;
+  let inline = threadMode && !opts.voice;
+  if (inline) {
+    a.querySelector('.ai-body').innerHTML = `<div class="thinking"><span class="dots"><i></i><i></i><i></i></span><span>${esc(t('thinking', { n: stats.searchable }))}</span></div>`;
+    thread.append(u, a); u.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } else {
+    if (opts.voice) $('#live').textContent = '“' + text + '”';
+    setStage('thinking');
+  }
   const started = Date.now();
-  let data;
+  let data = null;
   try {
     const r = await api('/api/search?q=' + encodeURIComponent(text));
     if (!r.ok) throw new Error('search failed');
     data = await r.json();
-  } catch (err) {
-    a.querySelector('.ai-body').innerHTML = `<div class="ai-text">Sorry, something went wrong while searching. Please try again.</div>`;
-    busy = false; return;
-  }
-  await new Promise(r => setTimeout(r, Math.max(0, 600 - (Date.now() - started))));  // let the "looking" state register
-  stats = { videos: data.videos, searchable: data.searchable };
-  renderAnswer(a.querySelector('.ai-body'), data, opts);
+  } catch (err) { if (err.message === 'login') return; }
+  await new Promise(r => setTimeout(r, Math.max(0, (inline ? 500 : 1100) - (Date.now() - started))));
+  if (!inline) thread.append(u, a);
+  document.body.classList.add('has-thread');
+  $('#newchat').classList.remove('hidden');
+  a.querySelector('.avatar').dataset.state = 'idle';
+  const body = a.querySelector('.ai-body');
+  if (!data) body.innerHTML = `<div class="ai-text">${esc(t('error'))}</div>`;
+  else { stats = { videos: data.videos, searchable: data.searchable }; renderAnswer(body, data, { ...opts, lang }); }
+  setStage('idle');
+  requestAnimationFrame(() => u.scrollIntoView({ behavior: inline ? 'smooth' : 'auto', block: 'start' }));
   busy = false;
 }
 
@@ -389,25 +429,21 @@ function renderAnswer(body, data, opts) {
   const strong = res.filter(r => r.strength === 'strong').length;
   const pending = data.videos - data.searchable;
   let html, speech;
-  if (!data.videos) {
-    html = `The library is empty, so there's nothing to search yet. Upload some videos and I'll be able to find them for you.`;
-    speech = say(opts.lang, 'empty');
-  } else if (!res.length) {
-    html = `I couldn't find any video showing <em>${what}</em> among the ${plural(data.searchable, 'video')} in the library.`;
-    speech = say(opts.lang, 'none', { what: data.looking_for });
-  } else {
-    const best = res[0], bestFrame = best.frames.reduce((x, y) => y.score > x.score ? y : x);
-    html = `I found <b>${plural(res.length, 'video')}</b> showing <em>${what}</em>. ` +
-      (strong ? `The best match is <b>${esc(best.filename)}</b>, ${bestFrame.t < 2 ? 'right at the start' : 'at ' + fmtT(bestFrame.t)}.` : `None is a perfect match, but these look closest.`);
-    speech = say(opts.lang, 'found', { n: res.length }) + ' ' + (strong ? say(opts.lang, 'best', { t: bestFrame.t }) : say(opts.lang, 'close'));
+  if (!data.videos) { html = t('empty'); speech = t('say_empty'); }
+  else if (!res.length) { html = t('none', { what, n: data.searchable }); speech = t('say_none', { what: data.looking_for }); }
+  else {
+    const best = res[0], bf = best.frames.reduce((x, y) => y.score > x.score ? y : x);
+    html = t('found', { n: res.length, what }) + ' ' +
+      (strong ? t('best', { file: esc(best.filename), when: bf.t < 2 ? t('at_start') : t('at_time', { t: fmtT(bf.t) }) }) : t('close_only'));
+    speech = t('say_found', { n: res.length }) + ' ' + (strong ? t('say_best', { s: bf.t }) : t('close_only'));
   }
-  let sub = '';
-  if (!res.length && data.videos) sub = 'Try describing it another way, for example the colours, the setting or what is happening.';
-  if (pending > 0) sub += (sub ? ' ' : '') + `${plural(pending, 'video')} ${pending === 1 ? 'is' : 'are'} still being processed and can't be searched yet.`;
+  const subs = [];
+  if (!res.length && data.videos) subs.push(t('none_tip'));
+  if (pending > 0) subs.push(t('pending', { n: pending }));
   const id = 'r' + Math.random().toString(36).slice(2);
   results[id] = res;
-  body.innerHTML = `<div class="ai-text">${html}</div>${sub ? `<div class="ai-sub">${esc(sub)}</div>` : ''}
-    ${!data.videos ? `<div class="ai-actions"><button class="btn btn--gold" data-go="upload"><svg><use href="#i-upload"/></svg>Upload videos</button></div>` : ''}
+  body.innerHTML = `<div class="ai-text">${html}</div>${subs.length ? `<div class="ai-sub">${esc(subs.join(' '))}</div>` : ''}
+    ${!data.videos ? `<div class="ai-actions"><button class="btn btn--gold" data-go="upload"><svg><use href="#i-upload"/></svg>${esc(t('nav_upload'))}</button></div>` : ''}
     <div class="cards">${res.map((v, i) => card(v, id, i)).join('')}</div>`;
   body.querySelectorAll('[data-go]').forEach(b => b.onclick = () => show(b.dataset.go));
   body.querySelectorAll('[data-play]').forEach(b => b.onclick = () => {
@@ -419,10 +455,10 @@ function renderAnswer(body, data, opts) {
 function card(v, set, i) {
   const best = v.frames.reduce((x, y) => y.score > x.score ? y : x);
   const meta = [v.duration ? fmtT(v.duration) : '', v.uploaded_by, fmtDate(v.created_at)].filter(Boolean).map(esc).join(' · ');
-  return `<article class="vcard" style="animation-delay:${Math.min(i, 6) * 70}ms">
-    <button class="vcard__media" data-play data-set="${set}" data-i="${i}" data-t="${best.t}" aria-label="Play ${esc(v.filename)} from ${fmtT(best.t)}">
+  return `<article class="vcard" style="animation-delay:${Math.min(i, 6) * 80}ms">
+    <button class="vcard__media" data-play data-set="${set}" data-i="${i}" data-t="${best.t}" aria-label="${esc(v.filename)} ${fmtT(best.t)}">
       <img src="/thumb/${best.frame_id}" alt="" loading="lazy"><span class="play"><svg><use href="#i-play"/></svg></span>
-      <span class="badge ${v.strength}">${v.strength === 'strong' ? 'Strong match' : 'Possible match'}</span><span class="tstamp">▶ ${fmtT(best.t)}</span>
+      <span class="badge ${v.strength}">${esc(t(v.strength === 'strong' ? 'strong' : 'possible'))}</span><span class="tstamp">▶ ${fmtT(best.t)}</span>
     </button>
     <div class="vcard__body"><h3 title="${esc(v.filename)}">${esc(v.filename)}</h3><div class="meta">${meta}</div>
       ${v.frames.length > 1 ? `<div class="moments">${v.frames.map(f => `<button class="moment ${f === best ? 'on' : ''}" data-play data-set="${set}" data-i="${i}" data-t="${f.t}"><img src="/thumb/${f.frame_id}" alt="" loading="lazy"><span>▶ ${fmtT(f.t)}</span></button>`).join('')}</div>` : ''}
@@ -430,68 +466,45 @@ function card(v, set, i) {
 }
 
 // ---------- voice ----------
-const LANGS = [{ code: 'en-US', label: 'EN', name: 'English' }, { code: 'ms-MY', label: 'BM', name: 'Bahasa Melayu' }, { code: 'zh-CN', label: '中文', name: '中文' }];
-let langIdx = Math.max(0, LANGS.findIndex(l => l.code === store.get('voiceLang', 'en-US')));
-const setLang = () => { $('#lang').textContent = LANGS[langIdx].label; $('#lang').title = 'Voice language: ' + LANGS[langIdx].name + ' (tap to change)'; };
-setLang();
-$('#lang').onclick = () => { langIdx = (langIdx + 1) % LANGS.length; store.set('voiceLang', LANGS[langIdx].code); setLang(); toast('Voice language: ' + LANGS[langIdx].name); };
-
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 let rec = null;
-function setListening(on) {
-  $('#mic').classList.toggle('on', on);
-  $('#mic').setAttribute('aria-label', on ? 'Stop listening' : 'Search by voice');
-  $('#listening').classList.toggle('hidden', !on);
-  q.placeholder = on ? 'Listening…' : 'Ask for a video…';
-}
-$('#mic').onclick = () => {
+function listen() {
+  if (busy) return;
   if (rec) { rec.stop(); return; }
-  if (!SR) { toast("Voice search isn't supported in this browser. Please use Chrome, Edge or Safari."); return; }
+  if (!SR) { toast(t('voice_unsupported')); q.focus(); return; }
   if ('speechSynthesis' in window) speechSynthesis.cancel();
-  rec = new SR();
-  const rec_lang = LANGS[langIdx].code;
-  rec.lang = rec_lang; rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 1;
-  let heard = '';
-  rec.onresult = e => { heard = Array.from(e.results).map(r => r[0].transcript).join(''); q.value = heard; autosize(); $('#listenTxt').textContent = '“' + heard + '”'; };
+  const lang = I18N.voiceCode();
+  rec = new SR(); rec.lang = lang; rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 1;
+  let heard = '', aborted = false;
+  rec.onresult = e => { heard = Array.from(e.results).map(r => r[0].transcript).join(''); $('#live').textContent = '“' + heard + '”'; };
   rec.onerror = e => {
-    if (e.error === 'not-allowed' || e.error === 'service-not-allowed') toast('Microphone access is blocked. Allow it in your browser settings to use voice search.');
-    else if (e.error === 'no-speech') toast("I didn't hear anything. Tap the mic and try again.");
-    else if (e.error !== 'aborted') toast('Voice search stopped (' + e.error + '). Please try again.');
+    if (e.error === 'aborted') { aborted = true; return; }
+    if (e.error === 'not-allowed' || e.error === 'service-not-allowed') toast(t('mic_blocked'));
+    else if (e.error === 'no-speech') toast(t('no_speech'));
+    else toast(t('voice_err', { e: e.error }));
   };
-  rec.onend = () => { rec = null; setListening(false); $('#listenTxt').textContent = 'Listening… speak now'; const t = heard.trim(); if (t) ask(t, { voice: true, lang: rec_lang }); };
-  try { rec.start(); setListening(true); } catch { rec = null; toast('Could not start the microphone. Please try again.'); }
-};
-// Spoken replies, in the language the request was spoken in.
-function say(lang, key, a = {}) {
-  const l = (lang || 'en').slice(0, 2), sec = Math.round(a.t || 0), m = Math.floor(sec / 60), x = sec % 60;
-  const T = {
-    en: { empty: 'The library is empty. Please upload some videos first.', none: `Sorry, I couldn't find any video showing ${a.what}.`,
-          found: `I found ${plural(a.n, 'video')}.`, best: `The best match is ${sayT(a.t)}.`, close: 'None is a perfect match, but these look closest.' },
-    ms: { empty: 'Perpustakaan video masih kosong. Sila muat naik video dahulu.', none: `Maaf, saya tidak jumpa video yang menunjukkan ${a.what}.`,
-          found: `Saya jumpa ${a.n} video.`, best: `Padanan terbaik ${sec < 2 ? 'ada di permulaan video' : 'pada ' + (m ? m + ' minit ' : '') + (x ? x + ' saat' : '')}.`,
-          close: 'Tiada yang betul-betul sepadan, tetapi ini yang paling hampir.' },
-    zh: { empty: '视频库还是空的，请先上传视频。', none: `抱歉，没有找到显示${a.what}的视频。`, found: `我找到了${a.n}个视频。`,
-          best: `最佳匹配在${sec < 2 ? '视频开头' : (m ? m + '分' : '') + (x ? x + '秒' : '')}。`, close: '没有完全匹配的，但这些最接近。' },
-  };
-  return (T[l] || T.en)[key];
+  rec.onend = () => { rec = null; const v = heard.trim(); if (v && !aborted) ask(v, { voice: true, lang: I18N.lang }); else setStage('idle'); };
+  try { rec.start(); setStage('listening'); } catch { rec = null; toast(t('mic_fail')); setStage('idle'); }
 }
-function speak(text, lang = 'en-US') {
+$('#orb').onclick = listen;
+$('#miniorb').onclick = listen;
+function speak(text, lang) {
   if (!('speechSynthesis' in window)) return;
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = lang; u.rate = 1.03;
-  const voices = speechSynthesis.getVoices(), base = lang.slice(0, 2).toLowerCase();
-  const v = (base === 'en' && voices.find(v => /en(-|_)(GB|US|AU)/i.test(v.lang) && /female|samantha|google uk|serena|karen/i.test(v.name))) ||
-            voices.find(v => v.lang.replace('_', '-').toLowerCase() === lang.toLowerCase()) || voices.find(v => v.lang.toLowerCase().startsWith(base));
+  const code = I18N.voiceCode(lang), base = code.slice(0, 2).toLowerCase();
+  const u = new SpeechSynthesisUtterance(text.replace(/<[^>]+>/g, ''));
+  u.lang = code; u.rate = 1.02;
+  const voices = speechSynthesis.getVoices();
+  const v = voices.find(v => v.lang.replace('_', '-').toLowerCase() === code.toLowerCase()) || voices.find(v => v.lang.toLowerCase().startsWith(base));
   if (v) u.voice = v;
   speechSynthesis.cancel(); speechSynthesis.speak(u);
 }
 
 // ---------- player ----------
-function play(id, name, t, frames) {
+function play(id, name, at, frames) {
   if ('speechSynthesis' in window) speechSynthesis.cancel();
   const v = $('#vid');
   v.src = `/media/${id}`;
-  v.onloadedmetadata = () => { v.currentTime = Math.max(0, (t || 0) - 0.5); v.play().catch(() => {}); };
+  v.onloadedmetadata = () => { v.currentTime = Math.max(0, (at || 0) - 0.5); v.play().catch(() => {}); };
   $('#pname').textContent = name;
   $('#pdl').href = `/media/${id}?download=1`;
   const fr = (frames || []).slice().sort((a, b) => a.t - b.t);
@@ -512,7 +525,7 @@ drop.addEventListener('drop', e => addFiles(e.dataTransfer.files));
 function addFiles(list) {
   for (const f of list) {
     const row = document.createElement('div'); row.className = 'up';
-    row.innerHTML = `<div class="n">${esc(f.name)}</div><div class="s">${fmtSize(f.size)} · waiting</div><div class="prog"><i></i></div>`;
+    row.innerHTML = `<div class="n">${esc(f.name)}</div><div class="s">${fmtSize(f.size)} · ${esc(t('waiting'))}</div><div class="prog"><i></i></div>`;
     $('#uplist').prepend(row); queue.push({ f, row });
   }
   pump();
@@ -527,11 +540,11 @@ function pump() {
     xhr.upload.onprogress = e => { if (e.lengthComputable) { const p = Math.round(100 * e.loaded / e.total); row.querySelector('i').style.width = p + '%'; s.textContent = `${fmtSize(f.size)} · ${p}%`; } };
     xhr.onload = () => {
       if (xhr.status === 401) location.href = '/login';
-      if (xhr.status === 200) { s.textContent = 'Uploaded · processing'; s.className = 's ok'; }
-      else { let m = 'Failed'; try { m = JSON.parse(xhr.responseText).error; } catch {} s.textContent = m; s.className = 's bad'; }
+      if (xhr.status === 200) { s.textContent = t('uploaded'); s.className = 's ok'; loadStats(); }
+      else { let m = t('failed'); try { m = JSON.parse(xhr.responseText).error; } catch {} s.textContent = m; s.className = 's bad'; }
       active--; pump();
     };
-    xhr.onerror = () => { s.textContent = 'Network error'; s.className = 's bad'; active--; pump(); };
+    xhr.onerror = () => { s.textContent = t('net_err'); s.className = 's bad'; active--; pump(); };
     xhr.send(fd);
   }
 }
@@ -549,29 +562,31 @@ function renderLib() {
   const f = $('#libfilter').value.toLowerCase();
   const ready = libData.filter(v => v.status === 'ready').length;
   const total = libData.reduce((a, v) => a + (v.size || 0), 0);
-  const hours = libData.reduce((a, v) => a + (v.duration || 0), 0) / 3600;
-  $('#stats').innerHTML = [[libData.length, 'Videos'], [ready, 'Searchable'], [hours >= 1 ? hours.toFixed(1) + 'h' : Math.round(hours * 60) + 'm', 'Footage'], [fmtSize(total), 'Stored']]
-    .map(([n, l]) => `<div class="stat"><b>${n}</b><span>${l}</span></div>`).join('');
-  const label = v => v.status === 'ready' ? ['ready', 'Searchable'] : v.status === 'error' ? ['error', 'Error'] :
-    v.status === 'converting' ? ['wait', 'Converting…'] : v.status === 'indexing' ? ['wait', `Analysing ${Math.round(100 * (v.progress || 0))}%`] : ['wait', 'In queue'];
+  const mins = libData.reduce((a, v) => a + (v.duration || 0), 0) / 60;
+  $('#stats').innerHTML = [[libData.length, t('st_videos')], [ready, t('st_searchable')], [mins >= 60 ? (mins / 60).toFixed(1) + ' h' : Math.round(mins) + ' min', t('st_footage')], [fmtSize(total), t('st_stored')]]
+    .map(([n, l]) => `<div class="stat"><b>${n}</b><span>${esc(l)}</span></div>`).join('');
+  const label = v => v.status === 'ready' ? ['ready', t('s_ready')] : v.status === 'error' ? ['error', t('s_error')] :
+    v.status === 'converting' ? ['wait', t('s_conv')] : v.status === 'indexing' ? ['wait', t('s_idx', { p: Math.round(100 * (v.progress || 0)) })] : ['wait', t('s_queue')];
   const list = libData.filter(v => v.filename.toLowerCase().includes(f));
   $('#lib').innerHTML = list.map(v => { const [cls, txt] = label(v); return `
     <div class="lcard">
-      <button class="cov" data-id="${v.id}" style="${v.cover ? `background-image:url(/thumb/${v.cover})` : ''}" aria-label="Play ${esc(v.filename)}"></button>
+      <button class="cov" data-id="${v.id}" style="${v.cover ? `background-image:url(/thumb/${v.cover})` : ''}" aria-label="${esc(v.filename)}"></button>
       <div class="b"><div class="t" title="${esc(v.filename)}">${esc(v.filename)}</div>
         <div class="meta">${[v.duration ? fmtT(v.duration) : '', fmtSize(v.size || 0), v.uploaded_by].filter(Boolean).map(esc).join(' · ')}</div>
-        <div class="row"><span class="st ${cls}" title="${esc(v.error || '')}">${esc(txt)}</span><button class="del" data-id="${v.id}">Delete</button></div></div>
-    </div>`; }).join('') || `<div class="empty" style="grid-column:1/-1">${libData.length ? 'No videos match that name.' : 'No videos yet. Upload some to get started.'}</div>`;
-  $('#lib').querySelectorAll('.cov').forEach(el => el.onclick = () => { const v = libData.find(x => x.id == el.dataset.id); if (v.status === 'ready') play(v.id, v.filename, 0); else toast('This video is still being processed.'); });
+        <div class="row"><span class="st ${cls}" title="${esc(v.error || '')}">${esc(txt)}</span><button class="del" data-id="${v.id}">${esc(t('delete'))}</button></div></div>
+    </div>`; }).join('') || `<div class="empty">${esc(t(libData.length ? 'no_match_name' : 'no_videos'))}</div>`;
+  $('#lib').querySelectorAll('.cov').forEach(el => el.onclick = () => { const v = libData.find(x => x.id == el.dataset.id); if (v.status === 'ready') play(v.id, v.filename, 0); else toast(t('still_proc')); });
   $('#lib').querySelectorAll('.del').forEach(el => el.onclick = async () => {
     const v = libData.find(x => x.id == el.dataset.id);
-    if (!confirm(`Delete "${v.filename}" for everyone?`)) return;
+    if (!confirm(t('confirm_del', { f: v.filename }))) return;
     const r = await api('/api/videos/' + v.id, { method: 'DELETE' });
-    if (!r.ok) toast((await r.json()).error || 'Could not delete'); loadLib();
+    if (!r.ok) toast((await r.json()).error || t('cant_delete')); loadLib(); loadStats();
   });
 }
 
-show('search');
+renderStatic();
+show('ask');
+loadStats();
 </script>
 </body>
 </html>

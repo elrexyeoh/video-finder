@@ -39,17 +39,18 @@ def require_login():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    error = None
+    error, name = False, ""
     if request.method == "POST":
+        name = (request.form.get("name") or "").strip()[:60]
         if APP_PASSWORD and hmac.compare_digest(request.form.get("password", ""), APP_PASSWORD):
             session.permanent = True
             session["ok"] = True
-            session["name"] = (request.form.get("name") or "").strip()[:60] or "Someone"
+            session["name"] = name or "Someone"
             nxt = request.args.get("next", "/")
             return redirect(nxt if nxt.startswith("/") and not nxt.startswith("//") else "/")
         time.sleep(1)
-        error = "Wrong password"
-    return render_template("login.html", error=error)
+        error = True
+    return render_template("login.html", error=error, name=name)
 
 
 @app.route("/logout")
