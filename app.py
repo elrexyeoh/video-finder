@@ -37,7 +37,7 @@ lark_sync.start()
 
 @app.before_request
 def require_login():
-    if request.endpoint in ("login", "static", "health"):
+    if request.endpoint in ("login", "static", "health", "manifest", "service_worker", "offline"):
         return
     if not APP_PASSWORD:
         return  # no password configured (local testing)
@@ -61,6 +61,26 @@ def login():
         time.sleep(1)
         error = True
     return render_template("login.html", error=error, name=name)
+
+
+@app.get("/manifest.webmanifest")
+def manifest():
+    resp = send_file(os.path.join(app.static_folder, "manifest.webmanifest"), mimetype="application/manifest+json")
+    resp.headers["Cache-Control"] = "no-cache"
+    return resp
+
+
+@app.get("/sw.js")
+def service_worker():
+    resp = send_file(os.path.join(app.static_folder, "sw.js"), mimetype="text/javascript")
+    resp.headers["Cache-Control"] = "no-cache"
+    resp.headers["Service-Worker-Allowed"] = "/"
+    return resp
+
+
+@app.get("/offline")
+def offline():
+    return render_template("offline.html")
 
 
 @app.route("/logout")

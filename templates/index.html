@@ -7,16 +7,20 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Video Finder · TSLAW Group</title>
-<link rel="icon" href="/static/favicon.png">
-<link rel="apple-touch-icon" href="/static/favicon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/static/icons/favicon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="视频搜索">
+<script src="/static/pwa.js?v=1"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Manrope:wght@400;500;600;700&family=Noto+Serif+SC:wght@500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/static/theme.css?v=7">
+<link rel="stylesheet" href="/static/theme.css?v=8">
 <style>
 /* ================= layout ================= */
 body{background:var(--ivory);min-height:100dvh}
 body.on-ask{background:var(--navy-1000);color:#fff}
-.top{position:fixed;inset:0 0 auto;z-index:40;height:var(--top);display:flex;align-items:center;gap:10px;padding:0 12px;
+.top{position:fixed;inset:0 0 auto;z-index:40;height:var(--top);display:flex;align-items:center;gap:10px;padding:var(--sat) 12px 0;
   background:rgba(11,31,69,.86);backdrop-filter:blur(14px) saturate(1.2);-webkit-backdrop-filter:blur(14px) saturate(1.2);border-bottom:1px solid var(--line-light);color:#fff}
 .brand{display:flex;align-items:center;gap:10px;min-width:0;color:#fff;text-decoration:none}
 .brand img{height:24px;width:auto;display:block}
@@ -200,6 +204,27 @@ main{padding-top:var(--top)}
 .details a{color:var(--gold-300)}
 .badge.text{left:auto;right:10px;background:rgba(51,112,255,.92);color:#fff}
 
+/* ---------- install the app ---------- */
+.install-card{position:fixed;left:12px;right:12px;bottom:calc(84px + var(--safe));z-index:35;max-width:520px;margin:0 auto;display:flex;align-items:center;gap:12px;
+  padding:12px 12px 12px 14px;border-radius:14px;background:rgba(11,31,69,.92);border:1px solid rgba(220,192,128,.4);box-shadow:0 18px 40px rgba(0,0,0,.4);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);animation:rise .6s var(--ease) both}
+.install-card img{width:44px;height:44px;border-radius:11px;flex:none}
+.install-card div{flex:1;min-width:0;font-size:13px;color:rgba(255,255,255,.72);line-height:1.4}
+.install-card b{display:block;color:#fff;font-size:14.5px}
+.install-card .go{flex:none;height:36px;padding:0 16px;border:0;border-radius:999px;background:var(--gold-grad);color:var(--navy-1000);font-weight:700}
+.install-card .x{flex:none;width:30px;height:30px;border:0;background:none;color:rgba(255,255,255,.5);font-size:20px;line-height:1}
+.has-thread .install-card{display:none}
+#iosSheet{position:fixed;top:auto;bottom:0;left:0;right:0;width:min(440px,100%);height:auto;max-height:90vh;margin:0 auto;animation:sheet .4s var(--ease);border-radius:18px 18px 0 0;padding:22px 20px calc(22px + var(--safe));background:var(--navy-950)}
+@keyframes sheet{from{transform:translateY(100%)}to{transform:none}}
+#iosSheet h3{font-family:var(--serif);font-weight:500;font-size:26px;margin:0 0 4px;display:flex;align-items:center;gap:12px}
+#iosSheet h3 img{width:40px;height:40px;border-radius:10px}
+#iosSheet ol{list-style:none;padding:0;margin:18px 0 20px;display:flex;flex-direction:column;gap:14px}
+#iosSheet li{display:flex;gap:12px;align-items:center;font-size:15px}
+#iosSheet li span.n{flex:none;width:26px;height:26px;border-radius:50%;background:var(--gold-grad);color:var(--navy-1000);font-weight:800;display:grid;place-items:center;font-size:13px}
+#iosSheet li svg{width:22px;height:22px;color:#4ea1ff;flex:none;vertical-align:-5px}
+#iosSheet .warn{background:rgba(201,169,97,.14);border:1px solid rgba(201,169,97,.4);border-radius:10px;padding:10px 12px;font-size:14px;margin-top:14px}
+#iosSheet .btn{width:100%}
+
 /* ---------- player ---------- */
 dialog{border:0;padding:0;margin:auto;background:var(--navy-1000);color:#fff;width:100%;max-width:100%;height:100%;max-height:100%}
 dialog::backdrop{background:rgba(5,12,30,.85)}
@@ -222,7 +247,7 @@ dialog::backdrop{background:rgba(5,12,30,.85)}
 @media (max-width:360px){ .langsw button{padding:6px 8px} }
 @media (max-height:760px){ .stage .chips{display:none} .stage h1{margin-bottom:22px} }
 @media (min-width:1000px){
-  :root{--rail:88px}
+  :root{--rail:88px;--top:calc(70px + var(--sat))}
   .menubtn{display:none}
   .rail{display:flex;flex-direction:column;align-items:center;gap:6px;position:fixed;inset:var(--top) auto 0 0;z-index:35;width:var(--rail);padding:16px 8px;background:rgba(11,31,69,.96);border-right:1px solid var(--line-light)}
   .rail .navitem{flex-direction:column;gap:6px;padding:12px 4px;font-size:11.5px;text-align:center;justify-content:center;letter-spacing:.02em}
@@ -248,6 +273,9 @@ dialog::backdrop{background:rgba(5,12,30,.85)}
   <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
   <symbol id="i-new" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.6M4 4v4h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-dl" viewBox="0 0 24 24"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M4 19h16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 15V3m0 0L8 7m4-4 4 4M7 10H5.5A1.5 1.5 0 0 0 4 11.5v8A1.5 1.5 0 0 0 5.5 21h13a1.5 1.5 0 0 0 1.5-1.5v-8a1.5 1.5 0 0 0-1.5-1.5H17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-addsq" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v8M8 12h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10.5 18.5h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
   <symbol id="i-out" viewBox="0 0 24 24"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 16l-4-4 4-4M6 12h10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
 </svg>
 
@@ -268,6 +296,7 @@ dialog::backdrop{background:rgba(5,12,30,.85)}
   <button class="navitem" data-view="upload"><svg><use href="#i-upload"/></svg><span data-i18n="nav_upload"></span></button>
   <button class="navitem" data-view="library"><svg><use href="#i-lib"/></svg><span data-i18n="nav_library"></span></button>
   <span class="grow"></span>
+  <button class="navitem hidden" data-install><svg><use href="#i-phone"/></svg><span data-i18n="install_nav"></span></button>
   <a class="navitem" href="/logout"><svg><use href="#i-out"/></svg><span data-i18n="signout"></span></a>
 </nav>
 
@@ -281,6 +310,7 @@ dialog::backdrop{background:rgba(5,12,30,.85)}
   <button class="navitem" data-view="library"><svg><use href="#i-lib"/></svg><span data-i18n="nav_library"></span></button>
   <div class="drawer__foot">
     <div class="drawer__who"><span data-i18n="signed_in_as"></span> <b>{{ name or "—" }}</b></div>
+    <button class="navitem hidden" data-install><svg><use href="#i-phone"/></svg><span data-i18n="install_nav"></span></button>
     <a class="navitem" href="/logout"><svg><use href="#i-out"/></svg><span data-i18n="signout"></span></a>
   </div>
 </aside>
@@ -356,6 +386,24 @@ dialog::backdrop{background:rgba(5,12,30,.85)}
   </div>
 </form>
 
+<div class="install-card hidden" id="installCard" role="region">
+  <img src="/static/icons/icon-192.png" alt="">
+  <div><b data-i18n="install_title"></b><span data-i18n="install_desc"></span></div>
+  <button class="go" data-install data-i18n="install_btn"></button>
+  <button class="x" id="installX" data-i18n-aria="cancel">×</button>
+</div>
+
+<dialog id="iosSheet">
+  <h3><img src="/static/icons/icon-192.png" alt=""><span data-i18n="ios_title"></span></h3>
+  <div class="warn hidden" id="iosInApp" data-i18n="ios_inapp"></div>
+  <ol id="iosSteps">
+    <li><span class="n">1</span><span><span data-i18n="ios_s1"></span> <svg><use href="#i-share"/></svg></span></li>
+    <li><span class="n">2</span><span><span data-i18n="ios_s2"></span> <svg><use href="#i-addsq"/></svg></span></li>
+    <li><span class="n">3</span><span data-i18n="ios_s3"></span></li>
+  </ol>
+  <button class="btn btn--gold" id="iosOk" data-i18n="ios_ok"></button>
+</dialog>
+
 <dialog id="player">
   <div class="pl">
     <div class="pl__top"><div class="t" id="pname"></div><button class="iconbtn" id="pclose"><svg><use href="#i-x"/></svg></button></div>
@@ -368,7 +416,7 @@ dialog::backdrop{background:rgba(5,12,30,.85)}
   </div>
 </dialog>
 
-<script src="/static/i18n.js?v=11"></script>
+<script src="/static/i18n.js?v=12"></script>
 <script>
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -405,6 +453,7 @@ function show(view) {
   $('.aurora').classList.toggle('hidden', view !== 'ask');
   $('#newchat').classList.toggle('hidden', view !== 'ask' || !document.body.classList.contains('has-thread'));
   closeDrawer();
+  if (typeof refreshInstall === 'function') refreshInstall();
   if (view === 'library') loadLib(); else clearTimeout(libTimer);
   if (view === 'upload') loadLark(); else clearTimeout(larkTimer);
   window.scrollTo(0, 0);
@@ -744,6 +793,26 @@ function renderLib() {
     if (!r.ok) toast((await r.json()).error || t('cant_delete')); loadLib(); loadStats();
   });
 }
+
+// ---------- install the app (PWA) ----------
+function refreshInstall() {
+  const mode = window.PWA && PWA.mode();
+  document.querySelectorAll('.navitem[data-install]').forEach(b => b.classList.toggle('hidden', !mode));
+  let dismissed = false; try { dismissed = localStorage.getItem('installDismissed') === '1'; } catch {}
+  $('#installCard').classList.toggle('hidden', !mode || dismissed || $('#view-ask').classList.contains('hidden'));
+}
+document.querySelectorAll('[data-install]').forEach(b => b.onclick = async () => {
+  closeDrawer();
+  if (PWA.mode() === 'prompt') { if (await PWA.install()) toast(t('installed')); }
+  else { $('#iosInApp').classList.toggle('hidden', !PWA.iosInApp); $('#iosSteps').classList.toggle('hidden', PWA.iosInApp); $('#iosSheet').showModal(); }
+  refreshInstall();
+});
+$('#installX').onclick = () => { try { localStorage.setItem('installDismissed', '1'); } catch {} refreshInstall(); };
+$('#iosOk').onclick = () => $('#iosSheet').close();
+$('#iosSheet').addEventListener('click', e => { if (e.target === $('#iosSheet')) $('#iosSheet').close(); });
+addEventListener('pwa-change', refreshInstall);
+addEventListener('pwa-installed', () => toast(t('installed')));
+setTimeout(refreshInstall, 2500);  // invite after a moment, not on first paint
 
 renderStatic();
 show('ask');
