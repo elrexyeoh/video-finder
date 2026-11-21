@@ -167,6 +167,10 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT, url TEXT NOT NULL, app_token TEXT, table_id TEXT, name TEXT,
             status TEXT DEFAULT 'new', message TEXT, found INTEGER DEFAULT 0, imported INTEGER DEFAULT 0,
             last_sync REAL, created_at REAL, added_by TEXT)""")
+        scols = [r["name"] for r in c.execute("PRAGMA table_info(lark_sources)")]
+        for col in ("view_id TEXT", "row_from INTEGER", "row_to INTEGER"):
+            if col.split()[0] not in scols:
+                c.execute(f"ALTER TABLE lark_sources ADD COLUMN {col}")
         # Anything interrupted by a restart goes back in the queue.
         c.execute("UPDATE videos SET status='queued', progress=0 WHERE status IN ('indexing','converting')")
 

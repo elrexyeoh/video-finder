@@ -119,6 +119,11 @@ def parse_link(url):
     return m.group(1), m.group(2), table
 
 
+def link_view(url):
+    """The view in the link (…&view=vew…): rows are read in that view's order and filter."""
+    return (urllib.parse.parse_qs(urllib.parse.urlparse(url.strip()).query).get("view") or [None])[0]
+
+
 def resolve_app_token(kind, token):
     if kind == "base":
         return token
@@ -220,7 +225,15 @@ def sync_source(sid):
                 continue
             primary = next((f["field_name"] for f in fields if f.get("is_primary")), None)
             names = {f["field_name"] for f in fields}
-            for rec in _paged(f"/open-apis/bitable/v1/apps/{app_token}/tables/{tid}/records", {"page_size": 500}):
+            params = {"page_size": 500}
+            if src["view_id"] and src["table_id"]:
+                params["view_id"] = src["view_id"]  # same order and filter as the view the link came from
+            lo, hi = src["row_from"] or 1, src["row_to"]
+            for rowno, rec in enumerate(_paged(f"/open-apis/bitable/v1/apps/{app_token}/tables/{tid}/records", params), 1):
+                if rowno < lo:
+                    continue
+                if hi and rowno > hi:
+                    break
                 cells = rec.get("fields") or {}
                 meta = {}
                 for k in [f["field_name"] for f in fields] + [k for k in cells if k not in names]:  # table column order
@@ -308,19 +321,46 @@ def start():
 
 def sources():
     with db() as c:
-        return [dict(r) for r in c.execute("SELECT id, url, name, status, message, found, imported, last_sync, added_by "
-                                           "FROM lark_sources ORDER BY id")]
+        return [dict(r) for r in c.execute("SELECT id, url, name, status, message, found, imported, last_sync, added_by, "
+                                           "view_id, row_from, row_to FROM lark_sources ORDER BY id")]
 
 
-def add_source(url, added_by=""):
+def clean_range(row_from, row_to):
+    """-> (from, to) as positive ints or None; raises ValueError('bad_range')."""
+    def num(v):
+        if v in (None, ""):
+            return None
+        n = int(v)
+        if n < 1:
+            raise ValueError("bad_range")
+        return n
+    try:
+        lo, hi = num(row_from), num(row_to)
+    except (TypeError, ValueError):
+        raise ValueError("bad_range")
+    if lo and hi and hi < lo:
+        raise ValueError("bad_range")
+    return lo, hi
+
+
+def add_source(url, added_by="", row_from=None, row_to=None):
     kind, token, table = parse_link(url)  # validates the link
+    lo, hi = clean_range(row_from, row_to)
     with db() as c:
-        cur = c.execute("INSERT INTO lark_sources (url, app_token, table_id, status, message, created_at, added_by) "
-                        "VALUES (?,?,?,?,?,?,?)", (url.strip(), token if kind == "base" else None, table, "queued",
-                                                   "Waiting to sync…", time.time(), added_by))
+        cur = c.execute("INSERT INTO lark_sources (url, app_token, table_id, view_id, row_from, row_to, status, message, "
+                        "created_at, added_by) VALUES (?,?,?,?,?,?,?,?,?,?)",
+                        (url.strip(), token if kind == "base" else None, table, link_view(url), lo, hi, "queued",
+                         "Waiting to sync…", time.time(), added_by))
         sid = cur.lastrowid
     request_sync(sid)
     return sid
+
+
+def set_range(sid, row_from, row_to):
+    lo, hi = clean_range(row_from, row_to)
+    with db() as c:
+        c.execute("UPDATE lark_sources SET row_from=?, row_to=?, status='queued' WHERE id=?", (lo, hi, sid))
+    request_sync(sid)
 
 
 def remove_source(sid):

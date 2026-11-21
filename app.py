@@ -178,12 +178,23 @@ def lark_list():
 def lark_add():
     if not lark_sync.configured():
         return jsonify(error="not_configured"), 400
-    url = str((request.get_json(silent=True) or {}).get("url", ""))[:1000]
+    body = request.get_json(silent=True) or {}
+    url = str(body.get("url", ""))[:1000]
     try:
-        sid = lark_sync.add_source(url, session.get("name", ""))
-    except ValueError:
-        return jsonify(error="bad_link"), 400
+        sid = lark_sync.add_source(url, session.get("name", ""), body.get("row_from"), body.get("row_to"))
+    except ValueError as e:
+        return jsonify(error=str(e) if str(e) == "bad_range" else "bad_link"), 400
     return jsonify(id=sid)
+
+
+@app.patch("/api/lark/<int:sid>")
+def lark_range(sid):
+    body = request.get_json(silent=True) or {}
+    try:
+        lark_sync.set_range(sid, body.get("row_from"), body.get("row_to"))
+    except ValueError:
+        return jsonify(error="bad_range"), 400
+    return jsonify(ok=True)
 
 
 @app.post("/api/lark/<int:sid>/sync")

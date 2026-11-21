@@ -176,7 +176,15 @@ main{padding-top:var(--top)}
 .src .nm{font-weight:700;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .src .msg{grid-column:1/-1;font-size:13px;color:var(--ink-2)}
 .src .msg.bad{color:#b42318}
-.src .acts{display:flex;gap:6px}
+.src .acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.lark .range{display:flex;align-items:center;gap:8px;flex-wrap:wrap;width:100%;font-size:14px;color:var(--ink-2)}
+.lark .range input{flex:none;min-width:0;width:96px;height:40px;padding:0 12px;text-align:center}
+.rhint{width:100%;margin:0!important;font-size:12.5px!important;color:var(--ink-3)!important}
+.src .rng{font-size:12.5px;color:var(--ink-2);margin-top:2px;grid-column:1/-1}
+.src .edit{grid-column:1/-1;display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px;font-size:14px}
+.src .edit input{flex:none;min-width:0;width:84px;height:36px;border:1px solid var(--line);border-radius:999px;padding:0 10px;text-align:center;font:inherit;background:var(--paper)}
+.src .edit button{border:0;border-radius:999px;padding:7px 14px;font-weight:600;font-size:13px;background:var(--navy-1000);color:#fff}
+.src .edit button.ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
 .src .acts button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 12px;font-size:12.5px;font-weight:600;color:var(--ink)}
 .pill{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:999px;margin-left:6px;vertical-align:1px}
 .pill.ok{background:#e7f5ee;color:#1d7a4a}.pill.error{background:#fdecea;color:#b42318}.pill.syncing,.pill.queued{background:#fbf3df;color:var(--gold-700)}
@@ -316,7 +324,12 @@ dialog::backdrop{background:rgba(5,12,30,.85)}
       <div class="lark__head"><span class="lark__logo">Lark</span>
         <div><h3 data-i18n="lark_title"></h3><p data-i18n="lark_desc"></p></div></div>
       <div class="notice hidden" id="larkSetup" data-i18n="lark_not_cfg"></div>
-      <form id="larkForm" class="hidden"><input id="larkUrl" type="url" data-i18n-ph="lark_ph" required><button class="btn" data-i18n="lark_connect"></button></form>
+      <form id="larkForm" class="hidden">
+        <input id="larkUrl" type="url" data-i18n-ph="lark_ph" required>
+        <div class="range"><span data-i18n="rf_a"></span><input id="rowFrom" type="number" min="1" inputmode="numeric" placeholder="1"><span data-i18n="rf_b"></span><input id="rowTo" type="number" min="1" inputmode="numeric" data-i18n-ph="rf_last"><span data-i18n="rf_c"></span></div>
+        <p class="rhint" data-i18n="rf_hint"></p>
+        <button class="btn" data-i18n="lark_connect"></button>
+      </form>
       <div id="larkList"></div>
     </div>
   </section>
@@ -355,7 +368,7 @@ dialog::backdrop{background:rgba(5,12,30,.85)}
   </div>
 </dialog>
 
-<script src="/static/i18n.js?v=8"></script>
+<script src="/static/i18n.js?v=10"></script>
 <script>
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -663,18 +676,38 @@ function renderLark() {
   const when = ts => ts ? new Date(ts * 1000).toLocaleString(I18N.locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : t('lark_never');
   $('#larkList').innerHTML = larkData.sources.map(s => {
     const msg = s.status === 'error' ? s.message : s.status === 'syncing' ? (s.message || '') : s.status === 'queued' ? t('s_queue') : t('lark_counts', { found: s.found || 0, imported: s.imported || 0 });
-    return `<div class="src"><div class="nm" title="${esc(s.url)}">${esc(s.name || s.url)}<span class="pill ${esc(s.status)}">${esc(t('ls_' + s.status))}</span></div>
-      <div class="acts"><button data-sync="${s.id}">${esc(t('lark_sync'))}</button><button data-rm="${s.id}">${esc(t('lark_remove'))}</button></div>
+    const rng = s.row_from && s.row_to ? t('rng_ab', { a: s.row_from, b: s.row_to }) : s.row_from ? t('rng_from', { a: s.row_from }) : s.row_to ? t('rng_ab', { a: 1, b: s.row_to }) : t('rng_all');
+    return `<div class="src" data-id="${s.id}"><div class="nm" title="${esc(s.url)}">${esc(s.name || s.url)}<span class="pill ${esc(s.status)}">${esc(t('ls_' + s.status))}</span></div>
+      <div class="acts"><button data-edit="${s.id}">${esc(t('rng_change'))}</button><button data-sync="${s.id}">${esc(t('lark_sync'))}</button><button data-rm="${s.id}">${esc(t('lark_remove'))}</button></div>
+      <div class="rng">${esc(rng)}${s.view_id ? ' · ' + esc(t('rng_view')) : ''}</div>
       <div class="msg ${s.status === 'error' ? 'bad' : ''}">${esc(msg)} · ${esc(t('lark_last'))} ${esc(when(s.last_sync))}</div></div>`;
   }).join('');
   $('#larkList').querySelectorAll('[data-sync]').forEach(b => b.onclick = async () => { await api(`/api/lark/${b.dataset.sync}/sync`, { method: 'POST' }); toast(t('lark_started')); setTimeout(loadLark, 800); });
+  $('#larkList').querySelectorAll('[data-edit]').forEach(b => b.onclick = () => {
+    clearTimeout(larkTimer);
+    const s = larkData.sources.find(x => x.id == b.dataset.edit), box = b.closest('.src');
+    box.querySelector('.edit')?.remove();
+    const ed = document.createElement('div'); ed.className = 'edit';
+    ed.innerHTML = `<span>${esc(t('rf_a'))}</span><input type="number" min="1" inputmode="numeric" placeholder="1" value="${s.row_from || ''}"><span>${esc(t('rf_b'))}</span>
+      <input type="number" min="1" inputmode="numeric" placeholder="${esc(t('rf_last'))}" value="${s.row_to || ''}"><span>${esc(t('rf_c'))}</span>
+      <button data-save>${esc(t('rng_save'))}</button><button class="ghost" data-cancel>${esc(t('cancel'))}</button>`;
+    box.append(ed);
+    ed.querySelector('[data-cancel]').onclick = () => loadLark();
+    ed.querySelector('[data-save]').onclick = async () => {
+      const [a, z] = ed.querySelectorAll('input');
+      const r = await api('/api/lark/' + s.id, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ row_from: a.value, row_to: z.value }) });
+      if (!r.ok) { toast(t('rng_bad')); return; }
+      toast(t('lark_started')); loadLark();
+    };
+  });
   $('#larkList').querySelectorAll('[data-rm]').forEach(b => b.onclick = async () => { if (!confirm(t('lark_confirm_rm'))) return; await api('/api/lark/' + b.dataset.rm, { method: 'DELETE' }); loadLark(); });
 }
 $('#larkForm').onsubmit = async e => {
   e.preventDefault();
-  const r = await api('/api/lark', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: $('#larkUrl').value }) });
-  if (!r.ok) { toast(t('lark_bad_link')); return; }
-  $('#larkUrl').value = ''; toast(t('lark_started')); loadLark();
+  const r = await api('/api/lark', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ url: $('#larkUrl').value, row_from: $('#rowFrom').value, row_to: $('#rowTo').value }) });
+  if (!r.ok) { const e = await r.json().catch(() => ({})); toast(t(e.error === 'bad_range' ? 'rng_bad' : 'lark_bad_link')); return; }
+  $('#larkUrl').value = ''; $('#rowFrom').value = ''; $('#rowTo').value = ''; toast(t('lark_started')); loadLark();
 };
 
 // ---------- library ----------
