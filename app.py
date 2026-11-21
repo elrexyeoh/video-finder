@@ -1,5 +1,6 @@
 """Video Finder web app: upload videos, then search them by describing what you see."""
 import hmac
+import json
 import mimetypes
 import os
 import secrets
@@ -21,6 +22,7 @@ mimetypes.add_type("image/webp", ".webp")
 mimetypes.add_type("image/svg+xml", ".svg")
 
 app = Flask(__name__)
+app.json.sort_keys = False  # keep Lark columns in table order
 app.secret_key = os.environ.get("SECRET_KEY") or secrets.token_hex(32)
 app.config.update(
     SESSION_COOKIE_HTTPONLY=True,
@@ -109,6 +111,18 @@ def videos():
             "FROM videos ORDER BY id DESC"
         ).fetchall()
     return jsonify([dict(r) for r in rows])
+
+
+@app.get("/api/videos/<int:vid>")
+def video_detail(vid):
+    with db() as c:
+        r = c.execute("SELECT id, filename, title, source, meta, duration, uploaded_by, created_at FROM videos WHERE id=?",
+                      (vid,)).fetchone()
+    if not r:
+        abort(404)
+    d = dict(r)
+    d["meta"] = json.loads(d["meta"]) if d.get("meta") else None
+    return jsonify(d)
 
 
 @app.delete("/api/videos/<int:vid>")

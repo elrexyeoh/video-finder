@@ -135,7 +135,10 @@ def cell_text(v):
     if isinstance(v, (str, int, float, bool)):
         return str(v)
     if isinstance(v, list):
-        return " ".join(t for t in (cell_text(x) for x in v) if t)
+        parts = [t for t in (cell_text(x) for x in v) if t]
+        if v and all(isinstance(x, dict) and "type" in x and "text" in x for x in v):
+            return "".join(parts)  # rich-text segments
+        return ", ".join(parts)  # multi-select, people, links...
     if isinstance(v, dict):
         for k in ("text", "name", "en_name", "full_name", "link", "value"):
             if k in v and v[k] not in (None, ""):
@@ -216,13 +219,14 @@ def sync_source(sid):
             if not att_fields:
                 continue
             primary = next((f["field_name"] for f in fields if f.get("is_primary")), None)
+            names = {f["field_name"] for f in fields}
             for rec in _paged(f"/open-apis/bitable/v1/apps/{app_token}/tables/{tid}/records", {"page_size": 500}):
                 cells = rec.get("fields") or {}
                 meta = {}
-                for k, v in cells.items():
-                    if k in att_fields:
+                for k in [f["field_name"] for f in fields] + [k for k in cells if k not in names]:  # table column order
+                    if k in att_fields or k not in cells:
                         continue
-                    txt = cell_text(v).strip()
+                    txt = cell_text(cells[k]).strip()
                     if txt:
                         meta[k] = txt[:500]
                 title = meta.get(primary) if primary else None
