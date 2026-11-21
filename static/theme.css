@@ -28,9 +28,12 @@ button{font:inherit;color:inherit;cursor:pointer}
 /* ---------- moving aurora background ---------- */
 .aurora{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;background:radial-gradient(120% 80% at 50% 0%,#163a7c 0%,#0F2A5C 38%,#0B1F45 75%)}
 .aurora i{position:absolute;border-radius:50%;filter:blur(70px);will-change:transform}
-.aurora i:nth-child(1){width:70vmax;height:70vmax;left:-25vmax;top:-30vmax;background:radial-gradient(circle,rgba(38,82,160,.75),transparent 62%);animation:au1 19s ease-in-out infinite alternate}
+.aurora i:nth-child(1){width:70vmax;height:70vmax;left:-25vmax;top:-30vmax;background:radial-gradient(circle,rgba(38,82,160,.55),transparent 62%);animation:au1 19s ease-in-out infinite alternate}
 .aurora i:nth-child(2){width:55vmax;height:55vmax;right:-22vmax;bottom:-24vmax;background:radial-gradient(circle,rgba(201,169,97,.42),transparent 62%);animation:au2 23s ease-in-out infinite alternate}
 .aurora i:nth-child(3){width:40vmax;height:40vmax;left:30%;top:40%;background:radial-gradient(circle,rgba(26,64,133,.6),transparent 62%);animation:au3 17s ease-in-out infinite alternate}
+.aurora .bd-waves{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.aurora .bd-city{position:absolute;left:0;right:0;bottom:0;width:100%;height:min(56vh,620px);object-fit:cover;object-position:50% 100%}
+@media (min-width:900px){.aurora .bd-city{height:min(62vh,700px)}}
 @keyframes au1{to{transform:translate(18vmax,14vmax) scale(1.15)}}
 @keyframes au2{to{transform:translate(-16vmax,-12vmax) scale(1.2)}}
 @keyframes au3{to{transform:translate(-22vmax,-18vmax) scale(.85)}}
