@@ -1,5 +1,6 @@
 """Video Finder web app: upload videos, then search them by describing what you see."""
 import hmac
+import mimetypes
 import os
 import secrets
 import time
@@ -15,6 +16,9 @@ from indexer import DATA_DIR, THUMB_DIR, VIDEO_DIR, db, engine
 APP_PASSWORD = os.environ.get("APP_PASSWORD", "")
 ALLOWED_EXT = {".mp4", ".mov", ".m4v", ".mkv", ".avi", ".webm", ".wmv", ".mpg", ".mpeg", ".3gp", ".3g2",
                ".flv", ".mts", ".m2ts", ".ts", ".vob", ".ogv", ".hevc", ".mxf", ".dv", ".asf", ".f4v"}
+
+mimetypes.add_type("image/webp", ".webp")
+mimetypes.add_type("image/svg+xml", ".svg")
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY") or secrets.token_hex(32)
