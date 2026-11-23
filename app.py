@@ -2,8 +2,10 @@
 import hmac
 import json
 import mimetypes
+import re
 import os
 import secrets
+import threading
 import time
 import uuid
 
@@ -22,6 +24,9 @@ mimetypes.add_type("image/webp", ".webp")
 mimetypes.add_type("image/svg+xml", ".svg")
 
 app = Flask(__name__)
+from werkzeug.middleware.proxy_fix import ProxyFix  # noqa: E402
+
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 app.json.sort_keys = False  # keep Lark columns in table order
 app.secret_key = os.environ.get("SECRET_KEY") or secrets.token_hex(32)
 app.config.update(
@@ -37,7 +42,7 @@ lark_sync.start()
 
 @app.before_request
 def require_login():
-    if request.endpoint in ("login", "static", "health", "manifest", "service_worker", "offline"):
+    if request.endpoint in ("login", "static", "health", "manifest", "service_worker", "offline", "public_frame"):
         return
     if not APP_PASSWORD:
         return  # no password configured (local testing)
@@ -142,6 +147,157 @@ def video_detail(vid):
         abort(404)
     d = dict(r)
     d["meta"] = json.loads(d["meta"]) if d.get("meta") else None
+    return jsonify(d)
+
+
+# ------------------------------------------------------------------ find the same product / suppliers
+def _video_rows(ids):
+    if not ids:
+        return {}
+    with db() as c:
+        rows = c.execute(f"SELECT id, filename, title, source, meta, duration, uploaded_by, created_at, ai_product FROM videos "
+                         f"WHERE id IN ({','.join('?' * len(ids))})", list(ids)).fetchall()
+    out = {}
+    for r in rows:
+        d = dict(r)
+        d["meta"] = json.loads(d["meta"]) if d.get("meta") else None
+        d["ai_product"] = json.loads(d["ai_product"]) if d.get("ai_product") else None
+        out[d["id"]] = d
+    return out
+
+
+@app.get("/api/videos/<int:vid>/similar")
+def similar_videos(vid):
+    sims = engine.similar(vid)
+    rows = _video_rows([vid] + [x["id"] for x in sims])
+    if vid not in rows:
+        abort(404)
+    items = [{**rows[x["id"]], **x} for x in sims if x["id"] in rows]
+    for it in items:
+        it.pop("ai_product", None)
+    me = rows[vid]
+    me.pop("ai_product", None)
+    kf = engine.key_frames(vid, 3)
+    me["cover"] = kf[len(kf) // 2] if kf else None
+    return jsonify(video=me, similar=items)
+
+
+def _sign(fid, exp):
+    return hmac.new(app.secret_key.encode(), f"{fid}.{exp}".encode(), "sha256").hexdigest()[:24]
+
+
+@app.get("/pub/frame/<int:fid>")
+def public_frame(fid):
+    """Time-limited public link to one still frame, so Google Lens can open it without logging in."""
+    exp = request.args.get("e", "0")
+    if not exp.isdigit() or int(exp) < time.time() or not hmac.compare_digest(_sign(fid, exp), request.args.get("s", "")):
+        abort(403)
+    p = os.path.join(THUMB_DIR, f"{fid}.jpg")
+    if not os.path.exists(p):
+        abort(404)
+    return send_file(p, mimetype="image/jpeg")
+
+
+def _search_links(product, frame_id):
+    from urllib.parse import quote, quote_plus
+    zh = (product.get("keywords_zh") or [product.get("name_zh", "")])[0] or product.get("name_zh", "")
+    en = (product.get("keywords_en") or [product.get("name_en", "")])[0] or product.get("name_en", "")
+    links = []
+    if zh:
+        links += [{"key": "1688", "url": "https://s.1688.com/selloffer/offer_search.htm?keywords=" + quote(zh.encode("gbk", "ignore"))},
+                  {"key": "taobao", "url": "https://s.taobao.com/search?q=" + quote(zh)}]
+    if en:
+        slug = re.sub(r"[^A-Za-z0-9]+", "-", en).strip("-")
+        links += [{"key": "alibaba", "url": "https://www.alibaba.com/trade/search?SearchText=" + quote_plus(en)},
+                  {"key": "mic", "url": f"https://www.made-in-china.com/multi-search/{slug}/F1/1.html"}]
+    if frame_id:
+        exp = str(int(time.time()) + 7 * 86400)
+        img = request.url_root.rstrip("/") + f"/pub/frame/{frame_id}?e={exp}&s={_sign(frame_id, exp)}"
+        links.append({"key": "lens", "url": "https://lens.google.com/uploadbyurl?url=" + quote(img, safe="")})
+    if zh or en:
+        links.append({"key": "google", "url": "https://www.google.com/search?q=" + quote(f"{zh or en} 厂家 供应商")})
+    return links
+
+
+def _product_for(vid):
+    """AI description of the product in a video (cached in the database)."""
+    rows = _video_rows([vid])
+    if vid not in rows:
+        abort(404)
+    v = rows[vid]
+    frames = engine.key_frames(vid, 3)
+    if v["ai_product"]:
+        return v, v["ai_product"], frames
+    images = []
+    for fid in frames:
+        p = os.path.join(THUMB_DIR, f"{fid}.jpg")
+        if os.path.exists(p):
+            with open(p, "rb") as fh:
+                images.append(fh.read())
+    info = {k: val for k, val in (v["meta"] or {}).items() if not re.search(r"联系|电话|微信|网站|日期", k)}
+    if v["title"]:
+        info.setdefault("名称", v["title"])
+    product = openai_helper.describe_product(images, info) if images else None
+    if product:
+        with db() as c:
+            c.execute("UPDATE videos SET ai_product=? WHERE id=?", (json.dumps(product, ensure_ascii=False), vid))
+    return v, product, frames
+
+
+@app.get("/api/videos/<int:vid>/product")
+def product_info(vid):
+    v, product, frames = _product_for(vid)
+    if not product:  # no OpenAI: still offer searches with the table name
+        name = v["title"] or ""
+        product = {"name_zh": name, "name_en": "", "keywords_zh": [name] if name else [], "keywords_en": [], "fallback": True}
+    return jsonify(product=product, links=_search_links(product, frames[len(frames) // 2] if frames else None),
+                   ai=bool(openai_helper.enabled()))
+
+
+_research_lock = threading.Lock()
+
+
+def _run_research(vid, who):
+    try:
+        _, product, _ = _product_for(vid)
+        if not product:
+            raise RuntimeError("no_product")
+        result = openai_helper.research_suppliers(product)
+        result["product"] = product
+        with db() as c:
+            c.execute("UPDATE supplier_research SET status='done', result=?, error=NULL, updated_at=? WHERE video_id=?",
+                      (json.dumps(result, ensure_ascii=False), time.time(), vid))
+    except Exception as e:
+        print("research failed:", e, flush=True)
+        with db() as c:
+            c.execute("UPDATE supplier_research SET status='error', error=?, updated_at=? WHERE video_id=?",
+                      (str(e)[:300], time.time(), vid))
+
+
+@app.post("/api/videos/<int:vid>/research")
+def research_start(vid):
+    if not openai_helper.enabled():
+        return jsonify(error="no_ai"), 400
+    with _research_lock, db() as c:
+        row = c.execute("SELECT status, updated_at FROM supplier_research WHERE video_id=?", (vid,)).fetchone()
+        if row and row["status"] == "running" and time.time() - (row["updated_at"] or 0) < 600:
+            return jsonify(status="running")
+        c.execute("INSERT OR REPLACE INTO supplier_research (video_id, status, result, error, updated_at, requested_by) "
+                  "VALUES (?,?,?,?,?,?)", (vid, "running", None, None, time.time(), session.get("name", "")))
+    threading.Thread(target=_run_research, args=(vid, session.get("name", "")), daemon=True).start()
+    return jsonify(status="running")
+
+
+@app.get("/api/videos/<int:vid>/research")
+def research_get(vid):
+    with db() as c:
+        row = c.execute("SELECT * FROM supplier_research WHERE video_id=?", (vid,)).fetchone()
+    if not row:
+        return jsonify(status="none")
+    d = dict(row)
+    d["result"] = json.loads(d["result"]) if d.get("result") else None
+    if d["status"] == "running" and time.time() - (d["updated_at"] or 0) > 600:
+        d["status"], d["error"] = "error", "timeout"
     return jsonify(d)
 
 

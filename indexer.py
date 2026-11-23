@@ -45,6 +45,9 @@ MINIMUM = float(os.environ.get("MATCH_MINIMUM", "-10"))
 # the vision model is most precise in English, and averaging guards against bad translations.
 TRANSLATE_MODEL = os.environ.get("TRANSLATE_MODEL", "Helsinki-NLP/opus-mt-zh-en")
 _CJK = re.compile(r"[\u3400-\u9fff\uf900-\ufaff]")
+# "Find the same product": video-to-video similarity cut-offs (see Engine.similar).
+SIMILAR_SAME = float(os.environ.get("SIMILAR_SAME", "0.80"))
+SIMILAR_MIN = float(os.environ.get("SIMILAR_MIN", "0.68"))
 # Also drop results far weaker than the best one found.
 RELATIVE_GAP = float(os.environ.get("MATCH_GAP", "2.5"))
 
@@ -163,6 +166,10 @@ def init_db():
             if col.split()[0] not in vcols:
                 c.execute(f"ALTER TABLE videos ADD COLUMN {col}")
         c.execute("CREATE INDEX IF NOT EXISTS videos_source ON videos(source, source_id)")
+        if "ai_product" not in [r["name"] for r in c.execute("PRAGMA table_info(videos)")]:
+            c.execute("ALTER TABLE videos ADD COLUMN ai_product TEXT")
+        c.execute("""CREATE TABLE IF NOT EXISTS supplier_research (
+            video_id INTEGER PRIMARY KEY, status TEXT, result TEXT, error TEXT, updated_at REAL, requested_by TEXT)""")
         c.execute("""CREATE TABLE IF NOT EXISTS lark_sources (
             id INTEGER PRIMARY KEY AUTOINCREMENT, url TEXT NOT NULL, app_token TEXT, table_id TEXT, name TEXT,
             status TEXT DEFAULT 'new', message TEXT, found INTEGER DEFAULT 0, imported INTEGER DEFAULT 0,
@@ -468,6 +475,50 @@ class Engine:
                                           "strength": "strong" if (top >= STRONG or v in text_hits) else "possible",
                                           "frames": sorted(frames, key=lambda f: f["t"])})
         return result
+
+    def similar(self, vid, limit=12, minimum=SIMILAR_MIN):
+        """Videos that look like this one: for each of its frames take the best-matching frame of the
+        other video, then average. Same product filmed twice scores ~0.8+, unrelated ~0.5."""
+        with self._index_lock:
+            mat, fvid, fids, ft = self._matrix, self._frame_video, self._frame_ids, self._frame_t
+        mine = fvid == vid
+        if not mine.any() or len(fvid) == 0:
+            return []
+        A = mat[mine].astype(np.float32)
+        if len(A) > 24:  # plenty to characterise a video
+            A = A[np.linspace(0, len(A) - 1, 24).astype(int)]
+        order = np.argsort(fvid, kind="stable")
+        vs = fvid[order]
+        starts = np.flatnonzero(np.r_[True, vs[1:] != vs[:-1]])
+        sims = A @ mat[order].astype(np.float32).T
+        best = np.maximum.reduceat(sims, starts, axis=1)            # (frames of A) x (videos)
+        score = best.mean(axis=0)
+        video_ids = vs[starts]
+        best_frame = {}
+        col = sims.max(axis=0)
+        for k, start in enumerate(starts):
+            end = starts[k + 1] if k + 1 < len(starts) else len(vs)
+            j = start + int(np.argmax(col[start:end]))
+            best_frame[int(video_ids[k])] = (int(fids[order][j]), float(ft[order][j]))
+        out = []
+        for k in np.argsort(-score):
+            v = int(video_ids[k])
+            if v == vid:
+                continue
+            if score[k] < minimum or len(out) >= limit:
+                break
+            fid, t = best_frame[v]
+            out.append({"id": v, "similarity": round(float(score[k]), 3), "frame_id": fid, "t": t,
+                        "level": "same" if score[k] >= SIMILAR_SAME else "similar"})
+        return out
+
+    def key_frames(self, vid, n=3):
+        """Up to n frame ids spread across the video (for describing the product)."""
+        with self._index_lock:
+            ids = self._frame_ids[self._frame_video == vid]
+        if not len(ids):
+            return []
+        return [int(ids[i]) for i in sorted(set(np.linspace(0, len(ids) - 1, min(n, len(ids))).astype(int)))]
 
     def _text_matches(self, phrases):
         """Videos whose title or Lark table columns contain the request (e.g. a product name)."""

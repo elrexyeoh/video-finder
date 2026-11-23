@@ -10,6 +10,7 @@ Only short text is sent to OpenAI (the request and the reply sentence), never vi
 import hashlib
 import json
 import os
+import re
 import threading
 import time
 import traceback
@@ -198,3 +199,117 @@ def transcribe(audio, filename, mime, lang):
     except Exception as e:
         _failed(e, "transcribe")
         return None
+
+
+PRODUCT_SYSTEM = """You identify products in short supplier/marketing videos for a Malaysian company's sourcing team.
+You get a few frames from one video and, if available, the row from their product table.
+Reply with JSON only:
+{"name_zh": "...", "name_en": "...", "keywords_zh": ["..."], "keywords_en": ["..."], "category_zh": "...",
+ "material": "...", "features_zh": "...", "summary_zh": "..."}
+name_*: the product as a buyer would search for it on 1688 / Alibaba (specific, no brand unless clearly shown).
+keywords_*: 3-6 search phrases, most specific first (type + material + key feature), as used on 1688 (zh) and Alibaba.com (en).
+features_zh: notable specs/features visible or stated (size, material, function), one short sentence. "" if unknown.
+summary_zh: one sentence describing the product for the boss.
+Base it on what is visible plus the table info; don't invent specs."""
+
+
+def describe_product(images, table_info):
+    """images: list of JPEG bytes. -> dict or None."""
+    import base64
+    if not enabled():
+        return None
+    model = _pick_models()["chat"]
+    if not model:
+        return None
+    content = [{"type": "text", "text": "Product table info: " + (json.dumps(table_info, ensure_ascii=False) if table_info else "(none)")}]
+    for im in images[:4]:
+        content.append({"type": "image_url", "image_url": {"url": "data:image/jpeg;base64," + base64.b64encode(im).decode(), "detail": "low"}})
+    payload = {"model": model, "response_format": {"type": "json_object"}, "max_completion_tokens": 600,
+               "messages": [{"role": "system", "content": PRODUCT_SYSTEM}, {"role": "user", "content": content}]}
+    if model.startswith("gpt-5"):
+        payload["reasoning_effort"] = "minimal"
+    try:
+        out = _req("/chat/completions", payload, timeout=40)
+        data = json.loads(out["choices"][0]["message"]["content"])
+    except Exception as e:
+        _failed(e, "describe")
+        return None
+    clean = lambda v, n: [str(x).strip()[:60] for x in (v or []) if str(x).strip()][:n]
+    return {"name_zh": str(data.get("name_zh", ""))[:80], "name_en": str(data.get("name_en", ""))[:80],
+            "keywords_zh": clean(data.get("keywords_zh"), 6), "keywords_en": clean(data.get("keywords_en"), 6),
+            "category_zh": str(data.get("category_zh", ""))[:60], "material": str(data.get("material", ""))[:80],
+            "features_zh": str(data.get("features_zh", ""))[:200], "summary_zh": str(data.get("summary_zh", ""))[:200]}
+
+
+RESEARCH_MODEL_PREFS = [m for m in [os.environ.get("OPENAI_RESEARCH_MODEL")] if m] + ["gpt-4.1", "gpt-4o", "gpt-4.1-mini", "gpt-4o-mini"]
+RESEARCH_PROMPT = """Find real suppliers / manufacturers for this product so a Malaysian buyer can contact them.
+Product: {name_zh} / {name_en}
+Details: {details}
+Search terms to try: {keywords}
+
+Search the web (1688, Alibaba.com, Made-in-China, Global Sources, manufacturers' own sites, Malaysian suppliers).
+Prefer manufacturers/factories and suppliers that sell this exact kind of product. Return 5-10 of the best.
+Reply with ONLY a JSON object (no markdown):
+{{"summary_zh": "<2 sentences in Chinese for the boss: what you found, e.g. 主要产地、大致价格区间>",
+  "suppliers": [{{"name": "<company name, original language>", "location": "<city, country>",
+    "type": "<厂家/贸易商/平台店铺/manufacturer...>", "products": "<what they sell, short>",
+    "price": "<price hint with currency and unit if published, else empty>", "moq": "<minimum order if published>",
+    "url": "<the page you found them on>", "contact": "<public phone/email/WeChat if shown, else empty>",
+    "why_zh": "<one short Chinese sentence: why this matches>"}}]}}
+Only include suppliers you actually found in search results, with their real URL. Never invent contact details."""
+
+
+def research_suppliers(product):
+    """Web research with OpenAI's web search tool. -> dict {summary_zh, suppliers[], sources[]} or raises."""
+    if not enabled():
+        raise RuntimeError("OpenAI is not configured")
+    ids = None
+    try:
+        ids = {m["id"] for m in _req("/models", method="GET").get("data", [])}
+    except Exception:
+        pass
+    model = next((m for m in RESEARCH_MODEL_PREFS if not ids or m in ids), "gpt-4.1-mini")
+    prompt = RESEARCH_PROMPT.format(
+        name_zh=product.get("name_zh", ""), name_en=product.get("name_en", ""),
+        details="; ".join(x for x in [product.get("category_zh"), product.get("material"), product.get("features_zh")] if x) or "-",
+        keywords=", ".join((product.get("keywords_zh") or [])[:3] + (product.get("keywords_en") or [])[:3]))
+    last = None
+    for tool in ("web_search", "web_search_preview"):
+        try:
+            out = _req("/responses", {"model": model, "tools": [{"type": tool}], "input": prompt,
+                                      "max_output_tokens": 3000}, timeout=150)
+            break
+        except urllib.error.HTTPError as e:
+            last = e
+            if e.code != 400:
+                raise RuntimeError(_describe(e))
+    else:
+        raise RuntimeError(_describe(last) if last else "web search unavailable")
+    text, sources = "", []
+    for item in out.get("output", []):
+        for c in item.get("content", []) or []:
+            if c.get("type") == "output_text":
+                text += c.get("text", "")
+                for a in c.get("annotations", []) or []:
+                    if a.get("type") == "url_citation" and a.get("url"):
+                        sources.append({"title": a.get("title", "")[:120], "url": a["url"]})
+    m = re.search(r"\{.*\}", text, re.S)
+    data = {}
+    if m:
+        try:
+            data = json.loads(m.group(0))
+        except ValueError:
+            data = {}
+    sups = []
+    for x in data.get("suppliers", []) if isinstance(data.get("suppliers"), list) else []:
+        if not isinstance(x, dict) or not x.get("name"):
+            continue
+        url = str(x.get("url", ""))
+        sups.append({k: str(x.get(k, ""))[:300] for k in ("name", "location", "type", "products", "price", "moq", "contact", "why_zh")}
+                    | {"url": url if url.startswith("http") else ""})
+    seen, uniq = set(), []
+    for s_ in sources:
+        if s_["url"] not in seen:
+            seen.add(s_["url"]); uniq.append(s_)
+    return {"summary_zh": str(data.get("summary_zh", ""))[:400] or (text[:400] if not sups else ""),
+            "suppliers": sups[:10], "sources": uniq[:12], "model": model}

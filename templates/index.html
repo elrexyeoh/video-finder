@@ -225,6 +225,50 @@ main{padding-top:var(--top)}
 #iosSheet .warn{background:rgba(201,169,97,.14);border:1px solid rgba(201,169,97,.4);border-radius:10px;padding:10px 12px;font-size:14px;margin-top:14px}
 #iosSheet .btn{width:100%}
 
+/* ---------- find the same product / suppliers ---------- */
+.findsup{margin-top:12px;width:100%;height:40px;border-radius:999px;border:1px solid rgba(220,192,128,.55);background:rgba(201,169,97,.12);color:var(--gold-300);font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;gap:8px}
+.findsup svg{width:17px;height:17px}
+#supSheet{background:var(--navy-1000)}
+.sup{display:flex;flex-direction:column;height:100%}
+.sup__top{display:flex;align-items:center;gap:10px;padding:10px 12px;padding-top:max(10px,env(safe-area-inset-top));border-bottom:1px solid var(--line-light)}
+.sup__top .t{flex:1;font-weight:700;font-size:16px}
+.sup__body{flex:1;overflow-y:auto;padding:16px 16px calc(28px + var(--safe));-webkit-overflow-scrolling:touch}
+.sup__hero{display:flex;gap:12px;align-items:flex-start}
+.sup__hero img{width:112px;aspect-ratio:16/9;object-fit:cover;border-radius:6px;flex:none;background:#000}
+.sup__hero h3{margin:0;font-size:16px}
+.sup__hero p{margin:4px 0 0;font-size:13.5px;color:rgba(255,255,255,.72)}
+.sup h4{display:flex;align-items:center;gap:10px;margin:26px 0 10px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-400)}
+.sup h4::after{content:"";flex:1;height:1px;background:var(--line-light)}
+.sup .note{font-size:13px;color:rgba(255,255,255,.55);margin:0 0 10px}
+.scard{border:1px solid var(--line-light);background:rgba(255,255,255,.04);border-radius:10px;padding:12px;margin-bottom:10px}
+.scard.mine{border-color:rgba(220,192,128,.5);background:rgba(201,169,97,.08)}
+.scard .nm{font-weight:700;font-size:15px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.scard .sub{font-size:12.5px;color:rgba(255,255,255,.6);margin-top:2px}
+.scard .desc{font-size:13.5px;color:rgba(255,255,255,.85);margin-top:6px}
+.lvl{font-size:11px;font-weight:800;letter-spacing:.06em;padding:2px 8px;border-radius:999px}
+.lvl.same{background:var(--gold-grad);color:var(--navy-1000)}.lvl.similar{background:rgba(255,255,255,.14);color:#fff}.lvl.mine{background:rgba(255,255,255,.9);color:var(--navy-1000)}
+.acts2{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.acts2 a,.acts2 button{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 14px;border-radius:999px;border:1px solid var(--line-light);background:rgba(255,255,255,.06);color:#fff;font-size:13px;font-weight:600;text-decoration:none}
+.acts2 .call{background:var(--gold-grad);color:var(--navy-1000);border:0}
+.thumbs{display:flex;gap:8px;overflow-x:auto;margin-top:10px;scrollbar-width:none}
+.thumbs button{flex:none;width:104px;padding:0;border:1px solid var(--line-light);border-radius:6px;overflow:hidden;background:#000;position:relative}
+.thumbs img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block}
+.thumbs span{position:absolute;left:4px;bottom:4px;font-size:10.5px;background:rgba(11,31,69,.85);padding:0 5px;border-radius:4px}
+.kw{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}
+.kw span{font-size:12.5px;border:1px solid rgba(220,192,128,.4);color:var(--gold-300);border-radius:999px;padding:2px 10px}
+.plats{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.plats a{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:10px;border:1px solid var(--line-light);background:rgba(255,255,255,.05);color:#fff;text-decoration:none;font-weight:700;font-size:14px}
+.plats a i{width:28px;height:28px;border-radius:7px;display:grid;place-items:center;font-style:normal;font-size:11px;font-weight:900;color:#fff;flex:none}
+.plats a small{display:block;font-weight:500;font-size:11.5px;color:rgba(255,255,255,.55)}
+.deepbtn{width:100%;height:50px;border:0;border-radius:999px;background:var(--gold-grad);color:var(--navy-1000);font-weight:800;font-size:15px;display:flex;align-items:center;justify-content:center;gap:10px}
+.working{display:flex;align-items:center;gap:12px;padding:14px;border:1px dashed rgba(220,192,128,.45);border-radius:10px;color:rgba(255,255,255,.8);font-size:14px}
+.skel{height:14px;border-radius:6px;background:linear-gradient(90deg,rgba(255,255,255,.06),rgba(255,255,255,.14),rgba(255,255,255,.06));background-size:200% 100%;animation:skel 1.2s linear infinite;margin:8px 0}
+@keyframes skel{to{background-position:-200% 0}}
+.sources{margin-top:8px;font-size:12.5px;color:rgba(255,255,255,.6)}
+.sources a{color:var(--gold-300);word-break:break-all}
+.disclaim{font-size:12px;color:rgba(255,255,255,.5);margin-top:10px}
+@media (min-width:900px){ #supSheet{width:min(760px,94vw);height:min(92vh,960px);border-radius:10px} .plats{grid-template-columns:repeat(3,1fr)} }
+
 /* ---------- player ---------- */
 dialog{border:0;padding:0;margin:auto;background:var(--navy-1000);color:#fff;width:100%;max-width:100%;height:100%;max-height:100%}
 dialog::backdrop{background:rgba(5,12,30,.85)}
@@ -276,6 +320,8 @@ dialog::backdrop{background:rgba(5,12,30,.85)}
   <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 15V3m0 0L8 7m4-4 4 4M7 10H5.5A1.5 1.5 0 0 0 4 11.5v8A1.5 1.5 0 0 0 5.5 21h13a1.5 1.5 0 0 0 1.5-1.5v-8a1.5 1.5 0 0 0-1.5-1.5H17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-addsq" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="4" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M12 8v8M8 12h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
   <symbol id="i-phone" viewBox="0 0 24 24"><rect x="6.5" y="2.5" width="11" height="19" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M10.5 18.5h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+  <symbol id="i-factory" viewBox="0 0 24 24"><path d="M3 20V10l5 3V10l5 3V6h4l1 14M3 20h18M7 17h2m3 0h2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   <symbol id="i-out" viewBox="0 0 24 24"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 16l-4-4 4-4M6 12h10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
 </svg>
 
@@ -404,6 +450,13 @@ dialog::backdrop{background:rgba(5,12,30,.85)}
   <button class="btn btn--gold" id="iosOk" data-i18n="ios_ok"></button>
 </dialog>
 
+<dialog id="supSheet">
+  <div class="sup">
+    <div class="sup__top"><button class="iconbtn" id="supClose" data-i18n-aria="cancel"><svg><use href="#i-back"/></svg></button><div class="t" data-i18n="sup_title"></div></div>
+    <div class="sup__body" id="supBody"></div>
+  </div>
+</dialog>
+
 <dialog id="player">
   <div class="pl">
     <div class="pl__top"><div class="t" id="pname"></div><button class="iconbtn" id="pclose"><svg><use href="#i-x"/></svg></button></div>
@@ -411,12 +464,12 @@ dialog::backdrop{background:rgba(5,12,30,.85)}
     <div class="pl__bot">
       <div id="jumpwrap"><div class="lbl" data-i18n="moments"></div><div class="jumps" id="jumps"></div></div>
       <div id="pinfo"></div>
-      <div><a class="btn" id="pdl"><svg><use href="#i-dl"/></svg><span data-i18n="download"></span></a></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn--gold" id="psup"><svg><use href="#i-factory"/></svg><span data-i18n="sup_btn"></span></button><a class="btn" id="pdl"><svg><use href="#i-dl"/></svg><span data-i18n="download"></span></a></div>
     </div>
   </div>
 </dialog>
 
-<script src="/static/i18n.js?v=13"></script>
+<script src="/static/i18n.js?v=14"></script>
 <script>
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -553,6 +606,7 @@ function renderAnswer(body, data, opts) {
     ${!data.videos ? `<div class="ai-actions"><button class="btn btn--gold" data-go="upload"><svg><use href="#i-upload"/></svg>${esc(t('nav_upload'))}</button></div>` : ''}
     <div class="cards">${res.map((v, i) => card(v, id, i)).join('')}</div>`;
   body.querySelectorAll('[data-go]').forEach(b => b.onclick = () => show(b.dataset.go));
+  body.querySelectorAll('[data-sup]').forEach(b => b.onclick = () => openSuppliers(+b.dataset.sup));
   body.querySelectorAll('[data-play]').forEach(b => b.onclick = () => {
     const v = results[b.dataset.set][+b.dataset.i]; play(v.id, v.filename, +b.dataset.t, v.frames);
   });
@@ -570,6 +624,7 @@ function card(v, set, i) {
     <div class="vcard__body"><h3 title="${esc(v.title || v.filename)}">${v.source === 'lark' ? '<span class="tag-lark">Lark</span>' : ''}${esc(v.title || v.filename)}</h3><div class="meta">${meta}</div>
       ${facts(v.meta, v.title)}
       ${v.frames.length > 1 ? `<div class="moments">${v.frames.map(f => `<button class="moment ${f === best ? 'on' : ''}" data-play data-set="${set}" data-i="${i}" data-t="${f.t}"><img src="/thumb/${f.frame_id}" alt="" loading="lazy"><span>▶ ${fmtT(f.t)}</span></button>`).join('')}</div>` : ''}
+      <button class="findsup" data-sup="${v.id}"><svg><use href="#i-factory"/></svg>${esc(t('sup_btn'))}</button>
     </div></article>`;
 }
 
@@ -731,6 +786,7 @@ function play(id, name, at, frames) {
   $('#jumps').innerHTML = fr.map(f => `<button data-t="${f.t}">▶ ${fmtT(f.t)}</button>`).join('');
   $('#jumps').querySelectorAll('button').forEach(b => b.onclick = () => { v.currentTime = Math.max(0, +b.dataset.t - 0.5); v.play(); });
   $('#pinfo').innerHTML = '';
+  $('#psup').onclick = () => { $('#player').close(); openSuppliers(id); };
   api(`/api/videos/${id}`).then(r => r.ok ? r.json() : null).then(d => {
     if (!d) return;
     if (d.title) $('#pname').textContent = d.title;
@@ -856,6 +912,101 @@ function renderLib() {
     if (!r.ok) toast((await r.json()).error || t('cant_delete')); loadLib(); loadStats();
   });
 }
+
+// ---------- find the same product / suppliers ----------
+const PLATS = { '1688': ['1688', '#ff6a00', 'sup_p1688'], taobao: ['淘宝', '#ff5000', 'sup_ptaobao'], alibaba: ['A', '#ff6a00', 'sup_palibaba'],
+  mic: ['MIC', '#c8161e', 'sup_pmic'], lens: ['📷', '#1a73e8', 'sup_plens'], google: ['G', '#4285f4', 'sup_pgoogle'] };
+const PLAT_NAMES = { '1688': '1688', taobao: '淘宝 Taobao', alibaba: 'Alibaba.com', mic: 'Made-in-China', lens: 'Google Lens', google: 'Google' };
+function supplierOf(v) {
+  const m = v.meta || {};
+  return { key: m['公司简介'] || m['视频号'] || v.title || v.filename, name: m['公司简介'] || v.title || v.filename,
+    sub: [m['视频号'] ? t('sup_channel') + ' ' + m['视频号'] : '', m['地区'] || m['公司地址'] || ''].filter(Boolean).join(' · '),
+    contact: m['联系方式'] || '', site: m['网站'] || '', channel: m['视频号'] || '', product: v.title || '' };
+}
+function contactActions(sp) {
+  const out = [], txt = sp.contact || '';
+  const phones = [...new Set((txt.match(/\+?\d[\d\s-]{6,}\d/g) || []).map(x => x.replace(/[\s-]/g, '')).filter(x => x.length >= 7 && x.length <= 15))];
+  phones.slice(0, 2).forEach(ph => out.push(`<a class="call" href="tel:${esc(ph)}">📞 ${esc(t('sup_call'))} ${esc(ph)}</a>`));
+  const wx = txt.match(/(?:微信号?|wechat|vx|wx)\s*[:：]?\s*([A-Za-z][\w-]{4,19})/i);
+  if (wx) out.push(`<button data-copy="${esc(wx[1])}">💬 ${esc(t('sup_copywx'))} ${esc(wx[1])}</button>`);
+  if (sp.site && /^https?:/.test(sp.site)) out.push(`<a href="${esc(sp.site)}" target="_blank" rel="noopener">🌐 ${esc(t('sup_site'))}</a>`);
+  if (sp.channel) out.push(`<button data-copy="${esc(sp.channel)}">${esc(t('sup_copych'))}</button>`);
+  if (!phones.length && !wx && txt) out.push(`<button data-copy="${esc(txt)}">📋 ${esc(t('sup_copycontact'))}</button>`);
+  return out.join('');
+}
+let supVid = null, supPoll = null, supData = {};
+async function openSuppliers(vid) {
+  supVid = vid; clearTimeout(supPoll); stopSpeaking();
+  const body = $('#supBody');
+  body.innerHTML = `<div class="skel" style="width:60%"></div><div class="skel"></div><div class="skel" style="width:80%"></div>`;
+  $('#supSheet').showModal(); body.scrollTop = 0;
+  let sim;
+  try { sim = await (await api(`/api/videos/${vid}/similar`)).json(); } catch { body.innerHTML = `<p class="note">${esc(t('error'))}</p>`; return; }
+  if (supVid !== vid) return;
+  const me = sim.video, mySup = supplierOf(me);
+  // group similar videos by supplier
+  const groups = new Map();
+  for (const v of sim.similar) { const sp = supplierOf(v); if (sp.key === mySup.key) continue;
+    if (!groups.has(sp.key)) groups.set(sp.key, { sp, vids: [], best: v.similarity, level: v.level }); groups.get(sp.key).vids.push(v); }
+  supData = { me, list: sim.similar };
+  const thumbs = vids => `<div class="thumbs">${vids.map(v => `<button data-playv="${v.id}" data-t="${v.t || 0}"><img src="/thumb/${v.frame_id}" alt="" loading="lazy"><span>▶ ${fmtT(v.t || 0)}</span></button>`).join('')}</div>`;
+  const card = (sp, extra, cls = '') => `<div class="scard ${cls}"><div class="nm">${esc(sp.name)}${extra}</div>${sp.sub ? `<div class="sub">${esc(sp.sub)}</div>` : ''}
+      ${sp.product && sp.product !== sp.name ? `<div class="desc">${esc(sp.product)}</div>` : ''}<div class="acts2">${contactActions(sp) || `<span class="sub">${esc(t('sup_nocontact'))}</span>`}</div>`;
+  const libHtml = [...groups.values()].map(g => card(g.sp, `<span class="lvl ${g.level}">${esc(t(g.level === 'same' ? 'sup_same' : 'sup_similar'))}</span>`) + thumbs(g.vids) + '</div>').join('');
+  body.innerHTML = `
+    <div class="sup__hero">${me.cover ? `<img src="/thumb/${me.cover}" alt="">` : ''}<div><h3>${esc(me.title || me.filename)}</h3><p id="supSummary"><span class="skel" style="display:block;width:180px"></span></p></div></div>
+    ${me.meta && (me.meta['联系方式'] || me.meta['公司简介'] || me.meta['视频号']) ? `<h4>${esc(t('sup_this'))}</h4>${card(mySup, `<span class="lvl mine">${esc(t('sup_mine'))}</span>`, 'mine')}</div>` : ''}
+    <h4>${esc(t('sup_lib'))} (${groups.size})</h4>
+    ${groups.size ? `<p class="note">${esc(t('sup_lib_note'))}</p>` + libHtml : `<p class="note">${esc(t('sup_lib_none'))}</p>`}
+    <h4>${esc(t('sup_web'))}</h4><div id="supWeb"><div class="skel"></div><div class="skel" style="width:70%"></div></div>
+    <h4>${esc(t('sup_deep'))}</h4><div id="supDeep"></div>`;
+  bindSupActions(body);
+  // AI product description + platform links
+  api(`/api/videos/${vid}/product`).then(r => r.json()).then(d => {
+    if (supVid !== vid) return;
+    const p = d.product || {};
+    $('#supSummary').textContent = p.summary_zh || p.name_zh || '';
+    const kws = [...(p.keywords_zh || []), ...(p.keywords_en || [])].slice(0, 8);
+    $('#supWeb').innerHTML = `${p.fallback ? `<p class="note">${esc(t('sup_noai'))}</p>` : ''}
+      ${kws.length ? `<div class="kw">${kws.map(k => `<span>${esc(k)}</span>`).join('')}</div>` : ''}
+      <div class="plats">${(d.links || []).map(l => { const [ic, col, sub] = PLATS[l.key] || ['•', '#555', '']; return `<a href="${esc(l.url)}" target="_blank" rel="noopener"><i style="background:${col}">${ic}</i><span>${esc(PLAT_NAMES[l.key] || l.key)}<small>${esc(t(sub))}</small></span></a>`; }).join('')}</div>`;
+  }).catch(() => { $('#supWeb').innerHTML = `<p class="note">${esc(t('error'))}</p>`; });
+  loadDeep(vid, false);
+}
+function bindSupActions(root) {
+  root.querySelectorAll('[data-copy]').forEach(b => b.onclick = async () => { try { await navigator.clipboard.writeText(b.dataset.copy); toast(t('sup_copied')); } catch { prompt(t('sup_copycontact'), b.dataset.copy); } });
+  root.querySelectorAll('[data-playv]').forEach(b => b.onclick = () => { const v = supData.list.find(x => x.id == b.dataset.playv); play(v.id, v.title || v.filename, +b.dataset.t, [{ t: +b.dataset.t, frame_id: v.frame_id }]); });
+}
+async function loadDeep(vid, start) {
+  const box = $('#supDeep'); if (!box || supVid !== vid) return;
+  clearTimeout(supPoll);
+  let d;
+  try { d = start ? await (await api(`/api/videos/${vid}/research`, { method: 'POST' })).json() : await (await api(`/api/videos/${vid}/research`)).json(); }
+  catch { box.innerHTML = `<p class="note">${esc(t('error'))}</p>`; return; }
+  if (d.error === 'no_ai') { box.innerHTML = `<p class="note">${esc(t('sup_noai'))}</p>`; return; }
+  if (d.status === 'running') {
+    box.innerHTML = `<div class="working"><span class="dots"><i></i><i></i><i></i></span>${esc(t('sup_deep_running'))}</div>`;
+    supPoll = setTimeout(() => loadDeep(vid, false), 4000); return;
+  }
+  const btn = (label) => `<button class="deepbtn" id="deepGo"><svg width="18" height="18"><use href="#i-spark"/></svg>${esc(label)}</button>`;
+  if (d.status === 'done' && d.result) {
+    const r = d.result, when = d.updated_at ? new Date(d.updated_at * 1000).toLocaleString(I18N.locale(), { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
+    box.innerHTML = `${r.summary_zh ? `<p class="desc" style="margin:0 0 10px">${esc(r.summary_zh)}</p>` : ''}
+      ${(r.suppliers || []).map(sp => `<div class="scard"><div class="nm">${esc(sp.name)}</div>
+        <div class="sub">${esc([sp.location, sp.type].filter(Boolean).join(' · '))}</div>
+        ${sp.products ? `<div class="desc">${esc(sp.products)}</div>` : ''}
+        ${sp.price || sp.moq ? `<div class="desc" style="color:var(--gold-300)">${esc([sp.price, sp.moq && (t('sup_moq') + ' ' + sp.moq)].filter(Boolean).join(' · '))}</div>` : ''}
+        ${sp.why_zh ? `<div class="sub" style="margin-top:4px">✓ ${esc(sp.why_zh)}</div>` : ''}
+        <div class="acts2">${sp.url ? `<a class="call" href="${esc(sp.url)}" target="_blank" rel="noopener">🔗 ${esc(t('sup_open'))}</a>` : ''}${contactActions({ contact: sp.contact })}</div></div>`).join('') || `<p class="note">${esc(t('sup_deep_none'))}</p>`}
+      ${(r.sources || []).length ? `<details class="sources"><summary>${esc(t('sup_sources'))} (${r.sources.length})</summary>${r.sources.map(s => `<div><a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.title || s.url)}</a></div>`).join('')}</details>` : ''}
+      <p class="disclaim">${esc(t('sup_disclaim'))} ${when ? '· ' + esc(when) : ''}</p>${btn(t('sup_deep_again'))}`;
+  } else {
+    box.innerHTML = `<p class="note">${esc(d.status === 'error' ? t('sup_deep_err') : t('sup_deep_note'))}</p>${btn(t('sup_deep_go'))}`;
+  }
+  bindSupActions(box);
+  $('#deepGo').onclick = () => loadDeep(vid, true);
+}
+$('#supClose').onclick = () => { clearTimeout(supPoll); supVid = null; $('#supSheet').close(); };
 
 // ---------- install the app (PWA) ----------
 function refreshInstall() {
