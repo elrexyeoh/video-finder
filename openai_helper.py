@@ -248,7 +248,10 @@ Details: {details}
 Search terms to try: {keywords}
 
 Search the web (1688, Alibaba.com, Made-in-China, Global Sources, manufacturers' own sites, Malaysian suppliers).
-Prefer manufacturers/factories and suppliers that sell this exact kind of product. Return 5-10 of the best.
+Prefer manufacturers/factories and suppliers that sell this exact kind of product. Return 6-10 of the best, as a mix:
+- at least 3 factories / manufacturers in China (from 1688, Alibaba.com, Made-in-China or their own sites), and
+- up to 4 suppliers or distributors in Malaysia if any exist.
+Put the Chinese factories first. Always include the country in "location".
 Reply with ONLY a JSON object (no markdown):
 {{"summary_zh": "<2 sentences in Chinese for the boss: what you found, e.g. 主要产地、大致价格区间>",
   "suppliers": [{{"name": "<company name, original language>", "location": "<city, country>",
