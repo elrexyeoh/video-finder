@@ -166,13 +166,45 @@ def _video_rows(ids):
     return out
 
 
+SAME_SCORE = float(os.environ.get("SIMILAR_SAME_SCORE", "0.90"))
+SIMILAR_SCORE = float(os.environ.get("SIMILAR_SCORE", "0.80"))
+
+
+def _levels(meta):
+    """Category columns from the Lark table, e.g. {1: '餐饮', 2: '餐饮设备', 3: '商用电器'}."""
+    out = {}
+    for k, v in (meta or {}).items():
+        m = re.match(r"^\s*([一二三四五]|\d)\s*级", k)
+        if m and v:
+            out["一二三四五".index(m.group(1)) + 1 if m.group(1) in "一二三四五" else int(m.group(1))] = v.strip()
+    return out
+
+
 @app.get("/api/videos/<int:vid>/similar")
 def similar_videos(vid):
-    sims = engine.similar(vid)
+    """Visual match, adjusted by the Lark categories: many showroom videos look alike, so the same
+    category raises the score and a different top-level category lowers it."""
+    sims = engine.similar(vid, limit=60, minimum=0.70)
     rows = _video_rows([vid] + [x["id"] for x in sims])
     if vid not in rows:
         abort(404)
-    items = [{**rows[x["id"]], **x} for x in sims if x["id"] in rows]
+    mine = _levels(rows[vid]["meta"])
+    items = []
+    for x in sims:
+        if x["id"] not in rows:
+            continue
+        theirs, adj = _levels(rows[x["id"]]["meta"]), 0.0
+        if mine and theirs:
+            if mine.get(1) and theirs.get(1) and mine[1] != theirs[1]:
+                adj -= 0.06
+            else:
+                adj += sum(w for lvl, w in ((1, .02), (2, .03), (3, .04)) if mine.get(lvl) and mine.get(lvl) == theirs.get(lvl))
+        score = x["similarity"] + adj
+        if score < SIMILAR_SCORE:
+            continue
+        items.append({**rows[x["id"]], **x, "score": round(score, 3), "level": "same" if score >= SAME_SCORE else "similar"})
+    items.sort(key=lambda it: -it["score"])
+    items = items[:12]
     for it in items:
         it.pop("ai_product", None)
     me = rows[vid]
