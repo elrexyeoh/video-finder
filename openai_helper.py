@@ -248,7 +248,7 @@ Details: {details}
 Search terms to try: {keywords}
 
 Search the web (1688, Alibaba.com, Made-in-China, Global Sources, manufacturers' own sites, Malaysian suppliers).
-Prefer manufacturers/factories and suppliers that sell this exact kind of product. Return 6-10 of the best, as a mix:
+Prefer manufacturers/factories and suppliers that sell this exact kind of product. Return 6-10 different companies (one entry per company), as a mix:
 - at least 3 factories / manufacturers in China (from 1688, Alibaba.com, Made-in-China or their own sites), and
 - up to 4 suppliers or distributors in Malaysia if any exist.
 Put the Chinese factories first. Always include the country in "location".
@@ -310,6 +310,18 @@ def research_suppliers(product):
         url = str(x.get("url", ""))
         sups.append({k: str(x.get(k, ""))[:300] for k in ("name", "location", "type", "products", "price", "moq", "contact", "why_zh")}
                     | {"url": url if url.startswith("http") else ""})
+    # one card per company: drop further entries from the same website or with the same name
+    from urllib.parse import urlparse
+    kept, seen_keys = [], set()
+    for x in sups:
+        host = urlparse(x["url"]).netloc.lower().removeprefix("www.") if x["url"] else ""
+        name = re.sub(r"\s+[-–—|]\s+.*$|\s*[（(].*$", "", x["name"]).strip().lower()
+        keys = {k for k in (host, name) if k}
+        if keys & seen_keys:
+            continue
+        seen_keys |= keys
+        kept.append(x)
+    sups = kept
     seen, uniq = set(), []
     for s_ in sources:
         if s_["url"] not in seen:
