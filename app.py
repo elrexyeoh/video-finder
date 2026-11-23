@@ -37,6 +37,9 @@ app.config.update(
 engine.start()
 import lark_sync  # noqa: E402  (needs the database set up by engine.start)
 
+with db() as _c:  # supplier searches cut off by a restart/update: let people retry straight away
+    _c.execute("UPDATE supplier_research SET status='error', error='interrupted' WHERE status='running'")
+
 lark_sync.start()
 
 
