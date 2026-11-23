@@ -262,6 +262,43 @@ Reply with ONLY a JSON object (no markdown):
 Only include suppliers you actually found in search results, with their real URL. Never invent contact details."""
 
 
+def _loose_json(text):
+    """Find the supplier JSON object inside a reply that may have code fences, citations or extra text."""
+    t = re.sub(r"```(?:json)?", "", text)
+    t = re.sub(r"【[^】]*】", "", t)  # citation marks some models insert
+    dec = json.JSONDecoder()
+    i = t.find("{")
+    while i != -1:
+        try:
+            obj, _ = dec.raw_decode(t[i:])
+            if isinstance(obj, dict) and ("suppliers" in obj or "summary_zh" in obj):
+                return obj
+        except ValueError:
+            pass
+        i = t.find("{", i + 1)
+    return None
+
+
+def _repair_json(text):
+    """Last resort: ask the chat model to restate the research reply in the expected JSON format."""
+    model = _pick_models()["chat"]
+    if not model:
+        return None
+    payload = {"model": model, "response_format": {"type": "json_object"}, "max_completion_tokens": 4000, "messages": [
+        {"role": "system", "content": "Convert the supplier research below into JSON exactly like: "
+         '{"summary_zh": "...", "suppliers": [{"name": "", "location": "", "type": "", "products": "", "price": "", '
+         '"moq": "", "url": "", "contact": "", "why_zh": ""}]}. Keep only information present in the text; never invent.'},
+        {"role": "user", "content": text[:20000]}]}
+    if model.startswith("gpt-5"):
+        payload["reasoning_effort"] = "minimal"
+    try:
+        out = _req("/chat/completions", payload, timeout=60)
+        return json.loads(out["choices"][0]["message"]["content"])
+    except Exception as e:
+        _failed(e, "repair")
+        return None
+
+
 def research_suppliers(product):
     """Web research with OpenAI's web search tool. -> dict {summary_zh, suppliers[], sources[]} or raises."""
     if not enabled():
@@ -280,7 +317,7 @@ def research_suppliers(product):
     for tool in ("web_search", "web_search_preview"):
         try:
             out = _req("/responses", {"model": model, "tools": [{"type": tool}], "input": prompt,
-                                      "max_output_tokens": 3000}, timeout=150)
+                                      "max_output_tokens": 8000}, timeout=150)
             break
         except urllib.error.HTTPError as e:
             last = e
@@ -296,13 +333,11 @@ def research_suppliers(product):
                 for a in c.get("annotations", []) or []:
                     if a.get("type") == "url_citation" and a.get("url"):
                         sources.append({"title": a.get("title", "")[:120], "url": a["url"]})
-    m = re.search(r"\{.*\}", text, re.S)
-    data = {}
-    if m:
-        try:
-            data = json.loads(m.group(0))
-        except ValueError:
-            data = {}
+    data = _loose_json(text)
+    if data is None and text.strip():
+        print("research reply was not clean JSON; repairing. Raw start:", text[:600].replace("\n", " "), flush=True)
+        data = _repair_json(text)
+    data = data or {}
     sups = []
     for x in data.get("suppliers", []) if isinstance(data.get("suppliers"), list) else []:
         if not isinstance(x, dict) or not x.get("name"):
